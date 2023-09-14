@@ -13,6 +13,7 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.GameMap;
+import me.bcawley1.rootwars.Generator;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -24,10 +25,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 public class LoadCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if(command.getName().equalsIgnoreCase("load")){
-            File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/test.schem");
+            /*File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/test.schem");
             ClipboardFormat format = ClipboardFormats.findByFile(myfile);
             ClipboardReader reader = null;
             try {
@@ -52,7 +54,10 @@ public class LoadCommand implements CommandExecutor {
 
             GameMap testMap = new GameMap("team");
             System.out.println(String.valueOf(testMap.getSpawnPointLocation("red").getX()));
-            Bukkit.broadcastMessage(String.valueOf(testMap.getSpawnPointLocation("red").getX()));
+            Bukkit.broadcastMessage(String.valueOf(testMap.getSpawnPointLocation("red").getX()));*/
+
+            new Generator();
+
             return true;
         } else {
             return false;

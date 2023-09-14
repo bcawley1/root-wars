@@ -1,6 +1,7 @@
 package me.bcawley1.rootwars.commands;
 
 import me.bcawley1.rootwars.Generator;
+import me.bcawley1.rootwars.GeneratorItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +43,7 @@ public class GeneratorCommand implements CommandExecutor, TabExecutor {
                 }
                 Location location = new Location(Bukkit.getWorld("world"), x, y, z);
                 if (on && !Generator.containsGenerator(location)) {
-                    new Generator(plugin, x, y, z, new ItemStack(Material.IRON_INGOT), 20);
+                    new Generator(plugin, x, y, z, 20, new ArrayList<GeneratorItem>(List.of(new GeneratorItem(new ItemStack(Material.IRON_INGOT),100))));
                 } else if (!on && Generator.containsGenerator(location)) {
                     Generator.removeGenerator(location);
                 } else if (on && Generator.containsGenerator(location)) {
