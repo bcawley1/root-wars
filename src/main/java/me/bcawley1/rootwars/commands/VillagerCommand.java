@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.jetbrains.annotations.NotNull;
 
 public class VillagerCommand implements CommandExecutor {
@@ -25,7 +26,11 @@ public class VillagerCommand implements CommandExecutor {
                 } catch (Exception e) {
                     return false;
                 }
-                world.spawnEntity(new Location(world, x, y, z), EntityType.VILLAGER);
+                Villager villager = (Villager) world.spawnEntity(new Location(world, x, y, z), EntityType.VILLAGER);
+                villager.setGravity(false);
+                villager.setInvulnerable(true);
+                villager.setPersistent(true);
+                villager.setAI(false);
                 return true;
             }
         }

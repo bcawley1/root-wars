@@ -3,6 +3,8 @@ package me.bcawley1.rootwars;
 import me.bcawley1.rootwars.commands.GeneratorCommand;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
+import me.bcawley1.rootwars.events.ClickEvent;
+import me.bcawley1.rootwars.events.EntityInteractEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
@@ -19,6 +21,9 @@ public final class RootWars extends JavaPlugin {
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand());
         getCommand("Villager").setExecutor(new VillagerCommand());
+
+        getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
+        getServer().getPluginManager().registerEvents(new ClickEvent(), this);
 
         JSONObject generator = new JSONObject();
         generator.put("x", 0);
