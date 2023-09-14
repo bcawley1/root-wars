@@ -19,7 +19,7 @@ public final class RootWars extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
-        getCommand("Load").setExecutor(new LoadCommand());
+        getCommand("Load").setExecutor(new LoadCommand(this));
         getCommand("Villager").setExecutor(new VillagerCommand());
 
         getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);

@@ -14,17 +14,28 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.GameMap;
 import me.bcawley1.rootwars.Generator;
+import me.bcawley1.rootwars.GeneratorItem;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadCommand implements CommandExecutor {
+    JavaPlugin plugin;
+
+    public LoadCommand(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -56,7 +67,10 @@ public class LoadCommand implements CommandExecutor {
             System.out.println(String.valueOf(testMap.getSpawnPointLocation("red").getX()));
             Bukkit.broadcastMessage(String.valueOf(testMap.getSpawnPointLocation("red").getX()));*/
 
-            new Generator();
+            List<GeneratorItem> items = new ArrayList<>();
+            items.add(new GeneratorItem(new ItemStack(Material.IRON_INGOT), 50));
+            items.add(new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 50));
+            new Generator(plugin, 0, 20, 0, items, 20);
 
             return true;
         } else {
