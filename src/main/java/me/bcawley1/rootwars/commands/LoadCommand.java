@@ -70,7 +70,7 @@ public class LoadCommand implements CommandExecutor {
             List<GeneratorItem> items = new ArrayList<>();
             items.add(new GeneratorItem(new ItemStack(Material.IRON_INGOT), 50));
             items.add(new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 50));
-            new Generator(plugin, 0, 20, 0, items, 20);
+            new Generator(plugin, 0, 20, 0, 20, items);
 
             return true;
         } else {
