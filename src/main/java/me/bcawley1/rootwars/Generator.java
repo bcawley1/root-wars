@@ -21,7 +21,7 @@ public class Generator {
         Location location = new Location(world, x, y, z);
         Location locationoffset = new Location(world, x+0.5, y, z+0.5);
         taskIDs.put(location, Bukkit.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            world.dropItem(location, item);
+            world.dropItem(locationoffset, item);
         }, 0, 20).getTaskId());
     }
 
