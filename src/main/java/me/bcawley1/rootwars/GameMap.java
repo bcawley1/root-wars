@@ -107,4 +107,15 @@ public class GameMap {
 
         return genFormatted;
     }
+    public Location getMapSpawnPoint(){
+        return(new Location(Bukkit.getWorld("world"), mapLocations.get("spawnBlock").get("x"), mapLocations.get("spawnBlock").get("y"), mapLocations.get("spawnBlock").get("z")));
+    }
+    public Map<String, Integer> getMapBorder(){
+        Map<String, Integer> borders = new HashMap<>();
+        borders.put("posX", Math.toIntExact(mapLocations.get("positiveXBorder").get("x")));
+        borders.put("negX", Math.toIntExact(mapLocations.get("negativeXBorder").get("x")));
+        borders.put("posZ", Math.toIntExact(mapLocations.get("positiveYBorder").get("y")));
+        borders.put("negZ", Math.toIntExact(mapLocations.get("positiveYBorder").get("y")));
+        return borders;
+    }
 }
