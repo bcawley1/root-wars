@@ -8,6 +8,7 @@ import me.bcawley1.rootwars.events.EntityInteractEvent;
 import me.bcawley1.rootwars.events.PickupEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -76,14 +77,31 @@ public final class RootWars extends JavaPlugin {
         bases.put("green", teamBaseLocs);
         bases.put("yellow", teamBaseLocs);
 
+        JSONArray generatorList = new JSONArray();
+        generatorList.add(generator);
+        generatorList.add(generator);
+
         JSONObject generators = new JSONObject();
-        generators.put("diamond1", generator);
-        generators.put("diamond2", generator);
-        generators.put("emerald", generator);
+        generators.put("diamond", generatorList);
+        generators.put("emerald", generatorList);
+
+        JSONObject test = new JSONObject();
+        test.put("x", 0);
+        JSONObject testY = new JSONObject();
+        test.put("y", 0);
+
+        JSONObject locations = new JSONObject();
+        locations.put("negativeXBorder", test);
+        locations.put("positiveXBorder", test);
+        locations.put("negativeYBorder", testY);
+        locations.put("positiveYBorder", testY);
+        locations.put("spawnBlock", generator);
+
 
         JSONObject mapData = new JSONObject();
         mapData.put("bases",bases);
         mapData.put("generators", generators);
+        mapData.put("mapLocations", locations);
 
 
         try (FileWriter file = new FileWriter(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/team.json"))) {

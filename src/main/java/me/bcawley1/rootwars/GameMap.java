@@ -18,7 +18,8 @@ import java.util.Map;
 public class GameMap {
     private static Map<String, GameMap> maps = new HashMap<>();
     private Map<String, Map<String, Map<String, Long>>> bases;
-    private Map<String, Map<String, Long>> generators;
+    private Map<String, List<Map<String, Long>>> generators;
+    private Map<String, Map<String, Long>> mapLocations;
     private ItemStack map = new ItemStack(Material.FILLED_MAP);
     private String mapName;
 
@@ -37,6 +38,7 @@ public class GameMap {
 
             bases = (JSONObject) JSONObj.get("bases");
             generators = (JSONObject) JSONObj.get("generators");
+            mapLocations = (JSONObject) JSONObj.get("mapLocations");
         } catch (Exception e) {
             System.out.println("------------------------");
             e.printStackTrace();
@@ -85,6 +87,8 @@ public class GameMap {
         return new Location(Bukkit.getWorld("world"),locationMap.get("x"),locationMap.get("y"),locationMap.get("z"));
     }
     public List<Location> getDiamondGeneratorLocations(){
+        return generators.get("diamond");
+
         Map<String, Long> locationMap1 = generators.get("diamond1");
         Map<String, Long> locationMap2 = generators.get("diamond2");
         List<Location> generators = new ArrayList<>();
