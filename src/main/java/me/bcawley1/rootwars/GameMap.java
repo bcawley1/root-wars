@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapView;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -87,17 +88,23 @@ public class GameMap {
         return new Location(Bukkit.getWorld("world"),locationMap.get("x"),locationMap.get("y"),locationMap.get("z"));
     }
     public List<Location> getDiamondGeneratorLocations(){
-        return generators.get("diamond");
+        List<Map<String, Long>> genList = generators.get("diamond");
+        List<Location> genFormatted = new ArrayList<>();
 
-        Map<String, Long> locationMap1 = generators.get("diamond1");
-        Map<String, Long> locationMap2 = generators.get("diamond2");
-        List<Location> generators = new ArrayList<>();
-        generators.add(new Location(Bukkit.getWorld("world"),locationMap1.get("x"),locationMap1.get("y"),locationMap1.get("z")));
-        generators.add(new Location(Bukkit.getWorld("world"),locationMap2.get("x"),locationMap2.get("y"),locationMap2.get("z")));
-        return generators;
+        genList.forEach(map -> {
+            genFormatted.add(new Location(Bukkit.getWorld("world"),map.get("x"),map.get("y"),map.get("z")));
+        });
+
+        return genFormatted;
     }
-    public Location getEmeraldGeneratorLocations(){
-        Map<String, Long> locationMap = generators.get("emerald");
-        return new Location(Bukkit.getWorld("world"),locationMap.get("x"),locationMap.get("y"),locationMap.get("z"));
+    public List<Location> getEmeraldGeneratorLocations(){
+        List<Map<String, Long>> genList = generators.get("emerald");
+        List<Location> genFormatted = new ArrayList<>();
+
+        genList.forEach(map -> {
+            genFormatted.add(new Location(Bukkit.getWorld("world"),map.get("x"),map.get("y"),map.get("z")));
+        });
+
+        return genFormatted;
     }
 }
