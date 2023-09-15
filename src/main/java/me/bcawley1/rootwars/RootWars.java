@@ -31,6 +31,8 @@ public final class RootWars extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
         getServer().getPluginManager().registerEvents(new PickupEvent(), this);
 
+        generateJSON();
+        System.out.println(GameMap.getMaps().get("greenery").getDiamondGeneratorLocations().get(0).getX());
 
 
 
@@ -87,14 +89,14 @@ public final class RootWars extends JavaPlugin {
 
         JSONObject test = new JSONObject();
         test.put("x", 0);
-        JSONObject testY = new JSONObject();
-        test.put("y", 0);
+        JSONObject testZ = new JSONObject();
+        testZ.put("z", 0);
 
         JSONObject locations = new JSONObject();
         locations.put("negativeXBorder", test);
         locations.put("positiveXBorder", test);
-        locations.put("negativeYBorder", testY);
-        locations.put("positiveYBorder", testY);
+        locations.put("negativeYBorder", testZ);
+        locations.put("positiveYBorder", testZ);
         locations.put("spawnBlock", generator);
 
 
