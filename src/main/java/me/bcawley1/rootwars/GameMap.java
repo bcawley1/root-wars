@@ -2,19 +2,29 @@ package me.bcawley1.rootwars;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapView;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GameMap {
+    private static Map<String, GameMap> maps = new HashMap<>();
     private Map<String, Map<String, Map<String, Long>>> bases;
     private Map<String, Map<String, Long>> generators;
+    private ItemStack map = new ItemStack(Material.FILLED_MAP);
+    private String mapName;
 
     public GameMap(String mapName) {
+        this.mapName = mapName;
+        this.renderMap();
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
         try (FileReader reader = new FileReader(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.json".formatted(mapName))) {
@@ -31,7 +41,33 @@ public class GameMap {
             System.out.println("------------------------");
             e.printStackTrace();
         }
+        maps.put(mapName,this);
     }
+
+    private void renderMap(){
+        MapMeta mapMeta = (MapMeta) map.getItemMeta();
+        MapView mapView = Bukkit.createMap(Bukkit.getWorld("world"));
+
+        mapView.getRenderers().clear();
+        mapView.addRenderer(new MapImageRenderer(mapName));
+
+        mapMeta.setDisplayName(this.getMapName());
+        mapMeta.setMapView(mapView);
+        map.setItemMeta(mapMeta);
+    }
+
+    public ItemStack getMap() {
+        return map;
+    }
+
+    public static Map<String, GameMap> getMaps() {
+        return maps;
+    }
+
+    public String getMapName() {
+        return "%s%s".formatted(mapName.substring(0,1).toUpperCase(), mapName.substring(1));
+    }
+
     public Location getSpawnPointLocation(String team){
         Map<String, Long> locationMap = bases.get(team).get("spawnPoint");
         return new Location(Bukkit.getWorld("world"),locationMap.get("x"),locationMap.get("y"),locationMap.get("z"));

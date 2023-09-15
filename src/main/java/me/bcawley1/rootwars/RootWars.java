@@ -5,6 +5,7 @@ import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
 import me.bcawley1.rootwars.events.ClickEvent;
 import me.bcawley1.rootwars.events.EntityInteractEvent;
+import me.bcawley1.rootwars.events.PickupEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
@@ -17,14 +18,32 @@ public final class RootWars extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        new GameMap("greenery");
+        new GameMap("johnpork");
+        new GameMap("grimace");
+        // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
         getCommand("Villager").setExecutor(new VillagerCommand());
-
+        // Registers Event Listeners
         getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
+        getServer().getPluginManager().registerEvents(new PickupEvent(), this);
 
+
+
+
+
+
+
+    }
+
+    @Override
+    public void onDisable() {
+        // Plugin shutdown logic
+    }
+
+    public void generateJSON() {
         JSONObject generator = new JSONObject();
         generator.put("x", 0);
         generator.put("y", 0);
@@ -90,12 +109,5 @@ public final class RootWars extends JavaPlugin {
             //Iterate over employee array
 
         } catch (Exception ignored) {}*/
-
-
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
     }
 }
