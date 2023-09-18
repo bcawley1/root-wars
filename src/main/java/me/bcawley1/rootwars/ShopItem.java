@@ -2,12 +2,14 @@ package me.bcawley1.rootwars;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class ShopItem {
     private Material buyItem;
@@ -18,16 +20,31 @@ public class ShopItem {
     private int invSlot;
     private boolean giveListedItem;
     private static Map<ItemStack, ShopItem> ShopItems = new HashMap<>();
+    private BiConsumer<Player, ShopItem> onClick;
 
-    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot, boolean giveBuyItem) {
-        this.giveListedItem = giveBuyItem;
+    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot, BiConsumer<Player, ShopItem> onClick) {
         this.invSlot = invSlot;
         this.buyItem = buyItem;
         this.costItem = costItem;
         this.costAmount = costAmount;
         this.name = name;
         this.buyAmount = buyAmount;
+        this.onClick = onClick;
         ShopItems.put(this.getShopItem(), this);
+    }
+    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot) {
+        this(buyItem, buyAmount, costItem, costAmount, name, invSlot, (p, i) -> {
+            if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+                p.getInventory().removeItem(i.getCostItem());
+                p.getInventory().addItem(i.getPurchasedItem());
+            } else {
+                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+            }
+        });
+    }
+
+    public void onItemClick(Player p){
+        onClick.accept(p, this);
     }
 
     public int getInvSlot() {

@@ -17,14 +17,7 @@ public class ClickEvent implements Listener {
         Player player = (Player) event.getWhoClicked();
         if(event.getView().getOriginalTitle().equalsIgnoreCase("Quick Buy")) {
             if (ShopItem.hasShopItem(event.getCurrentItem())) {
-                if (player.getInventory().containsAtLeast(ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem(), ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem().getAmount())) {
-                    if (ShopItem.getShopItemFromItem(event.getCurrentItem()).doesGiveListedItem()) {
-                        player.getInventory().removeItem(ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem());
-                        player.getInventory().addItem(ShopItem.getShopItemFromItem(event.getCurrentItem()).getPurchasedItem());
-                    }
-                } else {
-                    event.getWhoClicked().sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
-                }
+                ShopItem.getShopItemFromItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
             }
             event.setCancelled(true);
         }

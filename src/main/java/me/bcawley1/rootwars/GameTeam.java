@@ -61,36 +61,36 @@ public class GameTeam {
 
 
         if(name.equalsIgnoreCase("red")){
-            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19, true));
+            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
         } else if(name.equalsIgnoreCase("blue")){
-            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19, true));
+            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
         } else if(name.equalsIgnoreCase("yellow")){
-            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19, true));
+            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
         } else if(name.equalsIgnoreCase("green")){
-            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19, true));
+            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
         }
-        itemStoreItems.add(new ShopItem(Material.STONE_SWORD, 1, Material.IRON_INGOT, 10, "Stone Sword", 20, true));
-        itemStoreItems.add(new ShopItem(Material.CHAINMAIL_BOOTS, 1, Material.IRON_INGOT, 24, "Permanent Chainmail Armor", 21, false));
-        itemStoreItems.add(new ShopItem(Material.GLASS, 4, Material.IRON_INGOT, 12, "Glass",22, true));
-        itemStoreItems.add(new ShopItem(Material.LADDER, 8, Material.IRON_INGOT, 4, "Ladder",23, true));
-        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 1, "Speed II Potion",24, false));
-        itemStoreItems.add(new ShopItem(Material.ENDER_PEARL, 1, Material.EMERALD, 4, "Ender Pearl",25, true));
+        itemStoreItems.add(new ShopItem(Material.STONE_SWORD, 1, Material.IRON_INGOT, 10, "Stone Sword", 20));
+        itemStoreItems.add(new ShopItem(Material.CHAINMAIL_BOOTS, 1, Material.IRON_INGOT, 24, "Permanent Chainmail Armor", 21));
+        itemStoreItems.add(new ShopItem(Material.GLASS, 4, Material.IRON_INGOT, 12, "Glass",22));
+        itemStoreItems.add(new ShopItem(Material.LADDER, 8, Material.IRON_INGOT, 4, "Ladder",23));
+        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 1, "Speed II Potion",24));
+        itemStoreItems.add(new ShopItem(Material.ENDER_PEARL, 1, Material.EMERALD, 4, "Ender Pearl",25));
 
-        itemStoreItems.add(new ShopItem(Material.OAK_PLANKS, 16, Material.GOLD_INGOT, 4, "Planks",28, true));
-        itemStoreItems.add(new ShopItem(Material.IRON_SWORD, 1, Material.IRON_INGOT, 7, "Iron Sword",29, true));
-        itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30, false));
-        itemStoreItems.add(new ShopItem(Material.BOW, 1, Material.GOLD_INGOT, 12, "Bow",31, true));
-        itemStoreItems.add(new ShopItem(Material.FIRE_CHARGE, 1, Material.IRON_INGOT, 40, "Fireball",32, true));
-        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 2, "Invisibility Potion",33, false));
-        itemStoreItems.add(new ShopItem(Material.WATER_BUCKET, 1, Material.GOLD_INGOT, 3, "Water Bucket",34, true));
+        itemStoreItems.add(new ShopItem(Material.OAK_PLANKS, 16, Material.GOLD_INGOT, 4, "Planks",28));
+        itemStoreItems.add(new ShopItem(Material.IRON_SWORD, 1, Material.IRON_INGOT, 7, "Iron Sword",29));
+        itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30));
+        itemStoreItems.add(new ShopItem(Material.BOW, 1, Material.GOLD_INGOT, 12, "Bow",31));
+        itemStoreItems.add(new ShopItem(Material.FIRE_CHARGE, 1, Material.IRON_INGOT, 40, "Fireball",32));
+        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 2, "Invisibility Potion",33));
+        itemStoreItems.add(new ShopItem(Material.WATER_BUCKET, 1, Material.GOLD_INGOT, 3, "Water Bucket",34));
 
-        itemStoreItems.add(new ShopItem(Material.STICK, 1, Material.GOLD_INGOT, 5, "Knockback Stick",37, true));
-        itemStoreItems.add(new ShopItem(Material.SHEARS, 1, Material.IRON_INGOT, 20, "Shears",38, true));
-        itemStoreItems.add(new ShopItem(Material.WOODEN_PICKAXE, 1, Material.IRON_INGOT, 20, "Wooden Pickaxe",39, true));
-        itemStoreItems.add(new ShopItem(Material.END_STONE, 12, Material.IRON_INGOT, 24, "End Stone",40, true));
-        itemStoreItems.add(new ShopItem(Material.IRON_GOLEM_SPAWN_EGG, 1, Material.IRON_INGOT, 120, "Dream :) Defender",41, true));
-        itemStoreItems.add(new ShopItem(Material.WOODEN_AXE, 1, Material.IRON_INGOT, 12, "Wooden Axe",42, true));
-        itemStoreItems.add(new ShopItem(Material.GOLDEN_APPLE, 1, Material.GOLD_INGOT, 3, "Golden Apple",43, true));
+        itemStoreItems.add(new ShopItem(Material.STICK, 1, Material.GOLD_INGOT, 5, "Knockback Stick",37));
+        itemStoreItems.add(new ShopItem(Material.SHEARS, 1, Material.IRON_INGOT, 20, "Shears",38));
+        itemStoreItems.add(new ShopItem(Material.WOODEN_PICKAXE, 1, Material.IRON_INGOT, 20, "Wooden Pickaxe",39));
+        itemStoreItems.add(new ShopItem(Material.END_STONE, 12, Material.IRON_INGOT, 24, "End Stone",40));
+        itemStoreItems.add(new ShopItem(Material.IRON_GOLEM_SPAWN_EGG, 1, Material.IRON_INGOT, 120, "Dream :) Defender",41));
+        itemStoreItems.add(new ShopItem(Material.WOODEN_AXE, 1, Material.IRON_INGOT, 12, "Wooden Axe",42));
+        itemStoreItems.add(new ShopItem(Material.GOLDEN_APPLE, 1, Material.GOLD_INGOT, 3, "Golden Apple",43));
 
 
 
