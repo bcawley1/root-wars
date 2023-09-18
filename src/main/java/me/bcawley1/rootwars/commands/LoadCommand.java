@@ -1,7 +1,6 @@
 package me.bcawley1.rootwars.commands;
 
-import me.bcawley1.rootwars.GameMap;
-import org.bukkit.Bukkit;
+import me.bcawley1.rootwars.Vote;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -54,9 +53,11 @@ public class LoadCommand implements CommandExecutor {
             items.add(new GeneratorItem(new ItemStack(Material.EMERALD), 5));
             new Generator(plugin, 0, 20, 0, 20, items);*/
 
-            for(GameMap map : GameMap.getMaps().values()){
+            /*for(GameMap map : GameMap.getMaps().values()){
                 Bukkit.getPlayer("bcawley1").getInventory().addItem(map.getMap());
-            }
+            }*/
+            Vote.startVoting(plugin);
+
 
             return true;
         } else {

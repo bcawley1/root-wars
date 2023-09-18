@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapImageRenderer extends MapRenderer {
-    private static Map<String, Boolean> renderedMaps = new HashMap<>();
+    public static Map<String, Boolean> renderedMaps = new HashMap<>();
     private String imageName;
 
     public MapImageRenderer(String imageName) {
@@ -25,14 +25,14 @@ public class MapImageRenderer extends MapRenderer {
 
     @Override
     public void render(@NotNull MapView mapView, @NotNull MapCanvas mapCanvas, @NotNull Player player) {
-        Image image = null;
-        try {
-            image = ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.jpg".formatted(imageName)));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(!renderedMaps.containsKey(imageName)){
+            Image image = null;
+            try {
+                image = ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.jpg".formatted(imageName)));
+            } catch (IOException ignored) {}
+            renderedMaps.put(imageName, true);
+            mapCanvas.drawImage(0, 0, MapPalette.resizeImage(image));
         }
-        mapCanvas.drawImage(0, 0, MapPalette.resizeImage(image));
-        renderedMaps.put(imageName, true);
 
         //mapCanvas.drawImage(ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/greenery.jpg")));
     }

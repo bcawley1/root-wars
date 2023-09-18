@@ -3,10 +3,10 @@ package me.bcawley1.rootwars;
 import me.bcawley1.rootwars.commands.GeneratorCommand;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
-import me.bcawley1.rootwars.events.ClickEvent;
-import me.bcawley1.rootwars.events.EntityInteractEvent;
-import me.bcawley1.rootwars.events.PickupEvent;
+import me.bcawley1.rootwars.events.*;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -14,14 +14,25 @@ import org.json.simple.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class RootWars extends JavaPlugin {
-
+    static Map<String, GameTeam> teams = new HashMap<>();
     @Override
     public void onEnable() {
         new GameMap("greenery");
         new GameMap("johnpork");
-        new GameMap("grimace");
+        /*new GameMap("grimace");
+        new GameMap("test1");
+        new GameMap("test2");
+        new GameMap("test3");
+        new GameMap("test4");
+        new GameMap("test5");
+        new GameMap("test6");*/
+        //new GameMap("grimace");
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
@@ -30,12 +41,11 @@ public final class RootWars extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
         getServer().getPluginManager().registerEvents(new PickupEvent(), this);
+        getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
+        getServer().getPluginManager().registerEvents(new DeathEvent(), this);
+        DeathEvent.setPlugin(this);
 
         generateJSON();
-        System.out.println(GameMap.getMaps().get("greenery").getDiamondGeneratorLocations().get(0).getX());
-
-
-
 
 
 
@@ -46,7 +56,46 @@ public final class RootWars extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public void generateJSON() {
+    public static void startGame(GameMap map, JavaPlugin plugin){
+        teams.put("red", new GameTeam(map, "red", plugin));
+        teams.put("blue", new GameTeam(map, "blue", plugin));
+        teams.put("green", new GameTeam(map, "green", plugin));
+        teams.put("yellow", new GameTeam(map, "yellow", plugin));
+
+        String[] teamColors = {"red", "blue", "yellow", "green"};
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        for(int i = 0; i < players.size(); i++){
+            teams.get(teamColors[i%4]).addPlayer(players.get(i));
+        }
+
+        map.buildMap();
+        Bukkit.getWorld("world").getEntities().forEach(entity -> {
+            if(entity.getType().equals(EntityType.VILLAGER)){
+                entity.remove();
+            } else if(entity.getType().equals(EntityType.DROPPED_ITEM)){
+                entity.remove();
+            }
+        });
+
+        for(GameTeam team : teams.values()){
+            team.spawnVillagers();
+            for(Player p : team.getPlayersInTeam()){
+                team.respawnPlayer(p);
+            }
+        }
+
+
+    }
+    public static GameTeam getTeamFromPlayer(Player p){
+        for(GameTeam team : teams.values()){
+            if(team.containsPlayer(p)){
+                return team;
+            }
+        }
+        return null;
+    }
+
+    public static void generateJSON() {
         JSONObject generator = new JSONObject();
         generator.put("x", 0);
         generator.put("y", 0);
@@ -72,6 +121,7 @@ public final class RootWars extends JavaPlugin {
         teamBaseLocs.put("generator",generator);
         teamBaseLocs.put("itemVillager",itemVillager);
         teamBaseLocs.put("upgradeVillager",upgradeVillager);
+        teamBaseLocs.put("root",upgradeVillager);
 
         JSONObject bases = new JSONObject();
         bases.put("red", teamBaseLocs);
@@ -89,14 +139,18 @@ public final class RootWars extends JavaPlugin {
 
         JSONObject test = new JSONObject();
         test.put("x", 0);
+        JSONObject testY = new JSONObject();
+        testY.put("y", 0);
         JSONObject testZ = new JSONObject();
         testZ.put("z", 0);
 
         JSONObject locations = new JSONObject();
         locations.put("negativeXBorder", test);
         locations.put("positiveXBorder", test);
-        locations.put("negativeYBorder", testZ);
-        locations.put("positiveYBorder", testZ);
+        locations.put("negativeZBorder", testZ);
+        locations.put("positiveZBorder", testZ);
+        locations.put("negativeYBorder", testY);
+        locations.put("positiveYBorder", testY);
         locations.put("spawnBlock", generator);
 
 
@@ -104,6 +158,7 @@ public final class RootWars extends JavaPlugin {
         mapData.put("bases",bases);
         mapData.put("generators", generators);
         mapData.put("mapLocations", locations);
+        mapData.put("displayName", "test");
 
 
         try (FileWriter file = new FileWriter(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/team.json"))) {

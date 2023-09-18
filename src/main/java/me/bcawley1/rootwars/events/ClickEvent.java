@@ -1,12 +1,12 @@
 package me.bcawley1.rootwars.events;
 
 import me.bcawley1.rootwars.PlayerCooldown;
-import org.bukkit.Material;
+import me.bcawley1.rootwars.ShopItem;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class ClickEvent implements Listener {
 
@@ -15,20 +15,16 @@ public class ClickEvent implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event){
         Player player = (Player) event.getWhoClicked();
-        if(event.getView().getOriginalTitle().equalsIgnoreCase("Store")){
-            switch (event.getCurrentItem().getType()){
-                case BLUE_WOOL:
-                    if(buyCooldown.getCooldown(player.getUniqueId())==0){
-                        player.getInventory().addItem(new ItemStack(Material.BLUE_WOOL, 16));
-                        buyCooldown.setCooldown(player.getUniqueId(), 200);
-                    } else {
-                        player.sendMessage("You are currently on cooldown for %s seconds.".formatted(buyCooldown.getCooldown(player.getUniqueId())/1000.0));
+        if(event.getView().getOriginalTitle().equalsIgnoreCase("Quick Buy")) {
+            if (ShopItem.hasShopItem(event.getCurrentItem())) {
+                if (player.getInventory().containsAtLeast(ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem(), ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem().getAmount())) {
+                    if (ShopItem.getShopItemFromItem(event.getCurrentItem()).doesGiveListedItem()) {
+                        player.getInventory().removeItem(ShopItem.getShopItemFromItem(event.getCurrentItem()).getCostItem());
+                        player.getInventory().addItem(ShopItem.getShopItemFromItem(event.getCurrentItem()).getPurchasedItem());
                     }
-
-                    break;
-                case RED_WOOL:
-                    player.getInventory().addItem(new ItemStack(Material.RED_WOOL, 16));
-                    break;
+                } else {
+                    event.getWhoClicked().sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+                }
             }
             event.setCancelled(true);
         }

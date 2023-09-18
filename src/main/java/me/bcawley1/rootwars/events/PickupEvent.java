@@ -14,7 +14,7 @@ public class PickupEvent implements Listener {
         if(Generator.droppedByGenerator(event.getItem())){
             Generator.deleteGeneratorItem(event.getItem());
             for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                if(Math.abs(p.getLocation().getX()-event.getEntity().getLocation().getX())<1.3||Math.abs(p.getLocation().getY()-event.getEntity().getLocation().getY())<1.3){
+                if(Math.abs(p.getLocation().getX()-event.getEntity().getLocation().getX())<1.3&&Math.abs(p.getLocation().getZ()-event.getEntity().getLocation().getZ())<1.3){
                     p.getInventory().addItem(event.getItem().getItemStack());
                 }
             }
