@@ -3,6 +3,7 @@ package me.bcawley1.rootwars;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -78,7 +80,24 @@ public class GameTeam {
 
         itemStoreItems.add(new ShopItem(Material.OAK_PLANKS, 16, Material.GOLD_INGOT, 4, "Planks",28));
         itemStoreItems.add(new ShopItem(Material.IRON_SWORD, 1, Material.IRON_INGOT, 7, "Iron Sword",29));
-        itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30));
+        itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30,(p, i) -> {
+            if(!p.getInventory().getHelmet().equals(new ItemStack(Material.DIAMOND_HELMET))||p.getInventory().getHelmet().equals(new ItemStack(Material.IRON_HELMET))) {
+                ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+                ItemMeta helmetMeta = helmet.getItemMeta();
+                helmetMeta.setUnbreakable(true);
+                ItemStack boots = new ItemStack(Material.IRON_BOOTS);
+                ItemMeta bootsMeta = boots.getItemMeta();
+                helmetMeta.setUnbreakable(true);
+                ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
+                ItemMeta leggingsMeta = leggings.getItemMeta();
+                helmetMeta.setUnbreakable(true);
+                p.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS).setItemMeta(meta));
+                p.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+                p.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
+            } else {
+                p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
+            }
+        }));
         itemStoreItems.add(new ShopItem(Material.BOW, 1, Material.GOLD_INGOT, 12, "Bow",31));
         itemStoreItems.add(new ShopItem(Material.FIRE_CHARGE, 1, Material.IRON_INGOT, 40, "Fireball",32));
         itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 2, "Invisibility Potion",33));
