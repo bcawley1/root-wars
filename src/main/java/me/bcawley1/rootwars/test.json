@@ -1,0 +1,30 @@
+{"quickBuy": [
+
+]
+
+
+}
+[
+  {
+    "name": "Planks",
+    "buyMaterial": "OAK_PLANKS",
+    "buyAmount": 16,
+    "costMaterial": "GOLD_INGOT",
+    "costAmount": 28
+  },
+  {
+    "name": "Iron Sword",
+    "buyMaterial": "IRON_SWORD",
+    "buyAmount": 1,
+    "costMaterial": "GOLD_INGOT",
+    "costAmount": 7
+  },
+  {
+    "name": "Permanent Iron Armor",
+    "buyMaterial": "IRON_BOOTS",
+    "buyAmount": 1,
+    "costMaterial": "GOLD_INGOT",
+    "costAmount": 12,
+    "action": "IRON_ARMOR"
+  }
+]

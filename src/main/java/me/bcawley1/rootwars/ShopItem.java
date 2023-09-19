@@ -20,6 +20,7 @@ public class ShopItem {
     private int invSlot;
     private boolean giveListedItem;
     private static Map<ItemStack, ShopItem> ShopItems = new HashMap<>();
+    private static PlayerCooldown buyCooldown = new PlayerCooldown();
     private BiConsumer<Player, ShopItem> onClick;
 
     public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot, BiConsumer<Player, ShopItem> onClick) {
@@ -35,8 +36,11 @@ public class ShopItem {
     public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot) {
         this(buyItem, buyAmount, costItem, costAmount, name, invSlot, (p, i) -> {
             if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
-                p.getInventory().removeItem(i.getCostItem());
-                p.getInventory().addItem(i.getPurchasedItem());
+                if(buyCooldown.getCooldown(p.getUniqueId())==0) {
+                    buyCooldown.setCooldown(p.getUniqueId(), 200);
+                    p.getInventory().removeItem(i.getCostItem());
+                    p.getInventory().addItem(i.getPurchasedItem());
+                }
             } else {
                 p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
