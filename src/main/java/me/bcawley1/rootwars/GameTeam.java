@@ -81,21 +81,28 @@ public class GameTeam {
         itemStoreItems.add(new ShopItem(Material.OAK_PLANKS, 16, Material.GOLD_INGOT, 4, "Planks",28));
         itemStoreItems.add(new ShopItem(Material.IRON_SWORD, 1, Material.IRON_INGOT, 7, "Iron Sword",29));
         itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30,(p, i) -> {
-            if(!p.getInventory().getHelmet().equals(new ItemStack(Material.DIAMOND_HELMET))||p.getInventory().getHelmet().equals(new ItemStack(Material.IRON_HELMET))) {
-                ItemStack helmet = new ItemStack(Material.IRON_HELMET);
-                ItemMeta helmetMeta = helmet.getItemMeta();
-                helmetMeta.setUnbreakable(true);
-                ItemStack boots = new ItemStack(Material.IRON_BOOTS);
-                ItemMeta bootsMeta = boots.getItemMeta();
-                helmetMeta.setUnbreakable(true);
-                ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
-                ItemMeta leggingsMeta = leggings.getItemMeta();
-                helmetMeta.setUnbreakable(true);
-                p.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS).setItemMeta(meta));
-                p.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
-                p.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
+            if(p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+                if (p.getInventory().getHelmet() == null ||!p.getInventory().getHelmet().equals(new ItemStack(Material.DIAMOND_HELMET)) || p.getInventory().getHelmet().equals(new ItemStack(Material.IRON_HELMET))) {
+                    ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+                    ItemMeta helmetMeta = helmet.getItemMeta();
+                    helmetMeta.setUnbreakable(true);
+                    helmet.setItemMeta(helmetMeta);
+                    ItemStack boots = new ItemStack(Material.IRON_BOOTS);
+                    ItemMeta bootsMeta = boots.getItemMeta();
+                    helmetMeta.setUnbreakable(true);
+                    boots.setItemMeta(bootsMeta);
+                    ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
+                    ItemMeta leggingsMeta = leggings.getItemMeta();
+                    helmetMeta.setUnbreakable(true);
+                    leggings.setItemMeta(leggingsMeta);
+                    p.getInventory().setBoots(boots);
+                    p.getInventory().setLeggings(leggings);
+                    p.getInventory().setHelmet(helmet);
+                } else {
+                    p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
+                }
             } else {
-                p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
+                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
         }));
         itemStoreItems.add(new ShopItem(Material.BOW, 1, Material.GOLD_INGOT, 12, "Bow",31));
