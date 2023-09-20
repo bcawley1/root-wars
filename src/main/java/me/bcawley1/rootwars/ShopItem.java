@@ -18,12 +18,11 @@ public class ShopItem {
     private int costAmount;
     private String name;
     private int invSlot;
-    private boolean giveListedItem;
     private static Map<ItemStack, ShopItem> ShopItems = new HashMap<>();
     private static PlayerCooldown buyCooldown = new PlayerCooldown();
     private BiConsumer<Player, ShopItem> onClick;
 
-    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot, BiConsumer<Player, ShopItem> onClick) {
+    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, BiConsumer<Player, ShopItem> onClick) {
         this.invSlot = invSlot;
         this.buyItem = buyItem;
         this.costItem = costItem;
@@ -33,8 +32,8 @@ public class ShopItem {
         this.onClick = onClick;
         ShopItems.put(this.getShopItem(), this);
     }
-    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, int invSlot) {
-        this(buyItem, buyAmount, costItem, costAmount, name, invSlot, (p, i) -> {
+    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name) {
+        this(buyItem, buyAmount, costItem, costAmount, name, (p, i) -> {
             if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
                 if(buyCooldown.getCooldown(p.getUniqueId())==0) {
                     buyCooldown.setCooldown(p.getUniqueId(), 200);
@@ -47,13 +46,14 @@ public class ShopItem {
         });
     }
 
+    public static PlayerCooldown getBuyCooldown() {
+        return buyCooldown;
+    }
+
     public void onItemClick(Player p){
         onClick.accept(p, this);
     }
 
-    public int getInvSlot() {
-        return invSlot;
-    }
     public static ShopItem getShopItemFromItem(ItemStack item){
         return ShopItems.get(item);
     }
@@ -76,9 +76,6 @@ public class ShopItem {
         return new ItemStack(costItem, costAmount);
     }
 
-    public boolean doesGiveListedItem() {
-        return giveListedItem;
-    }
     public static boolean hasShopItem(ItemStack item){
         return ShopItems.containsKey(item);
     }

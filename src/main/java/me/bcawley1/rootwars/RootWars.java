@@ -33,6 +33,7 @@ public final class RootWars extends JavaPlugin {
         new GameMap("test5");
         new GameMap("test6");*/
         //new GameMap("grimace");
+        new Shop();
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
@@ -93,6 +94,37 @@ public final class RootWars extends JavaPlugin {
             }
         }
         return null;
+    }
+    public static void generatorShopJSON(){
+//        {
+//                "name": "Planks",
+//                "buyMaterial": "OAK_PLANKS",
+//                "buyAmount": 16,
+//                "costMaterial": "GOLD_INGOT",
+//                "costAmount": 28
+//        },
+        JSONArray tab = new JSONArray();
+        JSONObject defaultItem = new JSONObject();
+        defaultItem.put("name", "");
+        defaultItem.put("buyMaterial", "");
+        defaultItem.put("buyAmount", 0);
+        defaultItem.put("costMaterial", "");
+        defaultItem.put("costAmount", 0);
+        JSONObject customItem = new JSONObject(defaultItem);
+        customItem.put("action", "");
+        tab.add(defaultItem);
+        tab.add(customItem);
+        JSONObject shop = new JSONObject();
+        shop.put("Quick Buy", tab);
+
+        try (FileWriter file = new FileWriter(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/shop.json"))) {
+            //We can write any JSONArray or JSONObject instance to the file
+            file.write(shop.toJSONString());
+            file.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void generateJSON() {

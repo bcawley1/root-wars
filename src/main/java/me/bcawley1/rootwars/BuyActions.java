@@ -28,7 +28,29 @@ public enum BuyActions {
             p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
         }
     }),
-    DIAMOND_ARMOR_ACTION((p, i) -> { /* doh! */});
+    DIAMOND_ARMOR_ACTION((p, i) -> { /* doh! */}),
+    WOOL((p, i) -> {
+        if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+            if(ShopItem.getBuyCooldown().getCooldown(p.getUniqueId())==0) {
+                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
+                p.getInventory().removeItem(i.getCostItem());
+                p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getTeamFromPlayer(p).getName().toUpperCase()+"_WOOL"), 16));
+            }
+        } else {
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+    }),
+    TERRACOTTA((p, i) -> {
+        if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+            if(ShopItem.getBuyCooldown().getCooldown(p.getUniqueId())==0) {
+                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
+                p.getInventory().removeItem(i.getCostItem());
+                p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getTeamFromPlayer(p).getName().toUpperCase()+"_TERRACOTTA"), 16));
+            }
+        } else {
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+    });
 
     BuyActions(final BiConsumer<Player, ShopItem> action) {
         this.action = action;
