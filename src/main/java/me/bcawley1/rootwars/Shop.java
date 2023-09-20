@@ -1,9 +1,12 @@
 package me.bcawley1.rootwars;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -14,8 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Shop {
-    public static Map<String, List<ShopItem>> shop = new HashMap<>();
-    public static List<ShopItem> topBar = new ArrayList<>();
+    private static Map<String, List<ShopItem>> shop = new HashMap<>();
+    private static List<ItemStack> topBarItems = new ArrayList<>();
+    private static List<BuyActions> topBarActions = new ArrayList<>();
+
 
     public Shop() {
         JSONParser jsonParser = new JSONParser();
@@ -30,9 +35,13 @@ public class Shop {
         for (Map.Entry<String, ArrayList<Map<String, Object>>> entry : JSONMap.entrySet()) {
             if (entry.getKey().equalsIgnoreCase("Top Bar")) {
                 for (Map<String, Object> m : entry.getValue()) {
-                    ShopItem item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
-                            Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")),
-                            (String) m.get("name"), BuyActions.valueOf((String) m.get("action")).getAction());
+                    ItemStack item = new ItemStack(Material.valueOf((String) m.get("material")));
+                    ItemMeta meta = item.getItemMeta();
+                    meta.setDisplayName((String) m.get("name"));
+                    meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.WHITE, ((String) m.get("name")).toLowerCase())));
+                    item.setItemMeta(meta);
+                    topBarItems.add(item);
+                    topBarActions.add(BuyActions.valueOf((String) m.get("action")));
                 }
             } else {
                 List<ShopItem> list = new ArrayList<>();
