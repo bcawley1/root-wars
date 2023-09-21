@@ -61,21 +61,34 @@ public class Shop {
         }
     }
 
+    public static boolean containsTab(String tab){
+        return shop.containsKey(tab);
+    }
     public static List<ShopItem> getShopTab(String tab) {
         return shop.get(tab);
     }
-    public static List<ShopItem> getTopBar(){
-        return topBar;
+    public static List<ItemStack> getTopBarItems(){
+        return topBarItems;
+    }
+
+    public static boolean isTopBar(ItemStack i){
+        return getTopBarItems().contains(i);
+    }
+    public static BuyActions getTopBarAction(ItemStack i){
+        return topBarActions.get(getTopBarItems().indexOf(i));
+    }
+    public static List<BuyActions> getTopBarActions() {
+        return topBarActions;
     }
 
     public static Inventory getInventoryTab(Player p, String tab) {
         Inventory inv = Bukkit.createInventory(p, 54, tab);
-        for(ShopItem i : getTopBar()){
-            inv.setItem(getTopBar().indexOf(i), i.getShopItem());
+        for(ItemStack i : getTopBarItems()){
+            inv.setItem(getTopBarItems().indexOf(i), i);
         }
         for (ShopItem i : getShopTab(tab)) {
             int indexOf = getShopTab(tab).indexOf(i);
-            inv.setItem((indexOf%5+1)+7*(2+indexOf/5), i.getShopItem());
+            inv.setItem((indexOf%7+1)+9*(2+indexOf/7), i.getShopItem());
         }
         return inv;
     }

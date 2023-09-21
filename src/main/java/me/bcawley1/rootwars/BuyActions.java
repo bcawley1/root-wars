@@ -50,6 +50,12 @@ public enum BuyActions {
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
         }
+    }),
+    TAB_BLOCKS((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Blocks"));
+    }),
+    TAB_MELEE((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Melee"));
     });
 
     BuyActions(final BiConsumer<Player, ShopItem> action) {
