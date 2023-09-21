@@ -38,7 +38,7 @@ public class Shop {
                     ItemStack item = new ItemStack(Material.valueOf((String) m.get("material")));
                     ItemMeta meta = item.getItemMeta();
                     meta.setDisplayName((String) m.get("name"));
-                    meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.WHITE, ((String) m.get("name")).toLowerCase())));
+                    meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.YELLOW, ((String) m.get("name")).toLowerCase())));
                     item.setItemMeta(meta);
                     topBarItems.add(item);
                     topBarActions.add(BuyActions.valueOf((String) m.get("action")));

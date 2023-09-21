@@ -39,6 +39,7 @@ public class ShopItem {
                     buyCooldown.setCooldown(p.getUniqueId(), 200);
                     p.getInventory().removeItem(i.getCostItem());
                     p.getInventory().addItem(i.getPurchasedItem());
+                    p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getI18NDisplayName()));
                 }
             } else {
                 p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
