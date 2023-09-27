@@ -18,11 +18,27 @@ public class VoteBoard {
     public Map<Integer, VoteEntry> getBoard(){
         List<VoteEntry> voteEntries = new ArrayList<>();
         Map<Integer, VoteEntry> board = new HashMap<>();
-        votes.forEach((key, value) -> voteEntries.add(new VoteEntry(GameMap.MaptoDisplayName(key), value)));
+        votes.forEach((key, value) -> {
+            if(value!=0) {
+                voteEntries.add(new VoteEntry(GameMap.MaptoDisplayName(key), value));
+            }
+        });
         Collections.sort(voteEntries);
         for(int i = 0; i < voteEntries.size(); i++){
-            //fix here
+            board.put(i, voteEntries.get(i));
         }
-
+        return board;
+    }
+    public int getBoardSize(){
+        int size = 0;
+        for(int v : votes.values()){
+            if(v!=0){
+                size++;
+            }
+        }
+        return size;
+    }
+    public String getVotedMap(UUID uuid){
+        return playerVotes.get(uuid);
     }
 }
