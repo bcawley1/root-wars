@@ -73,6 +73,14 @@ public class GameMap {
         }
         return "";
     }
+    public static String MaptoDisplayName(String mapName){
+        for(Map.Entry<String, GameMap> entry : maps.entrySet()){
+            if(entry.getValue().mapName.equals(mapName)){
+                return entry.getValue().mapName;
+            }
+        }
+        return "";
+    }
 
     public void buildMap() {
         File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.schem".formatted(mapName));
