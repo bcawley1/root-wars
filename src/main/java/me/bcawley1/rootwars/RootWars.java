@@ -5,8 +5,10 @@ import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
 import me.bcawley1.rootwars.events.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -20,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class RootWars extends JavaPlugin {
-    static Map<String, GameTeam> teams = new HashMap<>();
+    private static Map<String, GameTeam> teams = new HashMap<>();
+    private static JavaPlugin plugin;
+    private static GameMap currentMap;
     @Override
     public void onEnable() {
         new GameMap("greenery");
@@ -44,7 +48,10 @@ public final class RootWars extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PickupEvent(), this);
         getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
+        getServer().getPluginManager().registerEvents(new PlaceEvent(), this);
+        getServer().getPluginManager().registerEvents(new BreakEvent(), this);
         DeathEvent.setPlugin(this);
+        plugin = this;
 
         generateJSON();
 
@@ -58,10 +65,15 @@ public final class RootWars extends JavaPlugin {
     }
 
     public static void startGame(GameMap map, JavaPlugin plugin){
+        currentMap = map;
         teams.put("red", new GameTeam(map, "red", plugin));
         teams.put("blue", new GameTeam(map, "blue", plugin));
         teams.put("green", new GameTeam(map, "green", plugin));
         teams.put("yellow", new GameTeam(map, "yellow", plugin));
+        map.getDiamondGeneratorLocations().forEach(l -> new Generator(plugin, (int) l.getX(), (int) l.getY(), (int) l.getZ(),
+                1200, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.DIAMOND), 100)))));
+        map.getEmeraldGeneratorLocations().forEach(l -> new Generator(plugin, (int) l.getX(), (int) l.getY(), (int) l.getZ(),
+                1200, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
 
         String[] teamColors = {"red", "blue", "yellow", "green"};
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
@@ -84,9 +96,12 @@ public final class RootWars extends JavaPlugin {
                 team.respawnPlayer(p);
             }
         }
-
-
     }
+
+    public static GameMap getCurrentMap() {
+        return currentMap;
+    }
+
     public static GameTeam getTeamFromPlayer(Player p){
         for(GameTeam team : teams.values()){
             if(team.containsPlayer(p)){
@@ -95,6 +110,15 @@ public final class RootWars extends JavaPlugin {
         }
         return null;
     }
+
+    public static Map<String, GameTeam> getTeams() {
+        return teams;
+    }
+
+    public static JavaPlugin getPlugin() {
+        return plugin;
+    }
+
     public static void generatorShopJSON(){
 //        {
 //                "name": "Planks",

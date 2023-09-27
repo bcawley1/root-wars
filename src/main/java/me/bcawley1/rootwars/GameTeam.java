@@ -153,14 +153,17 @@ public class GameTeam {
     public boolean isRoot() {
         return isRoot;
     }
+    public Location getRootLocation(){
+        return rootLoc;
+    }
 
     public void spawnVillagers() {
-        Villager ItemVillager = (Villager) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), itemVilLoc.getX(), itemVilLoc.getY(), itemVilLoc.getZ()), EntityType.VILLAGER);
+        Villager ItemVillager = (Villager) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), itemVilLoc.getX()+0.5, itemVilLoc.getY(), itemVilLoc.getZ()+0.5), EntityType.VILLAGER);
         ItemVillager.setGravity(false);
         ItemVillager.setInvulnerable(true);
         ItemVillager.setPersistent(true);
         ItemVillager.setAI(false);
-        Villager UpgVillager = (Villager) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), upgVilLoc.getX(), upgVilLoc.getY(), upgVilLoc.getZ()), EntityType.VILLAGER);
+        Villager UpgVillager = (Villager) Bukkit.getWorld("world").spawnEntity(new Location(Bukkit.getWorld("world"), upgVilLoc.getX()+0.5, upgVilLoc.getY(), upgVilLoc.getZ()+0.5), EntityType.VILLAGER);
         UpgVillager.setGravity(false);
         UpgVillager.setInvulnerable(true);
         UpgVillager.setPersistent(true);

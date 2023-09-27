@@ -183,9 +183,9 @@ public class GameMap {
         borders.put("posX", Math.toIntExact(mapLocations.get("positiveXBorder").get("x")));
         borders.put("negX", Math.toIntExact(mapLocations.get("negativeXBorder").get("x")));
         borders.put("posZ", Math.toIntExact(mapLocations.get("positiveZBorder").get("z")));
-        borders.put("negZ", Math.toIntExact(mapLocations.get("positiveZBorder").get("z")));
+        borders.put("negZ", Math.toIntExact(mapLocations.get("negativeZBorder").get("z")));
         borders.put("posY", Math.toIntExact(mapLocations.get("positiveYBorder").get("y")));
-        borders.put("negY", Math.toIntExact(mapLocations.get("positiveYBorder").get("y")));
+        borders.put("negY", Math.toIntExact(mapLocations.get("negativeYBorder").get("y")));
         return borders;
     }
 }
