@@ -3,8 +3,8 @@ package me.bcawley1.rootwars;
 import org.jetbrains.annotations.NotNull;
 
 public class VoteEntry implements Comparable<VoteEntry> {
-    int votes;
-    String name;
+    private int votes;
+    private String name;
     public VoteEntry(String name) {
         this.name = name;
         this.votes=0;

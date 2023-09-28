@@ -41,4 +41,7 @@ public class VoteBoard {
     public String getVotedMap(UUID uuid){
         return playerVotes.get(uuid);
     }
+    public int playersVoted(){
+        return playerVotes.size();
+    }
 }
