@@ -56,7 +56,7 @@ public class LoadCommand implements CommandExecutor {
             /*for(GameMap map : GameMap.getMaps().values()){
                 Bukkit.getPlayer("bcawley1").getInventory().addItem(map.getMap());
             }*/
-            Vote.startVoting(plugin);
+            Vote.startVoting();
 
 
             return true;

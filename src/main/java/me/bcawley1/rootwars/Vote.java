@@ -7,7 +7,12 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -23,8 +28,10 @@ public class Vote {
     private static VoteBoard voteBoard;
     private static Objective objective;
     private static int secondsLeft = 0;
+    private static VoteDropItemEvent event = new VoteDropItemEvent();
 
     public static void startVoting() {
+        Bukkit.getServer().getPluginManager().registerEvents(event, RootWars.getPlugin());
         taskID = 0;
         winningMap = "";
         //creates the time to tick down the seconds every second
@@ -37,6 +44,7 @@ public class Vote {
             if(secondsLeft<=0){
                 RootWars.startGame(GameMap.getMaps().get(winningMap), RootWars.getPlugin());
                 Bukkit.getServer().getScheduler().cancelTask(taskID);
+                HandlerList.unregisterAll(event);
             }
         }, 0, 20).getTaskId();
         //creates a new board and puts values in it or somthign idk
@@ -75,84 +83,55 @@ public class Vote {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.sendActionBar(ChatColor.YELLOW+"Drop the map you want to vote for.");
-            playerBoards.put(p.getUniqueId(), voteBoard);
             p.getInventory().clear();
-            p.setScoreboard(playerBoards.get(p.getUniqueId()));
+            p.setScoreboard(scoreboard);
             for (GameMap map : GameMap.getMaps().values()) {
                 p.getInventory().addItem(map.getMap());
             }
         }
     }
 
-    public static boolean isVoting() {
-        return voting;
-    }
-
     public static void addVote(String map, UUID playerID) {
-        if (votes.containsKey(map)) {
             Bukkit.getPlayer(playerID).playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.MASTER, 1f,1f));
-
-            if(Bukkit.getOnlinePlayers().size()-playersVoted==1&&secondsLeft>=10){
+            voteBoard.addVote(map, playerID);
+            if(Bukkit.getOnlinePlayers().size()-voteBoard.playersVoted()==1&&secondsLeft>=10){
                 secondsLeft=10;
-            } else if(Bukkit.getOnlinePlayers().size()-playersVoted==0&&secondsLeft>=5){
+            } else if(Bukkit.getOnlinePlayers().size()-voteBoard.playersVoted()==0&&secondsLeft>=5){
                 secondsLeft=5;
             }
-        }
     }
 
     public static void updateBoard() {
-        List<Map.Entry<String, Integer>> entryVotes = new ArrayList<>();
-        entryVotes.addAll(votes.entrySet());
-        entryVotes.sort(new VoteComparator());
-        List<Integer> displayedMapID = new ArrayList<>();
-        for (int i = 0; i < votes.size(); i++) {
-            Team team = voteBoard.getTeam("team" + i);
-            team.setSuffix(String.valueOf(votes.get(team.getEntries().iterator().next().substring(0, team.getEntries().iterator().next().length() - 2))));
-            Map.Entry<String, Integer> entry = new AbstractMap.SimpleEntry<>(String.valueOf(team.getEntries().iterator().next().substring(0, team.getEntries().iterator().next().length() - 2)), votes.get(String.valueOf(team.getEntries().iterator().next().substring(0, team.getEntries().iterator().next().length() - 2))));
-            if (votes.get(entry.getKey()) >= 1) {
-                displayedMapID.add(i);
+        for (Map.Entry<Integer, VoteEntry> entry : voteBoard.getBoard().entrySet()){
+            Team team = scoreboard.getTeam(GameMap.DisplaytoMapName(entry.getValue().getName()));
+            team.setSuffix(String.valueOf(entry.getValue().getVotes()));
+            if(entry.getValue().getVotes()<=0) {
+                objective.getScore(entry.getValue().getName() + " :").resetScore();
             } else {
-                objective.getScore(entry.getKey() + ": ").resetScore();
+                objective.getScore(entry.getValue().getName() + " :").setScore(entry.getKey());
             }
-            if (entryVotes.indexOf(entry) + 1 == votes.size() && votes.get(entry.getKey()) != 0) {
+            if(entry.getKey()==voteBoard.getBoardSize()){
                 team.setColor(ChatColor.GREEN);
-                winningMap = GameMap.DisplaytoMapName(entry.getKey());
-            } else if (votes.get(entry.getKey()) >= 1) {
+                winningMap = GameMap.DisplaytoMapName(entry.getValue().getName());
+            } else {
                 team.setColor(ChatColor.WHITE);
             }
         }
         if(winningMap.equals("")){
             winningMap = (String) GameMap.getMaps().keySet().toArray()[new Random().nextInt(0, GameMap.getMaps().size())];
         }
-
-        List<Map.Entry<String, Integer>> entryVotesLimited = new ArrayList<>();
-        for (Map.Entry<String, Integer> e : votes.entrySet()) {
-            if (e.getValue() >= 1) {
-                entryVotesLimited.add(e);
-            }
-        }
         for(Player p : Bukkit.getOnlinePlayers()){
-            if(!playerVotes.containsKey(p.getUniqueId())) {
+            if(voteBoard.getVotedMap(p.getUniqueId())==null) {
                 p.sendActionBar(ChatColor.YELLOW + "Drop the map you want to vote for.");
             } else{
-                p.sendActionBar(ChatColor.GREEN + "You voted for %s.".formatted(playerVotes.get(p.getUniqueId())));
+                p.sendActionBar(ChatColor.GREEN + "You voted for %s.".formatted(voteBoard.getVotedMap(p.getUniqueId())));
             }
         }
 
-        entryVotesLimited.sort(new VoteComparator());
-        for (int i : displayedMapID) {
-            Team team = voteBoard.getTeam("team" + i);
-            Map.Entry<String, Integer> entry = new AbstractMap.SimpleEntry<>(String.valueOf(team.getEntries().iterator().next().substring(0, team.getEntries().iterator().next().length() - 2)), votes.get(String.valueOf(team.getEntries().iterator().next().substring(0, team.getEntries().iterator().next().length() - 2))));
-            objective.getScore(entry.getKey() + ": ").setScore(entryVotesLimited.indexOf(entry) + 6);
-            playerBoards.clear();
-            for(Player p : Bukkit.getOnlinePlayers()){
-                playerBoards.put(p.getUniqueId(), voteBoard);
-            }
-        }
-        voteBoard.getTeam("playersVoted").setSuffix(playersVoted + "/" + Bukkit.getOnlinePlayers().size());
-        voteBoard.getTeam("timeLeft").setSuffix(String.valueOf(secondsLeft));
+        scoreboard.getTeam("playersVoted").setSuffix(voteBoard.playersVoted() + "/" + Bukkit.getOnlinePlayers().size());
+        scoreboard.getTeam("timeLeft").setSuffix(String.valueOf(secondsLeft));
 
-        objective.getScore("Current Votes:").setScore(displayedMapID.size() + 6);
+        objective.getScore("Current Votes:").setScore(voteBoard.getBoardSize() + 6);
     }
 
     public static class VoteComparator implements Comparator<Map.Entry<String, Integer>> {
@@ -160,6 +139,17 @@ public class Vote {
         @Override
         public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
             return o1.getValue() - o2.getValue();
+        }
+    }
+    public static class VoteDropItemEvent implements Listener {
+        @EventHandler
+        public void onItemDrop(PlayerDropItemEvent event){
+            if(event.getItemDrop().getItemStack().getType().equals(Material.FILLED_MAP)){
+                event.getItemDrop().remove();
+                event.getPlayer().getInventory().clear();
+                Vote.addVote(event.getItemDrop().getItemStack().getItemMeta().getDisplayName(), event.getPlayer().getUniqueId());
+                Vote.updateBoard();
+            }
         }
     }
 }

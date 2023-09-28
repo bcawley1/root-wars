@@ -46,7 +46,7 @@ public final class RootWars extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
         getServer().getPluginManager().registerEvents(new PickupEvent(), this);
-        getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
+        //getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
         getServer().getPluginManager().registerEvents(new PlaceEvent(), this);
         getServer().getPluginManager().registerEvents(new BreakEvent(), this);
