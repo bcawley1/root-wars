@@ -68,17 +68,19 @@ public class GameMap {
     public static String DisplaytoMapName(String disName){
         for(Map.Entry<String, GameMap> entry : maps.entrySet()){
             if(entry.getValue().displayName.equals(disName)){
-                return entry.getKey();
+                return entry.getValue().getMapName();
             }
         }
+        System.out.println("dis name: "+disName);
         return "";
     }
     public static String MaptoDisplayName(String mapName){
         for(Map.Entry<String, GameMap> entry : maps.entrySet()){
             if(entry.getValue().mapName.equals(mapName)){
-                return entry.getValue().mapName;
+                return entry.getValue().displayName;
             }
         }
+        System.out.println("map name: "+mapName);
         return "";
     }
 
@@ -131,7 +133,7 @@ public class GameMap {
     }
 
     public String getMapName() {
-        return "%s%s".formatted(mapName.substring(0, 1).toUpperCase(), mapName.substring(1));
+        return mapName;
     }
     public String getDisplayName() {
         return displayName;

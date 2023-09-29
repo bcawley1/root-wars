@@ -7,13 +7,15 @@ public class VoteBoard {
     private Map<UUID, String> playerVotes;
 
     public VoteBoard() {
+        votes = new HashMap<>();
+        playerVotes = new HashMap<>();
         for(GameMap map : GameMap.getMaps().values()){
             votes.put(map.getMapName(), 0);
         }
     }
     public void addVote(String map, UUID player){
-        votes.merge(map, 1, Integer::sum);
-        playerVotes.put(player, GameMap.MaptoDisplayName(map));
+        votes.merge(GameMap.DisplaytoMapName(map), 1, Integer::sum);
+        playerVotes.put(player, map);
     }
     public Map<Integer, VoteEntry> getBoard(){
         List<VoteEntry> voteEntries = new ArrayList<>();
@@ -36,6 +38,7 @@ public class VoteBoard {
                 size++;
             }
         }
+        System.out.println("size:"+size);
         return size;
     }
     public String getVotedMap(UUID uuid){

@@ -14,10 +14,6 @@ public class VoteEntry implements Comparable<VoteEntry> {
         this.votes=votes;
     }
 
-    public void addVote(){
-        votes++;
-    }
-
     public int getVotes() {
         return votes;
     }
