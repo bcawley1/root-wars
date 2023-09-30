@@ -1,7 +1,5 @@
 package me.bcawley1.rootwars;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,10 +23,17 @@ public class GameTeam {
     private Location spawnLoc;
     private Location genLocation;
     private Generator generator;
+    private boolean genUpgrade;
+    private boolean protection;
+    private boolean sharpness;
     private GameMap map;
     private int rootCheckID;
+    private int playersAlive;
 
     public GameTeam(GameMap map, String name, JavaPlugin plugin) {
+        protection = false;
+        sharpness = false;
+        genUpgrade = false;
         this.name = name;
         this.plugin = plugin;
         this.map = map;
@@ -36,8 +41,8 @@ public class GameTeam {
         playersInTeam = new ArrayList<>();
         itemVilLoc = map.getItemVillagerLocation(name);
         List<GeneratorItem> items = new ArrayList<>(List.of(
-                new GeneratorItem(new ItemStack(Material.IRON_INGOT), 80),
-                new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 20)));
+                new GeneratorItem(new ItemStack(Material.IRON_INGOT), 90),
+                new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 10)));
         generator = new Generator(plugin, (int) map.getGeneratorLocation(name).getX(), (int) map.getGeneratorLocation(name).getY(), (int) map.getGeneratorLocation(name).getZ(), 15, items);
         upgVilLoc = map.getUpgradeVillager(name);
         genLocation = map.getGeneratorLocation(name);
@@ -46,10 +51,7 @@ public class GameTeam {
         rootCheckID = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if(!Bukkit.getWorld("world").getBlockAt(rootLoc).getType().equals(Material.MANGROVE_ROOTS)){
                 isRoot = false;
-                for(Player p : playersInTeam){
-                    p.playSound(Sound.sound(Key.key("minecraft:entity.warden.roar"), Sound.Source.MASTER, 1f, 1f));
-                    p.sendTitle("Your Root Broke", "");
-                }
+                RootWars.getCurrentGameMode().onRootBreak(this);
                 Bukkit.getScheduler().cancelTask(rootCheckID);
             }
         }, 0, 1).getTaskId();
@@ -126,6 +128,37 @@ public class GameTeam {
 //    }
 
 
+    public void setGenUpgrade(boolean genUpgrade) {
+        this.genUpgrade = genUpgrade;
+    }
+
+    public boolean isGenUpgrade() {
+        return genUpgrade;
+    }
+
+    public int getPlayersAlive() {
+        return playersAlive;
+    }
+    public void removePlayersAlive(){
+        playersAlive--;
+    }
+
+    public void setProtection(boolean protection) {
+        this.protection = protection;
+    }
+
+    public void setSharpness(boolean sharpness) {
+        this.sharpness = sharpness;
+    }
+
+    public boolean isProtection() {
+        return protection;
+    }
+
+    public boolean isSharpness() {
+        return sharpness;
+    }
+
     public String getName() {
         return name;
     }
@@ -144,10 +177,19 @@ public class GameTeam {
 
     public void addPlayer(Player player){
         playersInTeam.add(player);
+        playersAlive++;
     }
     public void respawnPlayer(Player player){
         player.getInventory().clear();
+        player.setHealth(20);
+        player.clearActivePotionEffects();
         player.teleport(spawnLoc);
+    }
+    public boolean isItemVillager(Location location){
+        return itemVilLoc.equals(location.add(-0.5, 0, -0.5));
+    }
+    public boolean isUpgradeVillager(Location location){
+        return upgVilLoc.equals(location.add(-0.5, 0, -0.5));
     }
 
     public boolean isRoot() {
@@ -155,6 +197,9 @@ public class GameTeam {
     }
     public Location getRootLocation(){
         return rootLoc;
+    }
+    public void removeGenerator(){
+        Generator.removeGenerator(genLocation);
     }
 
     public void spawnVillagers() {
@@ -170,9 +215,9 @@ public class GameTeam {
         UpgVillager.setAI(false);
     }
 
-    public void upgradeGenerator(List<GeneratorItem> list){
+    public void upgradeGenerator(List<GeneratorItem> list, int delay){
         Generator.removeGenerator(genLocation);
-        generator = new Generator(plugin, (int) genLocation.getX(), (int) genLocation.getY(), (int) genLocation.getZ(), 15, list);
+        generator = new Generator(plugin, (int) genLocation.getX(), (int) genLocation.getY(), (int) genLocation.getZ(), delay, list);
     }
 
 }

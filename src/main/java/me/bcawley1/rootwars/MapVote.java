@@ -17,7 +17,7 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
-public class Vote {
+public class MapVote {
     private static String winningMap;
     private static int taskID;
     private static Scoreboard scoreboard;
@@ -27,24 +27,25 @@ public class Vote {
     private static VoteDropItemEvent event = new VoteDropItemEvent();
 
     public static void startVoting() {
-        voteBoard = new VoteBoard();
+        voteBoard = new VoteBoard(VoteType.MAP);
         Bukkit.getServer().getPluginManager().registerEvents(event, RootWars.getPlugin());
         taskID = 0;
         winningMap = "";
         //creates the time to tick down the seconds every second
         taskID = Bukkit.getServer().getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             secondsLeft--;
-            Vote.updateBoard();
+            MapVote.updateBoard();
             if(secondsLeft<=5||secondsLeft==10||secondsLeft==15||secondsLeft==19){
                 Bukkit.getOnlinePlayers().forEach(player -> player.playSound(Sound.sound(Key.key("minecraft:block.note_block.hat"), Sound.Source.MASTER, 1f, 1f)));
             }
             if(secondsLeft<=0){
-                RootWars.startGame(GameMap.getMaps().get(winningMap), RootWars.getPlugin());
+                RootWars.setCurrentMap(GameMap.getMaps().get(winningMap));
                 Bukkit.getServer().getScheduler().cancelTask(taskID);
+                GameModeVote.startVoting();
                 HandlerList.unregisterAll(event);
             }
         }, 0, 20).getTaskId();
-        //creates a new board and puts values in it or somthign idk
+
         secondsLeft = 20;
 
         updateBoard();
@@ -68,13 +69,13 @@ public class Vote {
     }
 
     public static void updateBoard() {
+        Bukkit.broadcastMessage("updating board");
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         objective = scoreboard.registerNewObjective("vote", Criteria.DUMMY, Component.text("VOTING")
                 .decoration(TextDecoration.BOLD, true)
                 .color(TextColor.color(255, 255, 85)));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         for (Map.Entry<Integer, VoteEntry> entry : voteBoard.getBoard().entrySet()){
-            Team team = scoreboard.getTeam(GameMap.DisplaytoMapName(entry.getValue().getName()));
             if(!(entry.getValue().getVotes()<=0)) {
                 if(entry.getKey()==(voteBoard.getBoardSize()-1)){
                     objective.getScore(ChatColor.GREEN + entry.getValue().getName() + ": " + entry.getValue().getVotes()).setScore(entry.getKey()+6);
@@ -115,12 +116,11 @@ public class Vote {
     public static class VoteDropItemEvent implements Listener {
         @EventHandler
         public void onItemDrop(PlayerDropItemEvent event){
-            event.getPlayer().sendMessage("gaming");
             if(event.getItemDrop().getItemStack().getType().equals(Material.FILLED_MAP)){
                 event.getItemDrop().remove();
                 event.getPlayer().getInventory().clear();
-                Vote.addVote(event.getItemDrop().getItemStack().getItemMeta().getDisplayName(), event.getPlayer().getUniqueId());
-                Vote.updateBoard();
+                MapVote.addVote(event.getItemDrop().getItemStack().getItemMeta().getDisplayName(), event.getPlayer().getUniqueId());
+                MapVote.updateBoard();
             }
         }
     }

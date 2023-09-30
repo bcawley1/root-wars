@@ -20,6 +20,7 @@ public class Shop {
     private static Map<String, List<ShopItem>> shop = new HashMap<>();
     private static List<ItemStack> topBarItems = new ArrayList<>();
     private static List<BuyActions> topBarActions = new ArrayList<>();
+    private static List<ShopItem> upgrades = new ArrayList<>();
 
 
     public Shop() {
@@ -61,34 +62,46 @@ public class Shop {
         }
     }
 
-    public static boolean containsTab(String tab){
+    public static boolean containsTab(String tab) {
         return shop.containsKey(tab);
     }
+
     public static List<ShopItem> getShopTab(String tab) {
         return shop.get(tab);
     }
-    public static List<ItemStack> getTopBarItems(){
+
+    public static List<ItemStack> getTopBarItems() {
         return topBarItems;
     }
 
-    public static boolean isTopBar(ItemStack i){
+    public static boolean isTopBar(ItemStack i) {
         return getTopBarItems().contains(i);
     }
-    public static BuyActions getTopBarAction(ItemStack i){
+
+    public static BuyActions getTopBarAction(ItemStack i) {
         return topBarActions.get(getTopBarItems().indexOf(i));
     }
+
     public static List<BuyActions> getTopBarActions() {
         return topBarActions;
     }
 
     public static Inventory getInventoryTab(Player p, String tab) {
         Inventory inv = Bukkit.createInventory(p, 54, tab);
-        for(ItemStack i : getTopBarItems()){
+        for (ItemStack i : getTopBarItems()) {
             inv.setItem(getTopBarItems().indexOf(i), i);
         }
         for (ShopItem i : getShopTab(tab)) {
             int indexOf = getShopTab(tab).indexOf(i);
-            inv.setItem((indexOf%7+1)+9*(2+indexOf/7), i.getShopItem());
+            inv.setItem((indexOf % 7 + 1) + 9 * (2 + indexOf / 7), i.getShopItem());
+        }
+        return inv;
+    }
+    public static Inventory getUpgradeTab(Player p){
+        Inventory inv = Bukkit.createInventory(p, 9, "Upgrades");
+        for (ShopItem i : getShopTab("Upgrades")) {
+            int indexOf = getShopTab("Upgrades").indexOf(i);
+            inv.setItem(indexOf*2+2, i.getShopItem());
         }
         return inv;
     }

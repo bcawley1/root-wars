@@ -3,12 +3,10 @@ package me.bcawley1.rootwars;
 import me.bcawley1.rootwars.commands.GeneratorCommand;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
-import me.bcawley1.rootwars.events.*;
+import me.bcawley1.rootwars.gamemodes.GameMode;
+import me.bcawley1.rootwars.gamemodes.Standard;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -16,15 +14,14 @@ import org.json.simple.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class RootWars extends JavaPlugin {
     private static Map<String, GameTeam> teams = new HashMap<>();
     private static JavaPlugin plugin;
     private static GameMap currentMap;
+    private static GameMode gameMode;
     @Override
     public void onEnable() {
         new GameMap("greenery");
@@ -37,26 +34,22 @@ public final class RootWars extends JavaPlugin {
         new GameMap("test5");
         new GameMap("test6");*/
         //new GameMap("grimace");
+        new Standard();
+
         new Shop();
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
         getCommand("Villager").setExecutor(new VillagerCommand());
         // Registers Event Listeners
-        getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
-        getServer().getPluginManager().registerEvents(new ClickEvent(), this);
-        getServer().getPluginManager().registerEvents(new PickupEvent(), this);
-        //getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
-        getServer().getPluginManager().registerEvents(new DeathEvent(), this);
-        getServer().getPluginManager().registerEvents(new PlaceEvent(), this);
-        getServer().getPluginManager().registerEvents(new BreakEvent(), this);
-        DeathEvent.setPlugin(this);
+//        getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
+//        getServer().getPluginManager().registerEvents(new ClickEvent(), this);
+//        getServer().getPluginManager().registerEvents(new PickupEvent(), this);
+//        getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
+//        getServer().getPluginManager().registerEvents(new DeathEvent(), this);
+//        getServer().getPluginManager().registerEvents(new PlaceEvent(), this);
+//        getServer().getPluginManager().registerEvents(new BreakEvent(), this);
         plugin = this;
-
-        generateJSON();
-
-
-
     }
 
     @Override
@@ -64,38 +57,20 @@ public final class RootWars extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static void startGame(GameMap map, JavaPlugin plugin){
-        currentMap = map;
-        teams.put("red", new GameTeam(map, "red", plugin));
-        teams.put("blue", new GameTeam(map, "blue", plugin));
-        teams.put("green", new GameTeam(map, "green", plugin));
-        teams.put("yellow", new GameTeam(map, "yellow", plugin));
-        map.getDiamondGeneratorLocations().forEach(l -> new Generator(plugin, (int) l.getX(), (int) l.getY(), (int) l.getZ(),
-                1200, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.DIAMOND), 100)))));
-        map.getEmeraldGeneratorLocations().forEach(l -> new Generator(plugin, (int) l.getX(), (int) l.getY(), (int) l.getZ(),
-                1200, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
+    public static void startGame(GameMode mode){
+        JavaPlugin plugin = RootWars.getPlugin();
+        gameMode = mode;
+        teams.clear();
+        teams.put("red", new GameTeam(currentMap, "red", plugin));
+        teams.put("blue", new GameTeam(currentMap, "blue", plugin));
+        teams.put("green", new GameTeam(currentMap, "green", plugin));
+        teams.put("yellow", new GameTeam(currentMap, "yellow", plugin));
 
-        String[] teamColors = {"red", "blue", "yellow", "green"};
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-        for(int i = 0; i < players.size(); i++){
-            teams.get(teamColors[i%4]).addPlayer(players.get(i));
-        }
+        gameMode.startGame();
+    }
 
-        map.buildMap();
-        Bukkit.getWorld("world").getEntities().forEach(entity -> {
-            if(entity.getType().equals(EntityType.VILLAGER)){
-                entity.remove();
-            } else if(entity.getType().equals(EntityType.DROPPED_ITEM)){
-                entity.remove();
-            }
-        });
-
-        for(GameTeam team : teams.values()){
-            team.spawnVillagers();
-            for(Player p : team.getPlayersInTeam()){
-                team.respawnPlayer(p);
-            }
-        }
+    public static GameMode getCurrentGameMode() {
+        return gameMode;
     }
 
     public static GameMap getCurrentMap() {
@@ -109,6 +84,10 @@ public final class RootWars extends JavaPlugin {
             }
         }
         return null;
+    }
+
+    public static void setCurrentMap(GameMap currentMap) {
+        RootWars.currentMap = currentMap;
     }
 
     public static Map<String, GameTeam> getTeams() {

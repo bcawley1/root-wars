@@ -1,6 +1,6 @@
 package me.bcawley1.rootwars.commands;
 
-import me.bcawley1.rootwars.Vote;
+import me.bcawley1.rootwars.MapVote;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -56,7 +56,7 @@ public class LoadCommand implements CommandExecutor {
             /*for(GameMap map : GameMap.getMaps().values()){
                 Bukkit.getPlayer("bcawley1").getInventory().addItem(map.getMap());
             }*/
-            Vote.startVoting();
+            MapVote.startVoting();
 
 
             return true;
