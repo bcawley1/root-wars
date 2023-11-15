@@ -18,6 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -25,16 +27,17 @@ import org.bukkit.scoreboard.Objective;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Standard extends GameMode {
+public class Rush extends GameMode{
     private Objective objective;
     private int regenID;
-    public Standard() {
-        super("Standard");
+    public Rush() {
+        super("Rush");
         description = """
-                The standard Root Wars experience.""";
-        invSlot = 0;
-        material = Material.BLUE_WOOL;
-        gameModes.put("Standard", this);
+                The standard Root Wars experience,
+                but twice as fast""";
+        invSlot = 4;
+        material = Material.GREEN_WOOL;
+        gameModes.put("Rush", this);
     }
 
     @Override
@@ -64,16 +67,23 @@ public class Standard extends GameMode {
 
         RootWars.getCurrentMap().buildMap();
 
-        Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
+
+        regenID = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             for(Player p : Bukkit.getOnlinePlayers()){
-                if(p.getHealth()<=19.5) {
+                p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 99999, 5, true, true));
+                p.setMaxHealth(10);
+                if(p.getHealth()<=9.5) {
                     p.setHealth(p.getHealth() + 0.5);
                 }
                 p.setFoodLevel(20);
             }
-        }, 0, 20);
+        }, 0, 20).getTaskId();
 
         for(GameTeam team : RootWars.getTeams().values()){
+            List<GeneratorItem> items = new ArrayList<>(List.of(
+                    new GeneratorItem(new ItemStack(Material.IRON_INGOT), 90),
+                    new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 10)));
+            team.upgradeGenerator(items, 7);
             team.spawnVillagers();
             for(Player p : team.getPlayersInTeam()){
                 p.setPlayerListName(ChatColor.valueOf(team.getName().toUpperCase()) + p.getName());
@@ -140,10 +150,10 @@ public class Standard extends GameMode {
             team.removeGenerator();
         }
         for(Player player : Bukkit.getOnlinePlayers()){
-            lobbyEvent.putPlayerInLobby(player);
             player.setMaxHealth(20);
             player.setHealth(20);
             player.clearActivePotionEffects();
+            lobbyEvent.putPlayerInLobby(player);
         }
         Bukkit.getPluginManager().registerEvents(lobbyEvent, RootWars.getPlugin());
     }

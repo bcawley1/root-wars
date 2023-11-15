@@ -6,6 +6,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,13 +140,13 @@ public enum BuyActions {
     }),
     SWORD((p, i) -> {
         if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
-            if(ShopItem.getBuyCooldown().getCooldown(p.getUniqueId())==0) {
+            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
                 ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
                 p.getInventory().removeItem(i.getCostItem());
                 ItemStack item = i.getPurchasedItem();
                 p.sendMessage(String.valueOf(RootWars.getTeamFromPlayer(p).isSharpness()));
-                if(RootWars.getTeamFromPlayer(p).isSharpness()) {
-                    item.addEnchantment(Enchantment.DAMAGE_ALL,2);
+                if (RootWars.getTeamFromPlayer(p).isSharpness()) {
+                    item.addEnchantment(Enchantment.DAMAGE_ALL, 2);
                 }
                 p.getInventory().addItem(item);
                 p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getI18NDisplayName()));
@@ -183,7 +186,7 @@ public enum BuyActions {
                 for (Player player : team.getPlayersInTeam()) {
                     player.sendMessage(ChatColor.GREEN + "Purchased sharper swords.");
                     for (ItemStack item : player.getInventory().getStorageContents()) {
-                        if(item!=null) {
+                        if (item != null) {
                             if (item.getType().equals(Material.WOODEN_SWORD) || item.getType().equals(Material.STONE_SWORD) || item.getType().equals(Material.IRON_SWORD) || item.getType().equals(Material.DIAMOND_SWORD)) {
                                 item.addEnchantment(Enchantment.DAMAGE_ALL, 2);
                             }
@@ -199,22 +202,49 @@ public enum BuyActions {
     GENERATOR((p, i) -> {
         GameTeam team = RootWars.getTeamFromPlayer(p);
         if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
-            if(team.isGenUpgrade()){
+            if (team.isGenUpgrade()) {
                 p.sendMessage(ChatColor.RED + "You already have this.");
             } else {
-                for(Player player : team.getPlayersInTeam()){
+                for (Player player : team.getPlayersInTeam()) {
                     player.sendMessage(ChatColor.GREEN + "Purchased upgraded generator.");
                 }
                 p.getInventory().removeItem(i.getCostItem());
                 team.setGenUpgrade(true);
                 team.upgradeGenerator(new ArrayList<GeneratorItem>(List.of(
-                        new GeneratorItem(new ItemStack(Material.IRON_INGOT),79),
+                        new GeneratorItem(new ItemStack(Material.IRON_INGOT), 79),
                         new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 20),
-                        new GeneratorItem(new ItemStack(Material.EMERALD), 1))),5);
+                        new GeneratorItem(new ItemStack(Material.EMERALD), 1))), 5);
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
         }
+    }),
+    JUMP((p, i) -> {
+        if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+            ItemStack item = new ItemStack(Material.POTION);
+            PotionMeta meta = (PotionMeta) item.getItemMeta();
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP, 900, 4, true, true), true);
+            item.setItemMeta(meta);
+            p.getInventory().addItem(item);
+            p.getInventory().removeItem(i.getCostItem());
+        } else {
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+    }),
+    SPEED((p, i) -> {
+        if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+            ItemStack item = new ItemStack(Material.POTION);
+            PotionMeta meta = (PotionMeta) item.getItemMeta();
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 900, 1, true, true), true);
+            item.setItemMeta(meta);
+            p.getInventory().addItem(item);
+            p.getInventory().removeItem(i.getCostItem());
+        } else {
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+    }),
+    TAB_QUICK((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Quick Buy"));
     }),
     TAB_BLOCKS((p, i) -> {
         p.openInventory(Shop.getInventoryTab(p, "Blocks"));
@@ -224,6 +254,18 @@ public enum BuyActions {
     }),
     TAB_ARMOR((p, i) -> {
         p.openInventory(Shop.getInventoryTab(p, "Armor"));
+    }),
+    TAB_TOOLS((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Tools"));
+    }),
+    TAB_RANGED((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Ranged"));
+    }),
+    TAB_POTION((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Potions"));
+    }),
+    TAB_UTILITY((p, i) -> {
+        p.openInventory(Shop.getInventoryTab(p, "Utility"));
     });
 
     BuyActions(final BiConsumer<Player, ShopItem> action) {

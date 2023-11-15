@@ -1,10 +1,25 @@
 package me.bcawley1.rootwars;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.commands.GeneratorCommand;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.commands.VillagerCommand;
+import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.gamemodes.GameMode;
+import me.bcawley1.rootwars.gamemodes.Rush;
 import me.bcawley1.rootwars.gamemodes.Standard;
+import me.bcawley1.rootwars.gamemodes.TwoTeams;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,6 +27,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,39 +38,67 @@ public final class RootWars extends JavaPlugin {
     private static JavaPlugin plugin;
     private static GameMap currentMap;
     private static GameMode gameMode;
+
     @Override
     public void onEnable() {
         new GameMap("greenery");
         new GameMap("johnpork");
-        /*new GameMap("grimace");
-        new GameMap("test1");
-        new GameMap("test2");
-        new GameMap("test3");
-        new GameMap("test4");
-        new GameMap("test5");
-        new GameMap("test6");*/
+        new GameMap("grimace");
+        new GameMap("smurf_cat");
+//        new GameMap("test1");
+//        new GameMap("test2");
+//        new GameMap("test3");
+//        new GameMap("test4");
+//        new GameMap("test5");
+//        new GameMap("test6");
         //new GameMap("grimace");
         new Standard();
+        new TwoTeams();
+        new Rush();
 
         new Shop();
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
         getCommand("Villager").setExecutor(new VillagerCommand());
-        // Registers Event Listeners
-//        getServer().getPluginManager().registerEvents(new EntityInteractEvent(), this);
-//        getServer().getPluginManager().registerEvents(new ClickEvent(), this);
-//        getServer().getPluginManager().registerEvents(new PickupEvent(), this);
-//        getServer().getPluginManager().registerEvents(new DropItemEvent(), this);
-//        getServer().getPluginManager().registerEvents(new DeathEvent(), this);
-//        getServer().getPluginManager().registerEvents(new PlaceEvent(), this);
-//        getServer().getPluginManager().registerEvents(new BreakEvent(), this);
+
+        Bukkit.getPluginManager().registerEvents(new LobbyEvent(), this);
+
         plugin = this;
+        pasteSchem(557, 1, 14, "spawn");
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    public static void pasteSchem(int x, int y, int z, String schem){
+        File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.schem".formatted(schem));
+        ClipboardFormat format = ClipboardFormats.findByFile(myfile);
+        ClipboardReader reader = null;
+        try {
+            reader = format.getReader(new FileInputStream(myfile));
+        } catch (IOException ignored) {
+        }
+        Clipboard clipboard = null;
+        try {
+            clipboard = reader.read();
+        } catch (
+                IOException ignored) {
+        }
+
+        try (
+                EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(Bukkit.getWorld("world")))) {
+            Operation operation = new ClipboardHolder(clipboard)
+                    .createPaste(editSession)
+                    .to(BlockVector3.at(x, y, z))
+                    // configure here
+                    .build();
+            Operations.complete(operation);
+        } catch (
+                WorldEditException ignored) {
+        }
     }
 
     public static void startGame(GameMode mode){

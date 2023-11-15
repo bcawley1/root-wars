@@ -1,17 +1,5 @@
 package me.bcawley1.rootwars;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,10 +9,7 @@ import org.bukkit.map.MapView;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,31 +70,7 @@ public class GameMap {
     }
 
     public void buildMap() {
-        File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.schem".formatted(mapName));
-        ClipboardFormat format = ClipboardFormats.findByFile(myfile);
-        ClipboardReader reader = null;
-        try {
-            reader = format.getReader(new FileInputStream(myfile));
-        } catch (IOException ignored) {
-        }
-        Clipboard clipboard = null;
-        try {
-            clipboard = reader.read();
-        } catch (
-                IOException ignored) {
-        }
-
-        try (
-                EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(Bukkit.getWorld("world")))) {
-            Operation operation = new ClipboardHolder(clipboard)
-                    .createPaste(editSession)
-                    .to(BlockVector3.at(this.getMapSpawnPoint().getX(), this.getMapSpawnPoint().getY(), this.getMapSpawnPoint().getZ()))
-                    // configure here
-                    .build();
-            Operations.complete(operation);
-        } catch (
-                WorldEditException ignored) {
-        }
+        RootWars.pasteSchem((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),mapName);
     }
 
     private void renderMap() {

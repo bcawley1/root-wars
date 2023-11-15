@@ -25,16 +25,17 @@ import org.bukkit.scoreboard.Objective;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Standard extends GameMode {
+public class TwoTeams extends GameMode{
     private Objective objective;
     private int regenID;
-    public Standard() {
-        super("Standard");
+    public TwoTeams() {
+        super("Two Teams");
         description = """
-                The standard Root Wars experience.""";
-        invSlot = 0;
-        material = Material.BLUE_WOOL;
-        gameModes.put("Standard", this);
+                The standard Root Wars experience,
+                but with only 2 teams.""";
+        invSlot = 2;
+        material = Material.RED_WOOL;
+        gameModes.put("Two Teams", this);
     }
 
     @Override
@@ -55,10 +56,10 @@ public class Standard extends GameMode {
                 1200, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
 
         //assigns players to teams
-        String[] teamColors = {"red", "blue", "yellow", "green"};
+        String[] teamColors = {"red", "blue"};
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         for(int i = 0; i < players.size(); i++){
-            RootWars.getTeams().get(teamColors[i%4]).addPlayer(players.get(i));
+            RootWars.getTeams().get(teamColors[i%2]).addPlayer(players.get(i));
             players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
         }
 
@@ -113,11 +114,9 @@ public class Standard extends GameMode {
                 .color(TextColor.color(255,255,85)));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        objective.getScore("Teams:").setScore(7);
-        objective.getScore(ChatColor.RED+"Red: %s".formatted(RootWars.getTeams().get("red").isRoot() ? "✔" : RootWars.getTeams().get("red").getPlayersAlive())).setScore(6);
-        objective.getScore(ChatColor.BLUE+"Blue: %s".formatted(RootWars.getTeams().get("blue").isRoot() ? "✔" : RootWars.getTeams().get("blue").getPlayersAlive())).setScore(5);
-        objective.getScore(ChatColor.GREEN+"Green: %s".formatted(RootWars.getTeams().get("green").isRoot() ? "✔" : RootWars.getTeams().get("green").getPlayersAlive())).setScore(4);
-        objective.getScore(ChatColor.YELLOW+"Yellow: %s".formatted(RootWars.getTeams().get("yellow").isRoot() ? "✔" : RootWars.getTeams().get("yellow").getPlayersAlive())).setScore(3);
+        objective.getScore("Teams:").setScore(5);
+        objective.getScore(ChatColor.RED+"Red: %s".formatted(RootWars.getTeams().get("red").isRoot() ? "✔" : RootWars.getTeams().get("red").getPlayersAlive())).setScore(4);
+        objective.getScore(ChatColor.BLUE+"Blue: %s".formatted(RootWars.getTeams().get("blue").isRoot() ? "✔" : RootWars.getTeams().get("blue").getPlayersAlive())).setScore(3);
         objective.getScore(" ").setScore(2);
         objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
         //sets new scoreboard to players

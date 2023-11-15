@@ -3,7 +3,12 @@ package me.bcawley1.rootwars.gamemodes;
 import me.bcawley1.rootwars.*;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -11,9 +16,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.HashMap;
@@ -69,6 +79,11 @@ public abstract class GameMode implements Listener {
     public void onBlockPlace(BlockPlaceEvent event){
         GameMap currentMap = RootWars.getCurrentMap();
         Location blockLocation = event.getBlock().getLocation();
+        if(event.getBlock().getType().equals(Material.TNT)){
+            Bukkit.getWorld("world").spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
+            event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
+            event.setCancelled(true);
+        }
         if(!(blockLocation.getX()>currentMap.getMapBorder().get("negX")&&blockLocation.getX()<currentMap.getMapBorder().get("posX")&&
                 blockLocation.getY()>currentMap.getMapBorder().get("negY")&&blockLocation.getY()<currentMap.getMapBorder().get("posY")&&
                 blockLocation.getZ()>currentMap.getMapBorder().get("negZ")&&blockLocation.getZ()<currentMap.getMapBorder().get("posZ"))){
@@ -106,7 +121,8 @@ public abstract class GameMode implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event){
         event.setCancelled(true);
-        event.getPlayer().setHealth(20);
+        Bukkit.broadcastMessage(event.getPlayer().getName() + " has died lmao");
+        event.getPlayer().setHealth(event.getPlayer().getMaxHealth());
         event.getPlayer().setGameMode(org.bukkit.GameMode.SPECTATOR);
         RootWars.getTeamFromPlayer(event.getPlayer()).respawnPlayer(event.getPlayer());
         if(RootWars.getTeamFromPlayer(event.getPlayer()).isRoot()){
@@ -140,11 +156,23 @@ public abstract class GameMode implements Listener {
         if(event.getRightClicked() instanceof Villager){
             for(GameTeam team : RootWars.getTeams().values()) {
                 if(team.isItemVillager(event.getRightClicked().getLocation())) {
-                    event.getPlayer().openInventory(Shop.getInventoryTab(event.getPlayer(), "Blocks"));
+                    event.getPlayer().openInventory(Shop.getInventoryTab(event.getPlayer(), "Quick Buy"));
                 } else if(team.isUpgradeVillager(event.getRightClicked().getLocation())){
                     event.getPlayer().openInventory(Shop.getUpgradeTab(event.getPlayer()));
                 }
             }
+        }
+    }
+    @EventHandler
+    public void playerInteract(PlayerInteractEvent event){
+        if(event.getPlayer().getItemInHand().getType().equals(Material.FIRE_CHARGE)){
+            Player p = event.getPlayer();
+            Location loc = p.getEyeLocation().toVector().add(p.getLocation().getDirection().multiply(2)).
+                    toLocation(p.getWorld(), p.getLocation().getYaw(), p.getLocation().getPitch());
+
+            Fireball fireball = event.getPlayer().getWorld().spawn(loc, Fireball.class);
+            fireball.setYield(2);
+            p.getInventory().removeItem(new ItemStack(Material.FIRE_CHARGE, 1));
         }
     }
 
@@ -159,6 +187,31 @@ public abstract class GameMode implements Listener {
             }
 
             event.setCancelled(true);
+        }
+    }
+    @EventHandler
+    public void playerJoin(PlayerJoinEvent event){
+        GameTeam.replacePlayer(event.getPlayer());
+        GameTeam team = RootWars.getTeamFromPlayer(event.getPlayer());
+        event.getPlayer().setScoreboard(scoreboard);
+        if(team!=null){
+            team.respawnPlayer(event.getPlayer());
+        } else {
+            event.getPlayer().setGameMode(org.bukkit.GameMode.SPECTATOR);
+            event.getPlayer().teleport(RootWars.getCurrentMap().getEmeraldGeneratorLocations().get(0));
+        }
+    }
+    @EventHandler
+    public void regenEvent(EntityRegainHealthEvent event){
+        if(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.REGEN)||event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED)){
+            event.setCancelled(true);
+        }
+
+    }
+    @EventHandler
+    public void playerLeave(PlayerQuitEvent event){
+        if(Bukkit.getOnlinePlayers().isEmpty()){
+            endGame();
         }
     }
 }

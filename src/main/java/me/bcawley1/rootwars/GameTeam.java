@@ -55,78 +55,7 @@ public class GameTeam {
                 Bukkit.getScheduler().cancelTask(rootCheckID);
             }
         }, 0, 1).getTaskId();
-
-
-//        if(name.equalsIgnoreCase("red")){
-//            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
-//        } else if(name.equalsIgnoreCase("blue")){
-//            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
-//        } else if(name.equalsIgnoreCase("yellow")){
-//            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
-//        } else if(name.equalsIgnoreCase("green")){
-//            itemStoreItems.add(new ShopItem(Material.RED_WOOL, 16, Material.IRON_INGOT, 4, "Wool", 19));
-//        }
-//        itemStoreItems.add(new ShopItem(Material.STONE_SWORD, 1, Material.IRON_INGOT, 10, "Stone Sword", 20));
-//        itemStoreItems.add(new ShopItem(Material.CHAINMAIL_BOOTS, 1, Material.IRON_INGOT, 24, "Permanent Chainmail Armor", 21));
-//        itemStoreItems.add(new ShopItem(Material.GLASS, 4, Material.IRON_INGOT, 12, "Glass",22));
-//        itemStoreItems.add(new ShopItem(Material.LADDER, 8, Material.IRON_INGOT, 4, "Ladder",23));
-//        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 1, "Speed II Potion",24));
-//        itemStoreItems.add(new ShopItem(Material.ENDER_PEARL, 1, Material.EMERALD, 4, "Ender Pearl",25));
-//
-//        itemStoreItems.add(new ShopItem(Material.OAK_PLANKS, 16, Material.GOLD_INGOT, 4, "Planks",28));
-//        itemStoreItems.add(new ShopItem(Material.IRON_SWORD, 1, Material.IRON_INGOT, 7, "Iron Sword",29));
-//        itemStoreItems.add(new ShopItem(Material.IRON_BOOTS, 1, Material.GOLD_INGOT, 12, "Permanent Iron Armor",30,(p, i) -> {
-//            if(p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
-//                if (p.getInventory().getHelmet() == null ||!p.getInventory().getHelmet().equals(new ItemStack(Material.DIAMOND_HELMET)) || p.getInventory().getHelmet().equals(new ItemStack(Material.IRON_HELMET))) {
-//                    ItemStack helmet = new ItemStack(Material.IRON_HELMET);
-//                    ItemMeta helmetMeta = helmet.getItemMeta();
-//                    helmetMeta.setUnbreakable(true);
-//                    helmet.setItemMeta(helmetMeta);
-//                    ItemStack boots = new ItemStack(Material.IRON_BOOTS);
-//                    ItemMeta bootsMeta = boots.getItemMeta();
-//                    helmetMeta.setUnbreakable(true);
-//                    boots.setItemMeta(bootsMeta);
-//                    ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
-//                    ItemMeta leggingsMeta = leggings.getItemMeta();
-//                    helmetMeta.setUnbreakable(true);
-//                    leggings.setItemMeta(leggingsMeta);
-//                    p.getInventory().setBoots(boots);
-//                    p.getInventory().setLeggings(leggings);
-//                    p.getInventory().setHelmet(helmet);
-//                } else {
-//                    p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
-//                }
-//            } else {
-//                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
-//            }
-//        }));
-//        itemStoreItems.add(new ShopItem(Material.BOW, 1, Material.GOLD_INGOT, 12, "Bow",31));
-//        itemStoreItems.add(new ShopItem(Material.FIRE_CHARGE, 1, Material.IRON_INGOT, 40, "Fireball",32));
-//        itemStoreItems.add(new ShopItem(Material.HONEY_BOTTLE, 1, Material.EMERALD, 2, "Invisibility Potion",33));
-//        itemStoreItems.add(new ShopItem(Material.WATER_BUCKET, 1, Material.GOLD_INGOT, 3, "Water Bucket",34));
-//
-//        itemStoreItems.add(new ShopItem(Material.STICK, 1, Material.GOLD_INGOT, 5, "Knockback Stick",37));
-//        itemStoreItems.add(new ShopItem(Material.SHEARS, 1, Material.IRON_INGOT, 20, "Shears",38));
-//        itemStoreItems.add(new ShopItem(Material.WOODEN_PICKAXE, 1, Material.IRON_INGOT, 20, "Wooden Pickaxe",39));
-//        itemStoreItems.add(new ShopItem(Material.END_STONE, 12, Material.IRON_INGOT, 24, "End Stone",40));
-//        itemStoreItems.add(new ShopItem(Material.IRON_GOLEM_SPAWN_EGG, 1, Material.IRON_INGOT, 120, "Dream :) Defender",41));
-//        itemStoreItems.add(new ShopItem(Material.WOODEN_AXE, 1, Material.IRON_INGOT, 12, "Wooden Axe",42));
-//        itemStoreItems.add(new ShopItem(Material.GOLDEN_APPLE, 1, Material.GOLD_INGOT, 3, "Golden Apple",43));
-
-
-
     }
-
-//    public Map<String, Inventory> getItemShop(Player p) {
-//        Map<String, Inventory> inventories = new HashMap<>();
-//        Inventory quickBuy = Bukkit.createInventory(p, 54, "Quick Buy");
-//        for(ShopItem item : itemStoreItems){
-//            quickBuy.setItem(item.getInvSlot(), item.getShopItem());
-//        }
-//        inventories.put("quickBuy", quickBuy);
-//        return inventories;
-//    }
-
 
     public void setGenUpgrade(boolean genUpgrade) {
         this.genUpgrade = genUpgrade;
@@ -180,8 +109,11 @@ public class GameTeam {
         playersAlive++;
     }
     public void respawnPlayer(Player player){
+        ItemStack[] armor = player.getInventory().getArmorContents();
         player.getInventory().clear();
-        player.setHealth(20);
+        player.getInventory().setArmorContents(armor);
+        player.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD));
+        player.setHealth(player.getMaxHealth());
         player.clearActivePotionEffects();
         player.teleport(spawnLoc);
     }
@@ -200,6 +132,16 @@ public class GameTeam {
     }
     public void removeGenerator(){
         Generator.removeGenerator(genLocation);
+    }
+    public static void replacePlayer(Player player){
+        for(GameTeam team : RootWars.getTeams().values()) {
+            for (Player p : team.playersInTeam) {
+                if (p.getName().equals(player.getName())) {
+                    team.playersInTeam.remove(p);
+                    team.playersInTeam.add(player);
+                }
+            }
+        }
     }
 
     public void spawnVillagers() {

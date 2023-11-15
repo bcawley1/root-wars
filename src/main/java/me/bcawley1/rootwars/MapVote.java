@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scoreboard.*;
 
 import java.util.*;
@@ -24,7 +25,7 @@ public class MapVote {
     private static VoteBoard voteBoard;
     private static Objective objective;
     private static int secondsLeft = 0;
-    private static VoteDropItemEvent event = new VoteDropItemEvent();
+    private static MapVoteEvent event = new MapVoteEvent();
 
     public static void startVoting() {
         voteBoard = new VoteBoard(VoteType.MAP);
@@ -69,7 +70,6 @@ public class MapVote {
     }
 
     public static void updateBoard() {
-        Bukkit.broadcastMessage("updating board");
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         objective = scoreboard.registerNewObjective("vote", Criteria.DUMMY, Component.text("VOTING")
                 .decoration(TextDecoration.BOLD, true)
@@ -113,7 +113,7 @@ public class MapVote {
             return o1.getValue() - o2.getValue();
         }
     }
-    public static class VoteDropItemEvent implements Listener {
+    public static class MapVoteEvent implements Listener {
         @EventHandler
         public void onItemDrop(PlayerDropItemEvent event){
             if(event.getItemDrop().getItemStack().getType().equals(Material.FILLED_MAP)){
@@ -121,6 +121,14 @@ public class MapVote {
                 event.getPlayer().getInventory().clear();
                 MapVote.addVote(event.getItemDrop().getItemStack().getItemMeta().getDisplayName(), event.getPlayer().getUniqueId());
                 MapVote.updateBoard();
+            }
+        }
+        @EventHandler
+        public void playerJoin(PlayerJoinEvent event){
+            updateBoard();
+            event.getPlayer().getInventory().clear();
+            for (GameMap map : GameMap.getMaps().values()) {
+                event.getPlayer().getInventory().addItem(map.getMap());
             }
         }
     }

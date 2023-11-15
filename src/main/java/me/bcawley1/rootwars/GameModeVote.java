@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -33,7 +34,7 @@ public class GameModeVote {
     private static String winningGameMode;
     private static int taskID;
     private static int secondsLeft;
-    private static VoteClickEvent event = new GameModeVote.VoteClickEvent();
+    private static GameModeVoteEvent event = new GameModeVote.GameModeVoteEvent();
 
     public static void startVoting() {
         voteBoard = new VoteBoard(VoteType.GAMEMODE);
@@ -120,7 +121,7 @@ public class GameModeVote {
     }
 
 
-    public static class VoteClickEvent implements Listener {
+    public static class GameModeVoteEvent implements Listener {
         @EventHandler
         public void onClick(InventoryClickEvent event) {
             if (event.getCurrentItem() != null) {
@@ -129,6 +130,21 @@ public class GameModeVote {
                 event.setCancelled(true);
                 event.getWhoClicked().closeInventory();
             }
+        }
+        @EventHandler
+        public void playerJoin(PlayerJoinEvent event){
+            updateBoard();
+            event.getPlayer().getInventory().clear();
+            Inventory inv = Bukkit.createInventory(event.getPlayer(), 9, "Gamemode Voting");
+            for (GameMode mode : GameMode.getGameModes().values()) {
+                ItemStack item = new ItemStack(mode.getMaterial());
+                ItemMeta meta = item.getItemMeta();
+                meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.YELLOW, mode.getGameModeName()));
+                meta.setLore(List.of((ChatColor.RESET + "" + ChatColor.WHITE + mode.getDescription()).split("\n")));
+                item.setItemMeta(meta);
+                inv.setItem(mode.getInvSlot(), item);
+            }
+            event.getPlayer().openInventory(inv);
         }
     }
 }
