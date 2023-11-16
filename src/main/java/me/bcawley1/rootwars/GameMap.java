@@ -70,7 +70,7 @@ public class GameMap {
     }
 
     public void buildMap() {
-        RootWars.pasteSchem((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),mapName);
+        RootWars.pasteSchematic((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),mapName);
     }
 
     private void renderMap() {

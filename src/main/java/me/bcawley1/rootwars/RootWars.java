@@ -30,33 +30,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class RootWars extends JavaPlugin {
-    private static Map<String, GameTeam> teams = new HashMap<>();
+    private static final Map<String, GameTeam> teams = new HashMap<>();
     private static JavaPlugin plugin;
     private static GameMap currentMap;
     private static GameMode gameMode;
 
+    public enum GameMaps {
+        GREENERY("greenery"),
+        JOHNPORK("johnpork"),
+        GRIMACE("grimace"),
+        SMURFCAT("smurf_cat");
+
+        GameMaps(final String gamemap) {
+            this.gamemap = gamemap;
+        }
+
+        public String getGamemap() {
+            return gamemap;
+        }
+
+        private String gamemap;
+    }
+
     @Override
     public void onEnable() {
-        new GameMap("greenery");
-        new GameMap("johnpork");
-        new GameMap("grimace");
-        new GameMap("smurf_cat");
-//        new GameMap("test1");
-//        new GameMap("test2");
-//        new GameMap("test3");
-//        new GameMap("test4");
-//        new GameMap("test5");
-//        new GameMap("test6");
-        //new GameMap("grimace");
+        Arrays.stream(GameMaps.values()).forEach(x -> new GameMap(x.getGamemap()));
         new Standard();
         new TwoTeams();
         new Rush();
-
         new Shop();
+
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
@@ -65,7 +73,11 @@ public final class RootWars extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new LobbyEvent(), this);
 
         plugin = this;
-        pasteSchem(557, 1, 14, "spawn");
+        try {
+            pasteSchematic(557, 1, 14, "spawn");
+        } catch (IOException e) {
+
+        }
     }
 
     @Override
@@ -73,20 +85,11 @@ public final class RootWars extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static void pasteSchem(int x, int y, int z, String schem){
+    public static void pasteSchematic(int x, int y, int z, String schem) throws IOException {
         File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.schem".formatted(schem));
         ClipboardFormat format = ClipboardFormats.findByFile(myfile);
-        ClipboardReader reader = null;
-        try {
-            reader = format.getReader(new FileInputStream(myfile));
-        } catch (IOException ignored) {
-        }
-        Clipboard clipboard = null;
-        try {
-            clipboard = reader.read();
-        } catch (
-                IOException ignored) {
-        }
+        ClipboardReader reader = format.getReader(new FileInputStream(myfile));
+        Clipboard clipboard = reader.read();
 
         try (
                 EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(Bukkit.getWorld("world")))) {

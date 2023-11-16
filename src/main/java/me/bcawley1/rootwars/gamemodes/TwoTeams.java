@@ -24,6 +24,7 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TwoTeams extends GameMode{
     private Objective objective;
@@ -106,24 +107,17 @@ public class TwoTeams extends GameMode{
         }
     }
 
-    @Override
-    public void updateScoreboard() {
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        objective = scoreboard.registerNewObjective("game", Criteria.DUMMY, Component.text("ROOT WARS")
-                .decoration(TextDecoration.BOLD, true)
-                .color(TextColor.color(255,255,85)));
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        objective.getScore("Teams:").setScore(5);
-        objective.getScore(ChatColor.RED+"Red: %s".formatted(RootWars.getTeams().get("red").isRoot() ? "✔" : RootWars.getTeams().get("red").getPlayersAlive())).setScore(4);
-        objective.getScore(ChatColor.BLUE+"Blue: %s".formatted(RootWars.getTeams().get("blue").isRoot() ? "✔" : RootWars.getTeams().get("blue").getPlayersAlive())).setScore(3);
-        objective.getScore(" ").setScore(2);
-        objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
-        //sets new scoreboard to players
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.setScoreboard(scoreboard);
-        }
+    @Override protected List<String> getScores() {
+        return scores;
     }
+
+    private final List<String> scores = List.of(
+        "Teams:",
+        getColor(ChatColor.RED),
+        getColor(ChatColor.BLUE),
+        " ",
+        getColor(ChatColor.LIGHT_PURPLE)
+    );
 
     @Override
     public void endGame() {

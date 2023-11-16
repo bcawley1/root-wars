@@ -3,6 +3,9 @@ package me.bcawley1.rootwars.gamemodes;
 import me.bcawley1.rootwars.*;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,12 +27,19 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 public abstract class GameMode implements Listener {
+    private Objective objective;
     protected Map<Player, Integer> respawnTimers = new HashMap<>();
     protected Map<Player, Integer> respawnTimerID = new HashMap<>();
     protected String gameModeName;
@@ -61,7 +71,54 @@ public abstract class GameMode implements Listener {
         return gameModeName;
     }
 
-    public abstract void updateScoreboard();
+    protected void updateScoreboard() {
+        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        final String objectiveName = "game"; // TODO: move this to somewhere
+        objective = scoreboard.registerNewObjective(objectiveName, Criteria.DUMMY, Component.text("ROOT WARS")
+                .decoration(TextDecoration.BOLD, true)
+                .color(TextColor.color(255,255,85)));
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        registerScores();
+
+        //sets new scoreboard to players
+        for(Player p : Bukkit.getOnlinePlayers()){
+            p.setScoreboard(scoreboard);
+        }
+    }
+
+    private void registerScores() {
+        final List<String> scores = getScores();
+        Collections.reverse(scores);
+        for (int i = 0; i < scores.size(); i++) {
+            objective.getScore(scores.get(i)).setScore(i);
+        }
+    }
+
+    protected List<String> getScores() {
+        return defaultScores;
+    }
+
+    private final List<String> defaultScores = List.of(
+            "Teams:",
+            getColor(ChatColor.RED),
+            getColor(ChatColor.BLUE),
+            getColor(ChatColor.GREEN),
+            getColor(ChatColor.YELLOW),
+            " ",
+            getColor(ChatColor.LIGHT_PURPLE)
+    );
+
+    protected String getColor(ChatColor chatColor) {
+        switch(chatColor) {
+            case RED: return ChatColor.RED+"Red: %s".formatted(RootWars.getTeams().get("red").isRoot() ? "✔" : RootWars.getTeams().get("red").getPlayersAlive());
+            case BLUE: return ChatColor.BLUE+"Blue: %s".formatted(RootWars.getTeams().get("blue").isRoot() ? "✔" : RootWars.getTeams().get("blue").getPlayersAlive());
+            case GREEN: return ChatColor.GREEN+"Green: %s".formatted(RootWars.getTeams().get("green").isRoot() ? "✔" : RootWars.getTeams().get("green").getPlayersAlive());
+            case YELLOW: return ChatColor.YELLOW+"Yellow: %s".formatted(RootWars.getTeams().get("yellow").isRoot() ? "✔" : RootWars.getTeams().get("yellow").getPlayersAlive());
+            case LIGHT_PURPLE: return ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel";
+        }
+        return ""; // TODO: What should be the default?
+    }
 
     public String getDescription() {
         return description;

@@ -27,7 +27,7 @@ import org.bukkit.scoreboard.Objective;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rush extends GameMode{
+public class Rush extends GameMode {
     private Objective objective;
     private int regenID;
     public Rush() {
@@ -112,27 +112,6 @@ public class Rush extends GameMode{
 
                 updateScoreboard();
             }
-        }
-    }
-
-    @Override
-    public void updateScoreboard() {
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        objective = scoreboard.registerNewObjective("game", Criteria.DUMMY, Component.text("ROOT WARS")
-                .decoration(TextDecoration.BOLD, true)
-                .color(TextColor.color(255,255,85)));
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-        objective.getScore("Teams:").setScore(7);
-        objective.getScore(ChatColor.RED+"Red: %s".formatted(RootWars.getTeams().get("red").isRoot() ? "✔" : RootWars.getTeams().get("red").getPlayersAlive())).setScore(6);
-        objective.getScore(ChatColor.BLUE+"Blue: %s".formatted(RootWars.getTeams().get("blue").isRoot() ? "✔" : RootWars.getTeams().get("blue").getPlayersAlive())).setScore(5);
-        objective.getScore(ChatColor.GREEN+"Green: %s".formatted(RootWars.getTeams().get("green").isRoot() ? "✔" : RootWars.getTeams().get("green").getPlayersAlive())).setScore(4);
-        objective.getScore(ChatColor.YELLOW+"Yellow: %s".formatted(RootWars.getTeams().get("yellow").isRoot() ? "✔" : RootWars.getTeams().get("yellow").getPlayersAlive())).setScore(3);
-        objective.getScore(" ").setScore(2);
-        objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
-        //sets new scoreboard to players
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.setScoreboard(scoreboard);
         }
     }
 
