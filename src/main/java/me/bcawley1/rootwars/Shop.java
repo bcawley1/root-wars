@@ -16,14 +16,54 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Shop {
+public final class Shop {
     private static Map<String, List<ShopItem>> shop = new HashMap<>();
     private static List<ItemStack> topBarItems = new ArrayList<>();
     private static List<BuyActions> topBarActions = new ArrayList<>();
     private static List<ShopItem> upgrades = new ArrayList<>();
 
+    private Shop() {}
 
-    public Shop() {
+
+    //    public Shop() {
+//        JSONParser jsonParser = new JSONParser();
+//        JSONObject JSONObj = null;
+//        try (FileReader reader = new FileReader(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/shop.json")) {
+//            Object obj = jsonParser.parse(reader);
+//            JSONObj = (JSONObject) obj;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        Map<String, ArrayList<Map<String, Object>>> JSONMap = new HashMap<>(JSONObj);
+//        for (Map.Entry<String, ArrayList<Map<String, Object>>> entry : JSONMap.entrySet()) {
+//            if (entry.getKey().equalsIgnoreCase("Top Bar")) {
+//                for (Map<String, Object> m : entry.getValue()) {
+//                    ItemStack item = new ItemStack(Material.valueOf((String) m.get("material")));
+//                    ItemMeta meta = item.getItemMeta();
+//                    meta.setDisplayName((String) m.get("name"));
+//                    meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.YELLOW, ((String) m.get("name")).toLowerCase())));
+//                    item.setItemMeta(meta);
+//                    topBarItems.add(item);
+//                    topBarActions.add(BuyActions.valueOf((String) m.get("action")));
+//                }
+//            } else {
+//                List<ShopItem> list = new ArrayList<>();
+//                for (Map<String, Object> m : entry.getValue()) {
+//                    ShopItem item;
+//                    if (m.containsKey("action")) {
+//                        item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
+//                                Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"), BuyActions.valueOf((String) m.get("action")).getAction());
+//                    } else {
+//                        item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
+//                                Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"));
+//                    }
+//                    list.add(item);
+//                }
+//                shop.put(entry.getKey(), list);
+//            }
+//        }
+//    }
+    public static void registerShop(){
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
         try (FileReader reader = new FileReader(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/shop.json")) {
@@ -32,7 +72,7 @@ public class Shop {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Map<String, ArrayList<Map<String, Object>>> JSONMap = new HashMap<>(JSONObj);
+        Map<String, ArrayList<Map<String, Object>>> JSONMap = new HashMap<String, ArrayList<Map<String, Object>>>(JSONObj);
         for (Map.Entry<String, ArrayList<Map<String, Object>>> entry : JSONMap.entrySet()) {
             if (entry.getKey().equalsIgnoreCase("Top Bar")) {
                 for (Map<String, Object> m : entry.getValue()) {

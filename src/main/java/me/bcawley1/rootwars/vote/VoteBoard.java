@@ -1,5 +1,6 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.vote;
 
+import me.bcawley1.rootwars.GameMap;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 
 import java.util.*;

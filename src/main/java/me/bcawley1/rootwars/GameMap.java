@@ -25,29 +25,26 @@ public class GameMap {
     private String mapName;
     private String displayName;
 
-    public GameMap(String mapName) {
+    private GameMap(String mapName) {
         this.mapName = mapName;
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
-        try (FileReader reader = new FileReader(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.json".formatted(mapName))) {
+        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsolutePath() + "/Maps/%s/%s.json".formatted(mapName,mapName))) {
             Object obj = jsonParser.parse(reader);
             JSONObj = (JSONObject) obj;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
+        } catch (Exception ignored) {}
 
+        try {
             bases = (JSONObject) JSONObj.get("bases");
             generators = (JSONObject) JSONObj.get("generators");
             mapLocations = (JSONObject) JSONObj.get("mapLocations");
             displayName = String.valueOf(JSONObj.get("displayName"));
-            System.out.println(displayName);
             this.renderMap();
-        } catch (Exception e) {
-            System.out.println("------------------------");
-            e.printStackTrace();
-        }
-        maps.put(displayName, this);
+        } catch (Exception ignored) {};
+    }
+
+    public static void registerMap(String mapName){
+        maps.put(mapName, new GameMap(mapName));
     }
 
     public static String DisplaytoMapName(String disName){
@@ -56,26 +53,19 @@ public class GameMap {
                 return entry.getValue().getMapName();
             }
         }
-        System.out.println("dis name: "+disName);
         return "";
     }
     public static String MaptoDisplayName(String mapName){
-        for(Map.Entry<String, GameMap> entry : maps.entrySet()){
-            if(entry.getValue().mapName.equals(mapName)){
-                return entry.getValue().displayName;
-            }
-        }
-        System.out.println("map name: "+mapName);
-        return "";
+        return maps.get(mapName).getDisplayName();
     }
 
     public void buildMap() {
-        RootWars.pasteSchem((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),mapName);
+        RootWars.pasteSchem((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),"Maps/%s/%s".formatted(mapName, mapName));
     }
 
     private void renderMap() {
         MapMeta mapMeta = (MapMeta) map.getItemMeta();
-        MapView mapView = Bukkit.createMap(Bukkit.getWorld("world"));
+        MapView mapView = Bukkit.createMap(RootWars.getWorld());
 
         mapView.getRenderers().clear();
         mapView.addRenderer(new MapImageRenderer(mapName));

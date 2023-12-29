@@ -21,6 +21,8 @@ import me.bcawley1.rootwars.gamemodes.Rush;
 import me.bcawley1.rootwars.gamemodes.Standard;
 import me.bcawley1.rootwars.gamemodes.TwoTeams;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
@@ -32,31 +34,36 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class RootWars extends JavaPlugin {
-    private static Map<String, GameTeam> teams = new HashMap<>();
+    private static Map<UUID, GamePlayer> players = new HashMap<>();
     private static JavaPlugin plugin;
     private static GameMap currentMap;
     private static GameMode gameMode;
+    private static World world;
 
     @Override
     public void onEnable() {
-        new GameMap("greenery");
-        new GameMap("johnpork");
-        new GameMap("grimace");
-        new GameMap("smurf_cat");
-//        new GameMap("test1");
-//        new GameMap("test2");
-//        new GameMap("test3");
-//        new GameMap("test4");
-//        new GameMap("test5");
-//        new GameMap("test6");
-        //new GameMap("grimace");
+        saveDefaultConfig();
+
+        if(this.getConfig().getString("world")==null){
+            this.getConfig().set("world", Bukkit.getServer().getWorlds().get(0).getName());
+        }
+        world = Bukkit.getWorld(this.getConfig().getString("world"));
+
+        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, this.getConfig().getBoolean("daylight-cycle"));
+        world.setGameRule(GameRule.DO_WEATHER_CYCLE, this.getConfig().getBoolean("weather-cycle"));
+
+        for(File file : new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles()){
+            GameMap.registerMap(file.getName());
+        }
+
         new Standard();
         new TwoTeams();
         new Rush();
 
-        new Shop();
+        Shop.registerShop();
         // Sets Commands
         getCommand("Generator").setExecutor(new GeneratorCommand(this));
         getCommand("Load").setExecutor(new LoadCommand(this));
@@ -74,42 +81,30 @@ public final class RootWars extends JavaPlugin {
     }
 
     public static void pasteSchem(int x, int y, int z, String schem){
-        File myfile = new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.schem".formatted(schem));
+        File myfile = new File(plugin.getDataFolder().getAbsolutePath() + "/%s.schem".formatted(schem));
         ClipboardFormat format = ClipboardFormats.findByFile(myfile);
         ClipboardReader reader = null;
         try {
             reader = format.getReader(new FileInputStream(myfile));
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {}
+
         Clipboard clipboard = null;
         try {
             clipboard = reader.read();
-        } catch (
-                IOException ignored) {
-        }
+        } catch (IOException ignored) {}
 
         try (
                 EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(Bukkit.getWorld("world")))) {
             Operation operation = new ClipboardHolder(clipboard)
                     .createPaste(editSession)
                     .to(BlockVector3.at(x, y, z))
-                    // configure here
                     .build();
             Operations.complete(operation);
-        } catch (
-                WorldEditException ignored) {
-        }
+        } catch (WorldEditException ignored) {}
     }
 
     public static void startGame(GameMode mode){
-        JavaPlugin plugin = RootWars.getPlugin();
         gameMode = mode;
-        teams.clear();
-        teams.put("red", new GameTeam(currentMap, "red", plugin));
-        teams.put("blue", new GameTeam(currentMap, "blue", plugin));
-        teams.put("green", new GameTeam(currentMap, "green", plugin));
-        teams.put("yellow", new GameTeam(currentMap, "yellow", plugin));
-
         gameMode.startGame();
     }
 
@@ -121,13 +116,12 @@ public final class RootWars extends JavaPlugin {
         return currentMap;
     }
 
-    public static GameTeam getTeamFromPlayer(Player p){
-        for(GameTeam team : teams.values()){
-            if(team.containsPlayer(p)){
-                return team;
-            }
-        }
-        return null;
+    public static World getWorld() {
+        return world;
+    }
+
+    public static GameTeam getTeamFromPlayer(UUID p){
+
     }
 
     public static void setCurrentMap(GameMap currentMap) {

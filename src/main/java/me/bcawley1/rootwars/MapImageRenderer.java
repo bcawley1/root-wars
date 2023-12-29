@@ -28,12 +28,10 @@ public class MapImageRenderer extends MapRenderer {
         if(!renderedMaps.containsKey(imageName)){
             Image image = null;
             try {
-                image = ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/%s.jpg".formatted(imageName)));
+                image = ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/Maps/%s/%s.jpg".formatted(imageName,imageName)));
             } catch (IOException ignored) {}
             renderedMaps.put(imageName, true);
             mapCanvas.drawImage(0, 0, MapPalette.resizeImage(image));
         }
-
-        //mapCanvas.drawImage(ImageIO.read(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/greenery.jpg")));
     }
 }

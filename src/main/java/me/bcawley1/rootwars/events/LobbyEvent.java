@@ -1,6 +1,6 @@
 package me.bcawley1.rootwars.events;
 
-import me.bcawley1.rootwars.MapVote;
+import me.bcawley1.rootwars.vote.MapVote;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

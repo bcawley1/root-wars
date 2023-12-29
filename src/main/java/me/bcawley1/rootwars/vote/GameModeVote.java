@@ -1,5 +1,6 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.vote;
 
+import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;

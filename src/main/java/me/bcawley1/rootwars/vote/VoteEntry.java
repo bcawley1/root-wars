@@ -1,4 +1,4 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.vote;
 
 import org.jetbrains.annotations.NotNull;
 
