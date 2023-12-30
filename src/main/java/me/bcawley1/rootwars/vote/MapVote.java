@@ -21,11 +21,10 @@ import org.bukkit.scoreboard.*;
 import java.util.*;
 
 public class MapVote {
-    private static String winningMap;
-    private static int taskID;
-    private static Scoreboard scoreboard;
-    private static VoteBoard voteBoard;
-    private static Objective objective;
+    private String winningItem;
+    private int taskID;
+    private Scoreboard scoreboard;
+    private VoteBoard voteBoard;
     private static int secondsLeft = 0;
     private static MapVoteEvent event = new MapVoteEvent();
 
@@ -44,7 +43,7 @@ public class MapVote {
             if(secondsLeft<=0){
                 RootWars.setCurrentMap(GameMap.getMaps().get(winningMap));
                 Bukkit.getServer().getScheduler().cancelTask(taskID);
-                GameModeVote.startVoting();
+                Vote.startVoting();
                 HandlerList.unregisterAll(event);
             }
         }, 0, 20).getTaskId();
@@ -73,7 +72,7 @@ public class MapVote {
 
     public static void updateBoard() {
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        objective = scoreboard.registerNewObjective("vote", Criteria.DUMMY, Component.text("VOTING")
+        Objective objective = scoreboard.registerNewObjective("vote", Criteria.DUMMY, Component.text("VOTING")
                 .decoration(TextDecoration.BOLD, true)
                 .color(TextColor.color(255, 255, 85)));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -115,7 +114,7 @@ public class MapVote {
             return o1.getValue() - o2.getValue();
         }
     }
-    public static class MapVoteEvent implements Listener {
+    public static class VoteEvent implements Listener {
         @EventHandler
         public void onItemDrop(PlayerDropItemEvent event){
             if(event.getItemDrop().getItemStack().getType().equals(Material.FILLED_MAP)){

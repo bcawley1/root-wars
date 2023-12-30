@@ -1,11 +1,10 @@
 package me.bcawley1.rootwars;
 
+import me.bcawley1.rootwars.vote.Votable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.map.MapView;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -16,16 +15,16 @@ import java.util.List;
 import java.util.Map;
 
 
-public class GameMap {
+public class GameMap implements Votable {
     private static Map<String, GameMap> maps = new HashMap<>();
     private Map<String, Map<String, Map<String, Long>>> bases;
     private Map<String, List<Map<String, Long>>> generators;
     private Map<String, Map<String, Long>> mapLocations;
-    private ItemStack map = new ItemStack(Material.FILLED_MAP);
+    private final ItemStack item;
     private String mapName;
-    private String displayName;
 
-    private GameMap(String mapName) {
+    private GameMap(String mapName, int colorNum) {
+        this.item = new ItemStack(Material.valueOf(RootWars.colors[colorNum%RootWars.colors.length]+"_WOOL"));
         this.mapName = mapName;
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
@@ -38,57 +37,29 @@ public class GameMap {
             bases = (JSONObject) JSONObj.get("bases");
             generators = (JSONObject) JSONObj.get("generators");
             mapLocations = (JSONObject) JSONObj.get("mapLocations");
-            displayName = String.valueOf(JSONObj.get("displayName"));
-            this.renderMap();
         } catch (Exception ignored) {};
     }
 
-    public static void registerMap(String mapName){
-        maps.put(mapName, new GameMap(mapName));
-    }
-
-    public static String DisplaytoMapName(String disName){
-        for(Map.Entry<String, GameMap> entry : maps.entrySet()){
-            if(entry.getValue().displayName.equals(disName)){
-                return entry.getValue().getMapName();
-            }
-        }
-        return "";
-    }
-    public static String MaptoDisplayName(String mapName){
-        return maps.get(mapName).getDisplayName();
+    public static void registerMap(String mapName, int colorNum){
+        maps.put(mapName, new GameMap(mapName, colorNum));
     }
 
     public void buildMap() {
         RootWars.pasteSchem((int) this.getMapSpawnPoint().getX(), (int) this.getMapSpawnPoint().getY(), (int) this.getMapSpawnPoint().getZ(),"Maps/%s/%s".formatted(mapName, mapName));
     }
 
-    private void renderMap() {
-        MapMeta mapMeta = (MapMeta) map.getItemMeta();
-        MapView mapView = Bukkit.createMap(RootWars.getWorld());
-
-        mapView.getRenderers().clear();
-        mapView.addRenderer(new MapImageRenderer(mapName));
-
-        mapMeta.setDisplayName(displayName);
-        mapMeta.setMapView(mapView);
-        map.setItemMeta(mapMeta);
-    }
-
-    public ItemStack getMap() {
-        return map;
+    public ItemStack getItem() {
+        return item;
     }
 
     public static Map<String, GameMap> getMaps() {
         return maps;
     }
 
-    public String getMapName() {
+    public String getName() {
         return mapName;
     }
-    public String getDisplayName() {
-        return displayName;
-    }
+
     public Location getRootLocation(String team) {
         Map<String, Long> locationMap = bases.get(team).get("root");
         return new Location(Bukkit.getWorld("world"), locationMap.get("x"), locationMap.get("y"), locationMap.get("z"));

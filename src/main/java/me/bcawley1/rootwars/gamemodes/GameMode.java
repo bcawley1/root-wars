@@ -1,6 +1,7 @@
 package me.bcawley1.rootwars.gamemodes;
 
 import me.bcawley1.rootwars.*;
+import me.bcawley1.rootwars.vote.Votable;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
@@ -29,7 +30,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class GameMode implements Listener {
+public abstract class GameMode implements Listener, Votable {
     protected Map<Player, Integer> respawnTimers = new HashMap<>();
     protected Map<Player, Integer> respawnTimerID = new HashMap<>();
     protected String gameModeName;
@@ -45,6 +46,10 @@ public abstract class GameMode implements Listener {
 
     public abstract void startGame();
     public abstract void endGame();
+
+    public void endVote(){
+        RootWars.startGame();
+    }
     public void onRootBreak(GameTeam team){
         updateScoreboard();
         for(Player p : team.getPlayersInTeam()){

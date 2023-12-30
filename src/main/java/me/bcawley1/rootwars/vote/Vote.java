@@ -27,33 +27,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class GameModeVote {
-    private static Scoreboard scoreboard;
-    private static Objective objective;
-    private static VoteBoard voteBoard;
-    private static String winningGameMode;
-    private static int taskID;
-    private static int secondsLeft;
-    private static GameModeVoteEvent event = new GameModeVote.GameModeVoteEvent();
+public class Vote {
+    private VoteBoard voteBoard;
+    private String winningGameMode;
+    private int taskID;
+    private int secondsLeft;
+    private static final VoteEvent event = new Vote.VoteEvent();
+    private final List<? extends Votable> voteItems;
 
-    public static void startVoting() {
-        voteBoard = new VoteBoard(VoteType.GAMEMODE);
+    public <T extends Votable> Vote(List<T> items, String name, Consumer<String> endVote) {
+        voteItems = items;
+        voteBoard = new VoteBoard(items, name);
+
+    }
+
+    public void startVoting() {
         Bukkit.getServer().getPluginManager().registerEvents(event, RootWars.getPlugin());
         winningGameMode = "";
         secondsLeft = 20;
 
         taskID = Bukkit.getServer().getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             secondsLeft--;
-            GameModeVote.updateBoard();
+            Vote.updateBoard();
             if (secondsLeft <= 5 || secondsLeft == 10 || secondsLeft == 15 || secondsLeft == 19) {
                 Bukkit.getOnlinePlayers().forEach(player -> player.playSound(Sound.sound(Key.key("minecraft:block.note_block.hat"), Sound.Source.MASTER, 1f, 1f)));
             }
             if (secondsLeft <= 0) {
-                //RootWars.startGame(GameMap.getMaps().get(winningMap), RootWars.getPlugin());
-                RootWars.startGame(GameMode.getGameModes().get(winningGameMode));
                 Bukkit.getServer().getScheduler().cancelTask(taskID);
                 HandlerList.unregisterAll(event);
+
             }
         }, 0, 20).getTaskId();
 
@@ -85,8 +89,8 @@ public class GameModeVote {
     }
 
     public static void updateBoard() {
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        objective = scoreboard.registerNewObjective("gamemode", Criteria.DUMMY, Component.text("VOTING")
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = scoreboard.registerNewObjective("gamemode", Criteria.DUMMY, Component.text("VOTING")
                 .decoration(TextDecoration.BOLD, true)
                 .color(TextColor.color(255, 255, 85)));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -122,7 +126,7 @@ public class GameModeVote {
     }
 
 
-    public static class GameModeVoteEvent implements Listener {
+    public static class VoteEvent implements Listener {
         @EventHandler
         public void onClick(InventoryClickEvent event) {
             if (event.getCurrentItem() != null) {

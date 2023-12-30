@@ -23,7 +23,6 @@ import me.bcawley1.rootwars.gamemodes.TwoTeams;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -42,6 +41,7 @@ public final class RootWars extends JavaPlugin {
     private static GameMap currentMap;
     private static GameMode gameMode;
     private static World world;
+    public final static String[] colors = {"BLUE", "RED", "YELLOW", "GREEN", "CYAN", "MAGENTA", "ORANGE", "GRAY", "BLACK", "BROWN", "LIME", "PINK", "PURPLE", "WHITE", "LIGHT_BLUE", "LIGHT_GRAY"};
 
     @Override
     public void onEnable() {
@@ -55,8 +55,9 @@ public final class RootWars extends JavaPlugin {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, this.getConfig().getBoolean("daylight-cycle"));
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, this.getConfig().getBoolean("weather-cycle"));
 
-        for(File file : new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles()){
-            GameMap.registerMap(file.getName());
+        File[] files = new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles();
+        for(int i = 0; i < files.length; i++){
+            GameMap.registerMap(files[i].getName(), i);
         }
 
         new Standard();
@@ -108,6 +109,11 @@ public final class RootWars extends JavaPlugin {
         gameMode.startGame();
     }
 
+    public static GamePlayer getPlayer(UUID ID) {
+        return players.get(ID);
+    }
+
+
     public static GameMode getCurrentGameMode() {
         return gameMode;
     }
@@ -120,16 +126,8 @@ public final class RootWars extends JavaPlugin {
         return world;
     }
 
-    public static GameTeam getTeamFromPlayer(UUID p){
-
-    }
-
     public static void setCurrentMap(GameMap currentMap) {
         RootWars.currentMap = currentMap;
-    }
-
-    public static Map<String, GameTeam> getTeams() {
-        return teams;
     }
 
     public static JavaPlugin getPlugin() {
