@@ -17,7 +17,7 @@ public class LoadCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (command.getName().equalsIgnoreCase("load")) {
-            Player player = (Player) commandSender;
+            Player p = (Player) commandSender;
 
             return true;
         } else {

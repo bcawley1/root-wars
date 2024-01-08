@@ -1,60 +1,152 @@
 package me.bcawley1.rootwars.gamemodes;
 
 import me.bcawley1.rootwars.*;
+import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.runnables.Regen;
+import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.vote.Votable;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import me.bcawley1.rootwars.vote.Vote;
+import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class GameMode implements Listener, Votable {
-    protected Map<Player, Integer> respawnTimers = new HashMap<>();
-    protected Map<Player, Integer> respawnTimerID = new HashMap<>();
+    protected final String[] teamColors;
+    public List<GameTeam> teams;
     protected String gameModeName;
     protected String description;
-    protected int invSlot;
+
     protected Material material;
     protected Scoreboard scoreboard;
     protected static Map<String, GameMode> gameModes = new HashMap<>();
+    protected int respawnTime;
+    protected int playerHealth;
+    protected List<PotionEffect> effects;
+    protected int diamondCooldown;
+    protected int emeraldCooldown;
+    protected Regen regen;
+    protected Shop shop;
 
-    public GameMode(String gameModeName) {
+    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
         this.gameModeName = gameModeName;
+        this.description = description;
+        this.material = material;
+        this.respawnTime = respawnTime;
+        this.teamColors = teamColors;
+        this.playerHealth = playerHealth;
+        effects = new ArrayList<>();
+        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+        this.shop = new Shop();
     }
 
-    public abstract void startGame();
-    public abstract void endGame();
+    public void startGame() {
+        regen = new Regen();
+        Bukkit.getOnlinePlayers().forEach(RootWars::addPlayer);
+        teams = new ArrayList<>();
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(playerHealth);
+            p.setHealth(playerHealth);
+            p.addPotionEffects(effects);
+        });
+        regen.runTaskTimer(RootWars.getPlugin(), 0, 20);
 
-    public void endVote(){
-        RootWars.startGame();
+        for (String s : teamColors) {
+            teams.add(new GameTeam(RootWars.getCurrentMap(), s));
+        }
+
+        Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
+
+        //creates diamond and emerald generators
+        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> new Generator((int) l.getX(), (int) l.getY(), (int) l.getZ(),
+                diamondCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.DIAMOND), 100)))));
+        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> new Generator((int) l.getX(), (int) l.getY(), (int) l.getZ(),
+                emeraldCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
+
+        //assigns players to teams
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        for (int i = 0; i < players.size(); i++) {
+            teams.get(i % teams.size()).addPlayer(players.get(i));
+            players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
+        }
+
+        RootWars.getCurrentMap().buildMap();
+
+        for (GameTeam team : teams) {
+            team.spawnVillagers();
+            for (Player p : team.getPlayersInTeam()) {
+                p.setPlayerListName(ChatColor.valueOf(team.getName().toUpperCase()) + p.getName());
+                RootWars.getPlayer(p).respawnPlayer();
+                ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
+                ItemMeta meta = chestplate.getItemMeta();
+                switch (team.getName()) {
+                    case "blue" -> ((LeatherArmorMeta) meta).setColor(Color.BLUE);
+                    case "red" -> ((LeatherArmorMeta) meta).setColor(Color.RED);
+                    case "yellow" -> ((LeatherArmorMeta) meta).setColor(Color.YELLOW);
+                    case "green" -> ((LeatherArmorMeta) meta).setColor(Color.GREEN);
+                }
+                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+                meta.setUnbreakable(true);
+                chestplate.setItemMeta(meta);
+                p.getInventory().setChestplate(chestplate);
+
+                updateScoreboard();
+            }
+        }
     }
-    public void onRootBreak(GameTeam team){
+
+    public void endGame() {
+        regen.cancel();
+        LobbyEvent lobbyEvent = new LobbyEvent();
+        HandlerList.unregisterAll(this);
+        for (Entity entity : RootWars.getWorld().getEntities()) {
+            if (!entity.getType().equals(EntityType.PLAYER)) {
+                entity.remove();
+            }
+        }
+        for (GameTeam team : teams) {
+            team.removeGenerator();
+        }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            lobbyEvent.putPlayerInLobby(player);
+            player.setMaxHealth(20);
+            player.setHealth(20);
+            player.getActivePotionEffects().forEach(p -> player.removePotionEffect(p.getType()));
+        }
+        Bukkit.getPluginManager().registerEvents(lobbyEvent, RootWars.getPlugin());
+    }
+
+
+    public void onRootBreak(GameTeam team) {
         updateScoreboard();
-        for(Player p : team.getPlayersInTeam()){
-            p.playSound(net.kyori.adventure.sound.Sound.sound(Key.key("minecraft:entity.warden.roar"), Sound.Source.MASTER, 1f, 1f));
-            p.sendTitle("Your Root Broke", "");
+        for (Player p : team.getPlayersInTeam()) {
+            p.playSound(p, Sound.ENTITY_WARDEN_ROAR, SoundCategory.MASTER, 1f, 1f);
+            p.sendTitle("Your Root Broke", "", 10, 70, 20);
         }
     }
 
@@ -62,18 +154,35 @@ public abstract class GameMode implements Listener, Votable {
         return gameModes;
     }
 
-    public String getGameModeName() {
+    @Override
+    public ItemStack getItem() {
+        return Vote.getItem(material, gameModeName, description);
+    }
+
+    @Override
+    public String getName() {
         return gameModeName;
     }
 
-    public abstract void updateScoreboard();
-
-    public String getDescription() {
-        return description;
+    public Shop getShop() {
+        return shop;
     }
 
-    public int getInvSlot() {
-        return invSlot;
+    public void updateScoreboard() {
+        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = scoreboard.registerNewObjective("game", Criteria.DUMMY, "%s%sRoot Wars".formatted(ChatColor.YELLOW, ChatColor.BOLD));
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        objective.getScore("Teams:").setScore(teams.size() + 3);
+        teams.forEach(t -> {
+            objective.getScore(ChatColor.valueOf(t.getName().toUpperCase()) + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 3);
+        });
+        objective.getScore(" ").setScore(2);
+        objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
+        //sets new scoreboard to players
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setScoreboard(scoreboard);
+        }
     }
 
     public Material getMaterial() {
@@ -81,27 +190,28 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event){
+    public void onBlockPlace(BlockPlaceEvent event) {
         GameMap currentMap = RootWars.getCurrentMap();
         Location blockLocation = event.getBlock().getLocation();
-        if(event.getBlock().getType().equals(Material.TNT)){
-            Bukkit.getWorld("world").spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
+        if (event.getBlock().getType().equals(Material.TNT)) {
+            RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
-        if(!(blockLocation.getX()>currentMap.getMapBorder().get("negX")&&blockLocation.getX()<currentMap.getMapBorder().get("posX")&&
-                blockLocation.getY()>currentMap.getMapBorder().get("negY")&&blockLocation.getY()<currentMap.getMapBorder().get("posY")&&
-                blockLocation.getZ()>currentMap.getMapBorder().get("negZ")&&blockLocation.getZ()<currentMap.getMapBorder().get("posZ"))){
+        if (!(blockLocation.getX() > currentMap.getMapBorder().get("negX") && blockLocation.getX() < currentMap.getMapBorder().get("posX") &&
+                blockLocation.getY() > currentMap.getMapBorder().get("negY") && blockLocation.getY() < currentMap.getMapBorder().get("posY") &&
+                blockLocation.getZ() > currentMap.getMapBorder().get("negZ") && blockLocation.getZ() < currentMap.getMapBorder().get("posZ"))) {
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot place blocks outside of the map.");
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event){
-        for(GameTeam team : RootWars.getTeams().values()){
-            if(event.getBlock().getLocation().equals(team.getRootLocation())){
-                if(RootWars.getTeamFromPlayer(event.getPlayer()).equals(team)){
+    public void onBlockBreak(BlockBreakEvent event) {
+        GamePlayer gp = RootWars.getPlayer(event.getPlayer());
+        for (GameTeam team : teams) {
+            if (event.getBlock().getLocation().equals(team.getRootLocation())) {
+                if (gp.getTeam().equals(team)) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(ChatColor.RED + "You cannot break your own root anymore \uD83D\uDE14");
                 }
@@ -110,83 +220,80 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent event){
+    public void onClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-        if(Shop.containsTab(event.getView().getOriginalTitle())) {
-            if(Shop.isTopBar(event.getCurrentItem())){
-                Shop.getTopBarAction(event.getCurrentItem()).getAction().accept((Player) event.getWhoClicked(), new ShopItem(Material.IRON_GOLEM_SPAWN_EGG, 1, Material.IRON_INGOT, 1, "not null"));
+        if (shop.containsTab(event.getView().getOriginalTitle())) {
+            if (shop.isTopBar(event.getCurrentItem())) {
+                shop.getTopBarAction(event.getCurrentItem()).getAction().accept((Player) event.getWhoClicked(), new ShopItem());
             }
-            if (ShopItem.hasShopItem(event.getCurrentItem())) {
-                ShopItem.getShopItemFromItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
+            for(ItemStack i : event.getInventory().getContents()){
+                if(i!=null) {
+                    event.getWhoClicked().sendMessage(String.valueOf(i.getClass()));
+                }
             }
+
+            ((ShopItem) event.getClickedInventory().getItem(event.getSlot()).getItemMeta()).onItemClick((Player) event.getWhoClicked());
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event){
-        event.setCancelled(true);
-        Bukkit.broadcastMessage(event.getPlayer().getName() + " has died lmao");
-        event.getPlayer().setHealth(event.getPlayer().getMaxHealth());
-        event.getPlayer().setGameMode(org.bukkit.GameMode.SPECTATOR);
-        RootWars.getTeamFromPlayer(event.getPlayer()).respawnPlayer(event.getPlayer());
-        if(RootWars.getTeamFromPlayer(event.getPlayer()).isRoot()){
-            respawnTimers.put(event.getPlayer(), 6);
-            respawnTimerID.put(event.getPlayer(), Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(),() -> {
-                respawnTimers.merge(event.getPlayer(), -1, Integer::sum);
-                event.getPlayer().sendTitle(String.valueOf(respawnTimers.get(event.getPlayer())),"");
-                if(respawnTimers.get(event.getPlayer())<=0){
-                    event.getPlayer().setGameMode(org.bukkit.GameMode.SURVIVAL);
-                    RootWars.getTeamFromPlayer(event.getPlayer()).respawnPlayer(event.getPlayer());
-                    Bukkit.getScheduler().cancelTask(respawnTimerID.get(event.getPlayer()));
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player && ((Player) event.getEntity()).getHealth() - event.getFinalDamage() <= 0) {
+            Player p = (Player) event.getEntity();
+            event.setCancelled(true);
+            respawnPlayer(p);
+            if (RootWars.getPlayer((Player) event.getEntity()).getTeam().hasRoot()) {
+                p.setGameMode(org.bukkit.GameMode.SPECTATOR);
+                p.teleport(RootWars.getPlayer(p).getTeam().getSpawnLoc());
+                startRespawnTimer(respawnTime, p);
+            } else {
+                p.setGameMode(org.bukkit.GameMode.SPECTATOR);
+                p.teleport(RootWars.getPlayer(p).getTeam().getSpawnLoc());
+                RootWars.getPlayer(p).getTeam().removePlayer(p);
+
+                int teamsAlive = 0;
+                for (GameTeam team : teams) {
+                    if (team.numPlayersInTeam() > 0) {
+                        teamsAlive++;
+                    }
                 }
-            }, 0, 20).getTaskId());
-        } else {
-            RootWars.getTeamFromPlayer(event.getPlayer()).removePlayersAlive();
-            updateScoreboard();
-            int teamsDead = 0;
-            for(GameTeam team : RootWars.getTeams().values()){
-                if(team.getPlayersAlive()==0){
-                    teamsDead++;
+
+                if (teamsAlive <= 1) {
+                    endGame();
                 }
-            }
-            if(teamsDead>=3){
-                endGame();
+                updateScoreboard();
             }
         }
     }
 
     @EventHandler
-    public void onEntityInteract(PlayerInteractEntityEvent event){
-        if(event.getRightClicked() instanceof Villager){
-            for(GameTeam team : RootWars.getTeams().values()) {
-                if(team.isItemVillager(event.getRightClicked().getLocation())) {
-                    event.getPlayer().openInventory(Shop.getInventoryTab(event.getPlayer(), "Quick Buy"));
-                } else if(team.isUpgradeVillager(event.getRightClicked().getLocation())){
-                    event.getPlayer().openInventory(Shop.getUpgradeTab(event.getPlayer()));
+    public void onEntityInteract(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof Villager) {
+            for (GameTeam team : teams) {
+                if (team.isItemVillager(event.getRightClicked().getLocation())) {
+                    event.getPlayer().openInventory(shop.getInventoryTab(event.getPlayer(), "Quick Buy"));
+                } else if (team.isUpgradeVillager(event.getRightClicked().getLocation())) {
+                    event.getPlayer().openInventory(shop.getUpgradeTab(event.getPlayer()));
                 }
             }
         }
     }
-    @EventHandler
-    public void playerInteract(PlayerInteractEvent event){
-        if(event.getPlayer().getItemInHand().getType().equals(Material.FIRE_CHARGE)){
-            Player p = event.getPlayer();
-            Location loc = p.getEyeLocation().toVector().add(p.getLocation().getDirection().multiply(2)).
-                    toLocation(p.getWorld(), p.getLocation().getYaw(), p.getLocation().getPitch());
 
-            Fireball fireball = event.getPlayer().getWorld().spawn(loc, Fireball.class);
-            fireball.setYield(2);
-            p.getInventory().removeItem(new ItemStack(Material.FIRE_CHARGE, 1));
+    @EventHandler
+    public void playerInteract(PlayerInteractEvent event) {
+        if (event.getPlayer().getItemInHand().getType().equals(Material.FIRE_CHARGE)) {
+            throwFireball(event.getPlayer());
         }
     }
 
+
     @EventHandler
-    public void onItemPickup(EntityPickupItemEvent event){
-        if(Generator.droppedByGenerator(event.getItem())){
+    public void onItemPickup(EntityPickupItemEvent event) {
+        if (Generator.droppedByGenerator(event.getItem())) {
             Generator.deleteGeneratorItem(event.getItem());
-            for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                if(Math.abs(p.getLocation().getX()-event.getEntity().getLocation().getX())<1.3&&Math.abs(p.getLocation().getZ()-event.getEntity().getLocation().getZ())<1.3){
+            for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                if (Math.abs(p.getLocation().getX() - event.getEntity().getLocation().getX()) < 1.3 && Math.abs(p.getLocation().getZ() - event.getEntity().getLocation().getZ()) < 1.3) {
                     p.getInventory().addItem(event.getItem().getItemStack());
                 }
             }
@@ -194,29 +301,57 @@ public abstract class GameMode implements Listener, Votable {
             event.setCancelled(true);
         }
     }
+
     @EventHandler
-    public void playerJoin(PlayerJoinEvent event){
-        GameTeam.replacePlayer(event.getPlayer());
-        GameTeam team = RootWars.getTeamFromPlayer(event.getPlayer());
+    public void playerJoin(PlayerJoinEvent event) {
+        GamePlayer gp = RootWars.getPlayer(event.getPlayer());
+        gp.replacePlayer(event.getPlayer());
         event.getPlayer().setScoreboard(scoreboard);
-        if(team!=null){
-            team.respawnPlayer(event.getPlayer());
+        if (gp.getTeam() != null) {
+            gp.respawnPlayer();
         } else {
             event.getPlayer().setGameMode(org.bukkit.GameMode.SPECTATOR);
             event.getPlayer().teleport(RootWars.getCurrentMap().getEmeraldGeneratorLocations().get(0));
         }
+        RootWars.addPlayer(event.getPlayer());
     }
+
     @EventHandler
-    public void regenEvent(EntityRegainHealthEvent event){
-        if(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.REGEN)||event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED)){
+    public void regenEvent(EntityRegainHealthEvent event) {
+        if (event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.REGEN) || event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED)) {
             event.setCancelled(true);
         }
 
     }
+
     @EventHandler
-    public void playerLeave(PlayerQuitEvent event){
-        if(Bukkit.getOnlinePlayers().isEmpty()){
+    public void playerLeave(PlayerQuitEvent event) {
+        if (Bukkit.getOnlinePlayers().isEmpty()) {
             endGame();
         }
+    }
+
+    @EventHandler
+    public void hungerChangeEvent(FoodLevelChangeEvent event) {
+        event.setCancelled(true);
+    }
+
+    protected static void throwFireball(Player p) {
+        Location loc = p.getEyeLocation().toVector().add(p.getLocation().getDirection().multiply(2)).
+                toLocation(p.getWorld(), p.getLocation().getYaw(), p.getLocation().getPitch());
+
+        Fireball fireball = p.getWorld().spawn(loc, Fireball.class);
+        fireball.setYield(RootWars.getPlugin().getConfig().getInt("fireball-strength"));
+        p.getInventory().removeItem(new ItemStack(Material.FIRE_CHARGE, 1));
+    }
+
+    protected static void respawnPlayer(Player p) {
+        GamePlayer gp = RootWars.getPlayer(p);
+        Bukkit.broadcastMessage(RootWars.getPlugin().getConfig().getString("death-message").replace("{player}", p.getName()));
+        p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+    }
+
+    protected static void startRespawnTimer(int time, Player p) {
+        new Respawn(time, p).runTaskTimer(RootWars.getPlugin(), 0, 20);
     }
 }

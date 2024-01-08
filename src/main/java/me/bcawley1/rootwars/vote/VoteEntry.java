@@ -1,7 +1,5 @@
 package me.bcawley1.rootwars.vote;
 
-import org.jetbrains.annotations.NotNull;
-
 public class VoteEntry implements Comparable<VoteEntry> {
     private int votes;
     private String name;
@@ -23,7 +21,7 @@ public class VoteEntry implements Comparable<VoteEntry> {
     }
 
     @Override
-    public int compareTo(@NotNull VoteEntry o) {
+    public int compareTo(VoteEntry o) {
         return "%s%s".formatted(votes, name).compareTo("%s%s".formatted(o.votes, o.name));
     }
 }

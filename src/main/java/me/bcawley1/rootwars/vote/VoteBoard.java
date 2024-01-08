@@ -6,7 +6,7 @@ public class VoteBoard {
     private Map<String, Integer> votes;
     private Map<UUID, String> playerVotes;
 
-    public <T extends Votable> VoteBoard(List<T> items, String name) {
+    public <T extends Votable> VoteBoard(List<T> items) {
         votes = new HashMap<>();
         playerVotes = new HashMap<>();
         for (Votable item : items) {
@@ -40,7 +40,7 @@ public class VoteBoard {
         return size;
     }
 
-    public String getVotedMap(UUID uuid) {
+    public String getVotedItem(UUID uuid) {
         return playerVotes.get(uuid);
     }
 

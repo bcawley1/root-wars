@@ -4,23 +4,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
 public class Generator {
-    private JavaPlugin plugin;
     private static Map<Location, Integer> taskIDs = new HashMap<>();
     private static List<UUID> droppedItems = new ArrayList<>();
 
-    public Generator(JavaPlugin plugin, int x, int y, int z, long delay, List<GeneratorItem> items) {
-        this.plugin = plugin;
+    public Generator(int x, int y, int z, long delay, List<GeneratorItem> items) {
         items.sort(new GeneratorItem.GeneratorItemComparator());
         World world = Bukkit.getServer().getWorld("world");
         Location location = new Location(world, x, y, z);
         Location locationoffset = new Location(world, x + 0.5, y, z + 0.5);
 
-        taskIDs.put(location, Bukkit.getServer().getScheduler().runTaskTimer(plugin, () -> {
+        taskIDs.put(location, Bukkit.getServer().getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             float randomNumber = new Random().nextFloat(0, 100);
             int itemChance = 0;
             for (GeneratorItem item : items) {

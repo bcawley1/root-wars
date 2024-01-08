@@ -1,18 +1,14 @@
 package me.bcawley1.rootwars.vote;
 
 import me.bcawley1.rootwars.RootWars;
-import me.bcawley1.rootwars.gamemodes.GameMode;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,40 +20,46 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 public class Vote {
     private VoteBoard voteBoard;
-    private String winningGameMode;
+    private String winningItem;
     private int taskID;
     private int secondsLeft;
-    private static final VoteEvent event = new Vote.VoteEvent();
+    private final VoteEvent event = new Vote.VoteEvent();
     private final List<? extends Votable> voteItems;
+    private Consumer<String> endVote;
+    private String name;
 
-    public <T extends Votable> Vote(List<T> items, String name, Consumer<String> endVote) {
+    public Vote(List<? extends Votable> items, String name, Consumer<String> endVote) {
+        this.name = name;
         voteItems = items;
-        voteBoard = new VoteBoard(items, name);
+        voteBoard = new VoteBoard(items);
+        this.endVote = endVote;
 
     }
 
     public void startVoting() {
+        RootWars.getPlugin().getLogger().log(new LogRecord(Level.INFO, "Initiating %s Voting".formatted(name)));
         Bukkit.getServer().getPluginManager().registerEvents(event, RootWars.getPlugin());
-        winningGameMode = "";
+        winningItem = "";
         secondsLeft = 20;
 
         taskID = Bukkit.getServer().getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             secondsLeft--;
-            Vote.updateBoard();
+            updateBoard();
             if (secondsLeft <= 5 || secondsLeft == 10 || secondsLeft == 15 || secondsLeft == 19) {
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(Sound.sound(Key.key("minecraft:block.note_block.hat"), Sound.Source.MASTER, 1f, 1f)));
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player, Sound.BLOCK_NOTE_BLOCK_HAT, SoundCategory.MASTER, 1f, 1f));
             }
             if (secondsLeft <= 0) {
                 Bukkit.getServer().getScheduler().cancelTask(taskID);
                 HandlerList.unregisterAll(event);
-
+                endVote.accept(winningItem);
             }
         }, 0, 20).getTaskId();
 
@@ -65,21 +67,17 @@ public class Vote {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.getInventory().clear();
-            Inventory inv = Bukkit.createInventory(p, 9, "Gamemode Voting");
-            for (GameMode mode : GameMode.getGameModes().values()) {
-                ItemStack item = new ItemStack(mode.getMaterial());
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.YELLOW, mode.getGameModeName()));
-                meta.setLore(List.of((ChatColor.RESET + "" + ChatColor.WHITE + mode.getDescription()).split("\n")));
-                item.setItemMeta(meta);
-                inv.setItem(mode.getInvSlot(), item);
+            Inventory inv = Bukkit.createInventory(p, 9, (name + " Voting"));
+
+            for (Votable item : voteItems) {
+                inv.addItem(item.getItem());
             }
             p.openInventory(inv);
         }
     }
 
-    public static void addVote(String mode, UUID playerID) {
-        Bukkit.getPlayer(playerID).playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.MASTER, 1f, 1f));
+    public void addVote(String mode, UUID playerID) {
+        Bukkit.getPlayer(playerID).playSound(Bukkit.getPlayer(playerID), Sound.BLOCK_NOTE_BLOCK_PLING, SoundCategory.MASTER, 1f, 1f);
         voteBoard.addVote(mode, playerID);
         if (Bukkit.getOnlinePlayers().size() - voteBoard.playersVoted() == 1 && secondsLeft >= 10) {
             secondsLeft = 10;
@@ -88,34 +86,33 @@ public class Vote {
         }
     }
 
-    public static void updateBoard() {
+    public void updateBoard() {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("gamemode", Criteria.DUMMY, Component.text("VOTING")
-                .decoration(TextDecoration.BOLD, true)
-                .color(TextColor.color(255, 255, 85)));
+        Objective objective = scoreboard.registerNewObjective("vote", Criteria.DUMMY, "%s%sVOTING".formatted(ChatColor.YELLOW, ChatColor.BOLD));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        for (Map.Entry<Integer, VoteEntry> entry : voteBoard.getBoard().entrySet()) {
-            if (!(entry.getValue().getVotes() <= 0)) {
-                if (entry.getKey() == (voteBoard.getBoardSize() - 1)) {
-                    objective.getScore(ChatColor.GREEN + entry.getValue().getName() + ": " + entry.getValue().getVotes()).setScore(entry.getKey() + 6);
-                    winningGameMode = entry.getValue().getName();
+        for(int i = 0; i < voteBoard.getBoardSize(); i++){
+            VoteEntry entry = voteBoard.getBoard().get(i);
+            if (!(entry.getVotes() <= 0)) {
+                if (i == (voteBoard.getBoardSize() - 1)) {
+                    objective.getScore(ChatColor.GREEN + entry.getName() + ": " + entry.getVotes()).setScore(i + 6);
+                    winningItem = entry.getName();
                 } else {
-                    objective.getScore(ChatColor.WHITE + entry.getValue().getName() + ": " + entry.getValue().getVotes()).setScore(entry.getKey() + 6);
+                    objective.getScore(ChatColor.WHITE + entry.getName() + ": " + entry.getVotes()).setScore(i + 6);
                 }
 
             }
         }
-        if (winningGameMode.equals("")) {
-            winningGameMode = (String) GameMode.getGameModes().keySet().toArray()[new Random().nextInt(0, GameMode.getGameModes().size())];
+        if (winningItem.isEmpty()) {
+            winningItem = voteItems.get(new Random().nextInt(0, voteItems.size())).getName();
         }
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        Bukkit.getOnlinePlayers().forEach(p -> {
             p.setScoreboard(scoreboard);
-            if (voteBoard.getVotedMap(p.getUniqueId()) == null) {
-                p.sendActionBar(ChatColor.YELLOW + "Click the gamemode you want to vote for.");
+            if (voteBoard.getVotedItem(p.getUniqueId()) == null) {
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.YELLOW + "Click the %s you want to vote for.".formatted(name.toLowerCase())));
             } else {
-                p.sendActionBar(ChatColor.GREEN + "You voted for %s.".formatted(voteBoard.getVotedMap(p.getUniqueId())));
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You voted for %s.".formatted(voteBoard.getVotedItem(p.getUniqueId()))));
             }
-        }
+        });
         objective.getScore(ChatColor.AQUA + "Players Voted: %s/%s".formatted(voteBoard.playersVoted(), Bukkit.getOnlinePlayers().size())).setScore(4);
         objective.getScore(ChatColor.AQUA + "Time Left: %s".formatted(secondsLeft)).setScore(3);
         objective.getScore(ChatColor.WHITE + " ").setScore(2);
@@ -125,8 +122,25 @@ public class Vote {
         objective.getScore("Current Votes:").setScore(voteBoard.getBoardSize() + 6);
     }
 
+    public static ItemStack getItem(Material material, String name, String description){
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.YELLOW, name));
+        meta.setLore(List.of((ChatColor.RESET + "" + ChatColor.WHITE + description).split("\n")));
+        item.setItemMeta(meta);
+        return item;
+    }
 
-    public static class VoteEvent implements Listener {
+    public static ItemStack getItem(Material material, String name){
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.YELLOW, name));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+    public class VoteEvent implements Listener {
         @EventHandler
         public void onClick(InventoryClickEvent event) {
             if (event.getCurrentItem() != null) {
@@ -136,20 +150,18 @@ public class Vote {
                 event.getWhoClicked().closeInventory();
             }
         }
+
         @EventHandler
-        public void playerJoin(PlayerJoinEvent event){
+        public void playerJoin(PlayerJoinEvent event) {
             updateBoard();
             event.getPlayer().getInventory().clear();
-            Inventory inv = Bukkit.createInventory(event.getPlayer(), 9, "Gamemode Voting");
-            for (GameMode mode : GameMode.getGameModes().values()) {
-                ItemStack item = new ItemStack(mode.getMaterial());
-                ItemMeta meta = item.getItemMeta();
-                meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.YELLOW, mode.getGameModeName()));
-                meta.setLore(List.of((ChatColor.RESET + "" + ChatColor.WHITE + mode.getDescription()).split("\n")));
-                item.setItemMeta(meta);
-                inv.setItem(mode.getInvSlot(), item);
-            }
-            event.getPlayer().openInventory(inv);
+            event.getPlayer().setGameMode(org.bukkit.GameMode.ADVENTURE);
+            RootWars.addPlayer(event.getPlayer());
+        }
+
+        @EventHandler
+        public void onPlayerDamage(EntityDamageEvent event) {
+            event.setCancelled(true);
         }
     }
 }
