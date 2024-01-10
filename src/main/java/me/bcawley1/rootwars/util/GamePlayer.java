@@ -1,5 +1,6 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.util;
 
+import me.bcawley1.rootwars.util.GameTeam;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;

@@ -1,5 +1,6 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.util;
 
+import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.Location;

@@ -1,9 +1,14 @@
 package me.bcawley1.rootwars.gamemodes;
 
-import me.bcawley1.rootwars.*;
+import me.bcawley1.rootwars.Generator;
+import me.bcawley1.rootwars.GeneratorItem;
+import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
+import me.bcawley1.rootwars.util.GameMap;
+import me.bcawley1.rootwars.util.GamePlayer;
+import me.bcawley1.rootwars.util.GameTeam;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -33,8 +38,12 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import shop.Shop;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GameMode implements Listener, Votable {
     protected final String[] teamColors;
@@ -210,30 +219,22 @@ public abstract class GameMode implements Listener, Votable {
     public void onBlockBreak(BlockBreakEvent event) {
         GamePlayer gp = RootWars.getPlayer(event.getPlayer());
         for (GameTeam team : teams) {
-            if (event.getBlock().getLocation().equals(team.getRootLocation())) {
-                if (gp.getTeam().equals(team)) {
-                    event.setCancelled(true);
-                    event.getPlayer().sendMessage(ChatColor.RED + "You cannot break your own root anymore \uD83D\uDE14");
-                }
+            if (event.getBlock().getLocation().equals(team.getRootLocation()) && gp.getTeam().equals(team)) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(ChatColor.RED + "You cannot break your own root anymore \uD83D\uDE14");
             }
         }
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
         if (shop.containsTab(event.getView().getOriginalTitle())) {
             if (shop.isTopBar(event.getCurrentItem())) {
-                shop.getTopBarAction(event.getCurrentItem()).getAction().accept((Player) event.getWhoClicked(), new ShopItem());
+                shop.getTopBarItem(event.getCurrentItem()).getAction().accept((Player) event.getWhoClicked(), null);
+            } else if(event.getCurrentItem()!=null) {
+                shop.getShopItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
             }
-            for(ItemStack i : event.getInventory().getContents()){
-                if(i!=null) {
-                    event.getWhoClicked().sendMessage(String.valueOf(i.getClass()));
-                }
-            }
-
-            ((ShopItem) event.getClickedInventory().getItem(event.getSlot()).getItemMeta()).onItemClick((Player) event.getWhoClicked());
-            event.setCancelled(true);
+                event.setCancelled(true);
         }
     }
 

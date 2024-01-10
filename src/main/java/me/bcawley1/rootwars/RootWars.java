@@ -17,6 +17,8 @@ import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.gamemodes.Standard;
 import me.bcawley1.rootwars.gamemodes.TwoTeams;
+import me.bcawley1.rootwars.util.GameMap;
+import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;

@@ -1,5 +1,8 @@
-package me.bcawley1.rootwars;
+package shop;
 
+import me.bcawley1.rootwars.util.GameTeam;
+import me.bcawley1.rootwars.GeneratorItem;
+import me.bcawley1.rootwars.RootWars;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -15,6 +18,18 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
+    DEFAULT((p, i) -> {
+        if (p.getInventory().containsAtLeast(i.getCostItem(), i.getCostItem().getAmount())) {
+            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
+                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
+                p.getInventory().removeItem(i.getCostItem());
+                p.getInventory().addItem(i.getPurchasedItem());
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
+            }
+        } else {
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+    }),
 
     CHAINMAIL_ARMOR((p, i) -> {
         if (p.getInventory().getHelmet() == null || !p.getInventory().getHelmet().getType().equals(Material.DIAMOND_HELMET) && !p.getInventory().getHelmet().getType().equals(Material.IRON_HELMET) && !p.getInventory().getHelmet().getType().equals(Material.CHAINMAIL_HELMET)) {
@@ -35,7 +50,7 @@ public enum BuyActions {
                 p.getInventory().setHelmet(helmet);
                 p.getInventory().setBoots(boots);
                 p.getInventory().removeItem(i.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             } else {
                 p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
@@ -62,7 +77,7 @@ public enum BuyActions {
                 p.getInventory().setHelmet(helmet);
                 p.getInventory().setBoots(boots);
                 p.getInventory().removeItem(i.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             } else {
                 p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
@@ -89,7 +104,7 @@ public enum BuyActions {
                 p.getInventory().setHelmet(helmet);
                 p.getInventory().setBoots(boots);
                 p.getInventory().removeItem(i.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             } else {
                 p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
@@ -103,7 +118,7 @@ public enum BuyActions {
                 ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
                 p.getInventory().removeItem(i.getCostItem());
                 p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased wool!!!");
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
@@ -115,7 +130,7 @@ public enum BuyActions {
                 ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
                 p.getInventory().removeItem(i.getCostItem());
                 p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_TERRACOTTA"), 16));
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
@@ -132,7 +147,7 @@ public enum BuyActions {
                 item.setItemMeta(meta);
                 p.getInventory().addItem(item);
                 p.getInventory().removeItem(i.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
@@ -149,7 +164,7 @@ public enum BuyActions {
                     item.addEnchantment(Enchantment.DAMAGE_ALL, 2);
                 }
                 p.getInventory().addItem(item);
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(i.getPurchasedItem().getItemMeta().getDisplayName()));
+                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(i.getPurchasedItem().getType())));
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");

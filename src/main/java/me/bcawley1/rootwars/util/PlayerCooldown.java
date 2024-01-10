@@ -1,4 +1,4 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.util;
 
 import java.util.HashMap;
 import java.util.Map;

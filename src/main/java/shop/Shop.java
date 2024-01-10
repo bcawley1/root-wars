@@ -1,5 +1,6 @@
-package me.bcawley1.rootwars;
+package shop;
 
+import me.bcawley1.rootwars.RootWars;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,20 +12,21 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Shop {
-    private static Map<String, List<ShopItem>> shop = new HashMap<>();
-    private static List<ItemStack> topBarItems = new ArrayList<>();
-    private static List<BuyActions> topBarActions = new ArrayList<>();
+    private Map<String, List<ShopItem>> shop;
+    private Map<String, ShopItem> items;
+    private List<ActionItem> topBar;
 
     public Shop() {
+        shop = new HashMap<>();
+        topBar = new ArrayList<>();
+        items = new HashMap<>();
+
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
-        try (FileReader reader = new FileReader(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/shop.json")) {
+        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsolutePath() + "/shop.json")) {
             Object obj = jsonParser.parse(reader);
             JSONObj = (JSONObject) obj;
         } catch (Exception e) {
@@ -34,26 +36,21 @@ public class Shop {
         for (Map.Entry<String, ArrayList<Map<String, Object>>> entry : JSONMap.entrySet()) {
             if (entry.getKey().equalsIgnoreCase("Top Bar")) {
                 for (Map<String, Object> m : entry.getValue()) {
-                    ItemStack item = new ItemStack(Material.valueOf((String) m.get("material")));
+                    ActionItem item = new ActionItem(Material.valueOf((String) m.get("material")), BuyActions.valueOf((String) m.get("action")).getAction());
                     ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName((String) m.get("name"));
+                    meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET,ChatColor.WHITE, m.get("name")));
                     meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.YELLOW, ((String) m.get("name")).toLowerCase())));
                     item.setItemMeta(meta);
-                    topBarItems.add(item);
-                    topBarActions.add(BuyActions.valueOf((String) m.get("action")));
+                    topBar.add(item);
                 }
             } else {
                 List<ShopItem> list = new ArrayList<>();
                 for (Map<String, Object> m : entry.getValue()) {
                     ShopItem item;
-                    if (m.containsKey("action")) {
-                        item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
-                                Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"), BuyActions.valueOf((String) m.get("action")).getAction());
-                    } else {
-                        item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
-                                Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"));
-                    }
+                    item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
+                            Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"), m.containsKey("action") ? BuyActions.valueOf((String) m.get("action")).getAction() : BuyActions.DEFAULT.getAction());
                     list.add(item);
+                    items.put(item.getItemMeta().getDisplayName(), item);
                 }
                 shop.put(entry.getKey(), list);
             }
@@ -68,26 +65,23 @@ public class Shop {
         return shop.get(tab);
     }
 
-    public List<ItemStack> getTopBarItems() {
-        return topBarItems;
+    public ActionItem getTopBarItem(ItemStack i) {
+        for(ActionItem actionItem : topBar){
+            if(actionItem.getItemMeta().getDisplayName().equals(i.getItemMeta().getDisplayName())){
+                return actionItem;
+            }
+        }
+        return null;
     }
 
     public boolean isTopBar(ItemStack i) {
-        return getTopBarItems().contains(i);
-    }
-
-    public BuyActions getTopBarAction(ItemStack i) {
-        return topBarActions.get(getTopBarItems().indexOf(i));
-    }
-
-    public List<BuyActions> getTopBarActions() {
-        return topBarActions;
+        return getTopBarItem(i) != null;
     }
 
     public Inventory getInventoryTab(Player p, String tab) {
         Inventory inv = Bukkit.createInventory(p, 54, tab);
-        for (ItemStack i : getTopBarItems()) {
-            inv.setItem(getTopBarItems().indexOf(i), i);
+        for (ActionItem i : topBar) {
+            inv.setItem(topBar.indexOf(i), i);
         }
         for (ShopItem i : getShopTab(tab)) {
             int indexOf = getShopTab(tab).indexOf(i);
@@ -103,5 +97,9 @@ public class Shop {
             inv.setItem(indexOf * 2 + 2, i);
         }
         return inv;
+    }
+
+    public ShopItem getShopItem(ItemStack item) {
+        return items.get(item.getItemMeta().getDisplayName());
     }
 }
