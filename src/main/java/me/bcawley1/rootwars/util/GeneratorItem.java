@@ -1,10 +1,10 @@
 package me.bcawley1.rootwars.util;
 
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 
 import java.util.Comparator;
 
-public record GeneratorItem(ItemStack item, int chance) {
+public record GeneratorItem(Material item, int chance) {
     public static class GeneratorItemComparator implements Comparator<GeneratorItem>{
 
         @Override

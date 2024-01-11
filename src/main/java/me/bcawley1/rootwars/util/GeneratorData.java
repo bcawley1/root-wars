@@ -1,9 +1,9 @@
 package me.bcawley1.rootwars.util;
 
-import java.util.List;
+import java.util.Arrays;
 
-public record GeneratorData(List<GeneratorItem> items, int delay) {
+public record GeneratorData(int delay, GeneratorItem... items) {
     public GeneratorData {
-        items.sort(new GeneratorItem.GeneratorItemComparator());
+        Arrays.sort(items, new GeneratorItem.GeneratorItemComparator());
     }
 }

@@ -1,8 +1,9 @@
 package me.bcawley1.rootwars.shop;
 
-import me.bcawley1.rootwars.util.GameTeam;
-import me.bcawley1.rootwars.util.GeneratorItem;
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.util.GameTeam;
+import me.bcawley1.rootwars.util.GeneratorData;
+import me.bcawley1.rootwars.util.GeneratorItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -13,8 +14,6 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
@@ -225,10 +224,10 @@ public enum BuyActions {
                 }
                 p.getInventory().removeItem(i.getCostItem());
                 team.setGenUpgrade(true);
-                team.upgradeGenerator(new ArrayList<GeneratorItem>(List.of(
-                        new GeneratorItem(new ItemStack(Material.IRON_INGOT), 79),
-                        new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 20),
-                        new GeneratorItem(new ItemStack(Material.EMERALD), 1))), 5);
+                team.upgradeGenerator(new GeneratorData(5, 
+                        new GeneratorItem(Material.IRON_INGOT, 79),
+                        new GeneratorItem(Material.GOLD_INGOT, 20),
+                        new GeneratorItem(Material.EMERALD, 1)));
             }
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");

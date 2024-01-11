@@ -59,9 +59,13 @@ public abstract class GameMode implements Listener, Votable {
     protected Regen regen;
     protected Shop shop;
     protected List<GeneratorData> generatorUpgradeData;
+    protected List<Generator> emeraldGenerator;
+    protected List<Generator> diamondGenerator;
 
 
     protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
+        emeraldGenerator = new ArrayList<>();
+        diamondGenerator = new ArrayList<>();
         this.gameModeName = gameModeName;
         this.description = description;
         this.material = material;
@@ -69,9 +73,12 @@ public abstract class GameMode implements Listener, Votable {
         this.teamColors = teamColors;
         this.playerHealth = playerHealth;
         effects = new ArrayList<>();
-        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 9999999, 255, false, false, false));
         this.shop = new Shop();
-
+        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> emeraldGenerator.add(
+                new Generator(l, new GeneratorData(300, new GeneratorItem(Material.EMERALD, 100)))));
+        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> diamondGenerator.add(
+                new Generator(l, new GeneratorData(150, new GeneratorItem(Material.DIAMOND, 100)))));
     }
 
     public void startGame() {
@@ -87,15 +94,14 @@ public abstract class GameMode implements Listener, Votable {
 
         for (String s : teamColors) {
             teams.add(new GameTeam(RootWars.getCurrentMap(), s, generatorUpgradeData.get(0)));
+            teams.get(teams.size()-1).getGenerator().runTaskTimer(RootWars.getPlugin(), 0, generatorUpgradeData.get(0).delay());
         }
 
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
 
         //creates diamond and emerald generators
-        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> new Generator(l,
-                diamondCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.DIAMOND), 100)))));
-        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> new Generator(l,
-                emeraldCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
+        diamondGenerator.forEach(generator -> generator.runTaskTimer(RootWars.getPlugin(), 0, generator.getGeneratorData().delay()));
+        emeraldGenerator.forEach(generator -> generator.runTaskTimer(RootWars.getPlugin(), 0, generator.getGeneratorData().delay()));
 
         //assigns players to teams
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());

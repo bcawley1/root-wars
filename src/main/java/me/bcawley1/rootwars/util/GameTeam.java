@@ -1,14 +1,13 @@
 package me.bcawley1.rootwars.util;
 
-import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.runnables.Generator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +38,8 @@ public class GameTeam {
         hasRoot = true;
         itemVilLoc = map.getItemVillagerLocation(name);
         List<GeneratorItem> items = new ArrayList<>(List.of(
-                new GeneratorItem(new ItemStack(Material.IRON_INGOT), 90),
-                new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 10)));
+                new GeneratorItem(Material.IRON_INGOT, 90),
+                new GeneratorItem(Material.GOLD_INGOT, 10)));
         generator = new Generator(map.getGeneratorLocation(name), generatorData);
         upgVilLoc = map.getUpgradeVillager(name);
         genLocation = map.getGeneratorLocation(name);
@@ -125,7 +124,7 @@ public class GameTeam {
         return rootLoc;
     }
     public void removeGenerator(){
-        generator.removeGenerator();
+        generator.cancel();
     }
 
     public void spawnVillagers() {
@@ -142,7 +141,7 @@ public class GameTeam {
     }
 
     public void upgradeGenerator(GeneratorData data){
-        generator.removeGenerator();
+        generator.cancel();
         generator = new Generator(genLocation, data);
     }
 
