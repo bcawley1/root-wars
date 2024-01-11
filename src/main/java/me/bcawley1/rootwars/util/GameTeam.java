@@ -1,7 +1,6 @@
 package me.bcawley1.rootwars.util;
 
-import me.bcawley1.rootwars.Generator;
-import me.bcawley1.rootwars.GeneratorItem;
+import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,7 +29,7 @@ public class GameTeam {
     private int rootCheckID;
     private List<Player> playersInTeam;
 
-    public GameTeam(GameMap map, String name) {
+    public GameTeam(GameMap map, String name, GeneratorData generatorData) {
         playersInTeam = new ArrayList<>();
         protection = false;
         sharpness = false;
@@ -42,7 +41,7 @@ public class GameTeam {
         List<GeneratorItem> items = new ArrayList<>(List.of(
                 new GeneratorItem(new ItemStack(Material.IRON_INGOT), 90),
                 new GeneratorItem(new ItemStack(Material.GOLD_INGOT), 10)));
-        generator = new Generator((int) map.getGeneratorLocation(name).getX(), (int) map.getGeneratorLocation(name).getY(), (int) map.getGeneratorLocation(name).getZ(), 15, items);
+        generator = new Generator(map.getGeneratorLocation(name), generatorData);
         upgVilLoc = map.getUpgradeVillager(name);
         genLocation = map.getGeneratorLocation(name);
         spawnLoc = map.getSpawnPointLocation(name);
@@ -79,6 +78,11 @@ public class GameTeam {
     public boolean isGenUpgrade() {
         return genUpgrade;
     }
+
+    public Generator getGenerator() {
+        return generator;
+    }
+
     public void setProtection(boolean protection) {
         this.protection = protection;
     }
@@ -121,26 +125,25 @@ public class GameTeam {
         return rootLoc;
     }
     public void removeGenerator(){
-        Generator.removeGenerator(genLocation);
+        generator.removeGenerator();
     }
 
     public void spawnVillagers() {
-        Villager ItemVillager = (Villager) RootWars.getWorld().spawnEntity(itemVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
-        ItemVillager.setGravity(false);
-        ItemVillager.setInvulnerable(true);
-        ItemVillager.setPersistent(true);
-        ItemVillager.setAI(false);
-        Villager UpgVillager = (Villager) RootWars.getWorld().spawnEntity(upgVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
-        UpgVillager.setGravity(false);
-        UpgVillager.setInvulnerable(true);
-        UpgVillager.setPersistent(true);
-        UpgVillager.setAI(false);
-
+        Villager itemVillager = (Villager) RootWars.getWorld().spawnEntity(itemVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
+        Villager upgVillager = (Villager) RootWars.getWorld().spawnEntity(upgVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
+        setVillagerStuff(itemVillager);
+        setVillagerStuff(upgVillager);
+    }
+    private void setVillagerStuff(Villager villager){
+        villager.setGravity(false);
+        villager.setInvulnerable(true);
+        villager.setPersistent(true);
+        villager.setAI(false);
     }
 
-    public void upgradeGenerator(List<GeneratorItem> list, int delay){
-        Generator.removeGenerator(genLocation);
-        generator = new Generator((int) genLocation.getX(), (int) genLocation.getY(), (int) genLocation.getZ(), delay, list);
+    public void upgradeGenerator(GeneratorData data){
+        generator.removeGenerator();
+        generator = new Generator(genLocation, data);
     }
 
     @Override

@@ -1,7 +1,6 @@
-package me.bcawley1.rootwars;
+package me.bcawley1.rootwars.util;
 
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 

@@ -1,4 +1,4 @@
-package shop;
+package me.bcawley1.rootwars.shop;
 
 import me.bcawley1.rootwars.util.PlayerCooldown;
 import org.bukkit.ChatColor;

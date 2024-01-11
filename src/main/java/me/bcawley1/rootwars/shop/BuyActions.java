@@ -1,7 +1,7 @@
-package shop;
+package me.bcawley1.rootwars.shop;
 
 import me.bcawley1.rootwars.util.GameTeam;
-import me.bcawley1.rootwars.GeneratorItem;
+import me.bcawley1.rootwars.util.GeneratorItem;
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

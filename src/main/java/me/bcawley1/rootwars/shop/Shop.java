@@ -1,4 +1,4 @@
-package shop;
+package me.bcawley1.rootwars.shop;
 
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.Bukkit;
@@ -26,7 +26,7 @@ public class Shop {
 
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
-        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsolutePath() + "/shop.json")) {
+        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsolutePath() + "/me.bcawley1.rootwars.shop.json")) {
             Object obj = jsonParser.parse(reader);
             JSONObj = (JSONObject) obj;
         } catch (Exception e) {

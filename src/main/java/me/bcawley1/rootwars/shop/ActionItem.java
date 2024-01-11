@@ -1,4 +1,4 @@
-package shop;
+package me.bcawley1.rootwars.shop;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

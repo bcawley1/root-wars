@@ -1,14 +1,11 @@
 package me.bcawley1.rootwars.gamemodes;
 
-import me.bcawley1.rootwars.Generator;
-import me.bcawley1.rootwars.GeneratorItem;
+import me.bcawley1.rootwars.runnables.Generator;
+import me.bcawley1.rootwars.util.*;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
-import me.bcawley1.rootwars.util.GameMap;
-import me.bcawley1.rootwars.util.GamePlayer;
-import me.bcawley1.rootwars.util.GameTeam;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -38,7 +35,7 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import shop.Shop;
+import me.bcawley1.rootwars.shop.Shop;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +58,8 @@ public abstract class GameMode implements Listener, Votable {
     protected int emeraldCooldown;
     protected Regen regen;
     protected Shop shop;
+    protected List<GeneratorData> generatorUpgradeData;
+
 
     protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
         this.gameModeName = gameModeName;
@@ -72,6 +71,7 @@ public abstract class GameMode implements Listener, Votable {
         effects = new ArrayList<>();
         effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
         this.shop = new Shop();
+
     }
 
     public void startGame() {
@@ -86,15 +86,15 @@ public abstract class GameMode implements Listener, Votable {
         regen.runTaskTimer(RootWars.getPlugin(), 0, 20);
 
         for (String s : teamColors) {
-            teams.add(new GameTeam(RootWars.getCurrentMap(), s));
+            teams.add(new GameTeam(RootWars.getCurrentMap(), s, generatorUpgradeData.get(0)));
         }
 
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
 
         //creates diamond and emerald generators
-        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> new Generator((int) l.getX(), (int) l.getY(), (int) l.getZ(),
+        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> new Generator(l,
                 diamondCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.DIAMOND), 100)))));
-        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> new Generator((int) l.getX(), (int) l.getY(), (int) l.getZ(),
+        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> new Generator(l,
                 emeraldCooldown, new ArrayList<>(List.of(new GeneratorItem(new ItemStack(Material.EMERALD), 100)))));
 
         //assigns players to teams
