@@ -38,6 +38,9 @@ public class Generator extends BukkitRunnable {
             item.remove();
         }
     }
+    public void startGenerator(){
+        this.runTaskTimer(RootWars.getPlugin(), 0, generatorData.delay());
+    }
 
     @Override
     public void run() {

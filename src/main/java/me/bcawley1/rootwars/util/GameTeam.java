@@ -37,9 +37,6 @@ public class GameTeam {
         this.map = map;
         hasRoot = true;
         itemVilLoc = map.getItemVillagerLocation(name);
-        List<GeneratorItem> items = new ArrayList<>(List.of(
-                new GeneratorItem(Material.IRON_INGOT, 90),
-                new GeneratorItem(Material.GOLD_INGOT, 10)));
         generator = new Generator(map.getGeneratorLocation(name), generatorData);
         upgVilLoc = map.getUpgradeVillager(name);
         genLocation = map.getGeneratorLocation(name);
