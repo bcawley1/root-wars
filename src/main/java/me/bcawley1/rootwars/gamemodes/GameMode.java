@@ -64,16 +64,16 @@ public abstract class GameMode implements Listener, Votable {
 
 
     protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
-        generatorUpgradeData = new ArrayList<>();
         this.gameModeName = gameModeName;
         this.description = description;
         this.material = material;
         this.respawnTime = respawnTime;
         this.teamColors = teamColors;
         this.playerHealth = playerHealth;
-        effects = new ArrayList<>();
-        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 9999999, 255, false, false, false));
         this.shop = new Shop();
+        effects = new ArrayList<>();
+        generatorUpgradeData = new ArrayList<>(List.of());
+        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 9999999, 255, false, false, false));
     }
 
     public void startGame() {
@@ -123,7 +123,6 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public void endGame() {
-        //Cancels the regeneration task.
         regen.cancel();
 
         //Creates a new instance of the LobbyEvent class and registers the events defined in it.
