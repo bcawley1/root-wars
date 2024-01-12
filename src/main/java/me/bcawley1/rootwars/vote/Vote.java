@@ -156,7 +156,7 @@ public class Vote {
             updateBoard();
             event.getPlayer().getInventory().clear();
             event.getPlayer().setGameMode(org.bukkit.GameMode.ADVENTURE);
-            RootWars.addPlayer(event.getPlayer());
+            RootWars.defaultJoin(event.getPlayer());
         }
 
         @EventHandler

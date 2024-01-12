@@ -50,8 +50,9 @@ public class LobbyEvent implements Listener {
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
+        event.setJoinMessage("");
         putPlayerInLobby(event.getPlayer());
-        RootWars.addPlayer(event.getPlayer());
+        RootWars.defaultJoin(event.getPlayer());
     }
 
     @EventHandler

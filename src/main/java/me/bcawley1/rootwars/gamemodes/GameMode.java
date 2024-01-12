@@ -58,12 +58,13 @@ public abstract class GameMode implements Listener, Votable {
     protected int emeraldCooldown;
     protected Regen regen;
     protected Shop shop;
-    protected List<GeneratorData> generatorUpgradeData;
+    protected final List<GeneratorData> generatorUpgradeData;
     protected List<Generator> emeraldGenerators;
     protected List<Generator> diamondGenerators;
 
 
     protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
+        generatorUpgradeData = new ArrayList<>();
         this.gameModeName = gameModeName;
         this.description = description;
         this.material = material;
@@ -76,80 +77,77 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public void startGame() {
+        //Creates and starts the emerald and diamond generators.
         emeraldGenerators = new ArrayList<>();
         diamondGenerators = new ArrayList<>();
         createGenerators();
         diamondGenerators.forEach(Generator::startGenerator);
         emeraldGenerators.forEach(Generator::startGenerator);
 
+        //Starts a health regeneration timer.
         regen = new Regen();
         regen.runTaskTimer(RootWars.getPlugin(), 0, 20);
 
-        Bukkit.getOnlinePlayers().forEach(RootWars::addPlayer);
+        //Creates the teams listed in the teamColors array.
         teams = new ArrayList<>();
-        Bukkit.getOnlinePlayers().forEach(p -> {
-            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(playerHealth);
-            p.setHealth(playerHealth);
-            p.addPotionEffects(effects);
-        });
-
         for (String s : teamColors) {
             teams.add(new GameTeam(RootWars.getCurrentMap(), s, generatorUpgradeData.get(0)));
-            teams.get(teams.size()-1).getGenerator().runTaskTimer(RootWars.getPlugin(), 0, generatorUpgradeData.get(0).delay());
         }
 
-        //assigns players to teams equally
+        //Initializes players.
+        Bukkit.getOnlinePlayers().forEach(p -> {
+            p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(playerHealth);
+            p.setFoodLevel(20);
+            p.setHealth(playerHealth);
+            p.addPotionEffects(effects);
+            initializePlayer(p);
+        });
+
+
+        //Assigns players to teams equally.
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         for (int i = 0; i < players.size(); i++) {
             teams.get(i % teams.size()).addPlayer(players.get(i));
             players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
         }
 
-        for (GameTeam team : teams) {
-            team.spawnVillagers();
-            for (Player p : team.getPlayersInTeam()) {
-                p.setPlayerListName(ChatColor.valueOf(team.getName().toUpperCase()) + p.getName());
-                RootWars.getPlayer(p).respawnPlayer();
-                ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
-                ItemMeta meta = chestplate.getItemMeta();
-                switch (team.getName()) {
-                    case "blue" -> ((LeatherArmorMeta) meta).setColor(Color.BLUE);
-                    case "red" -> ((LeatherArmorMeta) meta).setColor(Color.RED);
-                    case "yellow" -> ((LeatherArmorMeta) meta).setColor(Color.YELLOW);
-                    case "green" -> ((LeatherArmorMeta) meta).setColor(Color.GREEN);
-                }
-                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                meta.setUnbreakable(true);
-                chestplate.setItemMeta(meta);
-                p.getInventory().setChestplate(chestplate);
+        //Initializes things related to teams.
+        teams.forEach(t -> {
+            t.spawnVillagers();
+            t.getGenerator().runTaskTimer(RootWars.getPlugin(), 0, generatorUpgradeData.get(0).delay());
+        });
 
-                updateScoreboard();
-            }
-        }
-
+        //Creates the map and registers the events defined in this class.
         RootWars.getCurrentMap().buildMap();
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
     }
 
     public void endGame() {
+        //Cancels the regeneration task.
         regen.cancel();
-        LobbyEvent lobbyEvent = new LobbyEvent();
+
+        //Creates a new instance of the LobbyEvent class and registers the events defined in it.
         HandlerList.unregisterAll(this);
+        LobbyEvent lobbyEvent = new LobbyEvent();
+        Bukkit.getPluginManager().registerEvents(lobbyEvent, RootWars.getPlugin());
+
+        //Loops through every entity and removes it if it's not a player. If it is a player, it will be reset back to the lobby.
         for (Entity entity : RootWars.getWorld().getEntities()) {
             if (!entity.getType().equals(EntityType.PLAYER)) {
                 entity.remove();
+            } else {
+                Player player = (Player) entity;
+                lobbyEvent.putPlayerInLobby(player);
+                player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
+                player.setHealth(20);
+                player.getActivePotionEffects().forEach(p -> player.removePotionEffect(p.getType()));
             }
         }
+
+        //Removes the generator for each team.
         for (GameTeam team : teams) {
             team.removeGenerator();
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            lobbyEvent.putPlayerInLobby(player);
-            player.setMaxHealth(20);
-            player.setHealth(20);
-            player.getActivePotionEffects().forEach(p -> player.removePotionEffect(p.getType()));
-        }
-        Bukkit.getPluginManager().registerEvents(lobbyEvent, RootWars.getPlugin());
     }
 
 
@@ -307,16 +305,8 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
-        RootWars.addPlayer(event.getPlayer());
-        GamePlayer gp = RootWars.getPlayer(event.getPlayer())
-        event.getPlayer().setScoreboard(scoreboard);
-        if (gp.getTeam() != null) {
-            gp.respawnPlayer();
-        } else {
-            event.getPlayer().setGameMode(org.bukkit.GameMode.SPECTATOR);
-            event.getPlayer().teleport(RootWars.getCurrentMap().getEmeraldGeneratorLocations().get(0));
-        }
-        RootWars.addPlayer(event.getPlayer());
+        RootWars.defaultJoin(event.getPlayer());
+        initializePlayer(event.getPlayer());
     }
 
     @EventHandler
@@ -365,11 +355,15 @@ public abstract class GameMode implements Listener, Votable {
     }
     protected void initializePlayer(Player p){
         GamePlayer gp = RootWars.getPlayer(p);
+        if (gp.getTeam() != null) {
+            gp.respawnPlayer();
+        } else {
+            p.setGameMode(org.bukkit.GameMode.SPECTATOR);
+            p.teleport(RootWars.getCurrentMap().getEmeraldGeneratorLocations().get(0));
+        }
         p.setPlayerListName(ChatColor.valueOf(gp.getTeam().getName().toUpperCase()) + p.getName());
-        gp.respawnPlayer();
-
-
-        updateScoreboard();
+        p.getInventory().setChestplate(getTeamChestplate(p));
+        p.setScoreboard(scoreboard);
     }
     protected ItemStack getTeamChestplate(Player p){
         ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);

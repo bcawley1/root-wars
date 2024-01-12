@@ -20,6 +20,7 @@ import me.bcawley1.rootwars.gamemodes.TwoTeams;
 import me.bcawley1.rootwars.util.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -135,6 +136,12 @@ public final class RootWars extends JavaPlugin {
         } else {
             players.put(p, new GamePlayer(p));
         }
+    }
+
+    public static void defaultJoin(Player p){
+        RootWars.addPlayer(p);
+        String message = RootWars.getPlugin().getConfig().getString("join-message").replace("{player}",p.getName());
+        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 
 //    public static void generatorShopJSON(){
