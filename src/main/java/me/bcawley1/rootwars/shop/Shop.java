@@ -16,13 +16,15 @@ import java.util.*;
 
 public class Shop {
     private Map<String, List<ShopItem>> shop;
-    private Map<String, ShopItem> items;
-    private List<ActionItem> topBar;
+    private Map<String, ActionItem> items;
+    private final List<ActionItem> topBar;
+    private List<UpgradableItem> upgrades;
 
     public Shop() {
         shop = new HashMap<>();
         topBar = new ArrayList<>();
         items = new HashMap<>();
+        upgrades = new ArrayList<>();
 
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
@@ -38,10 +40,19 @@ public class Shop {
                 for (Map<String, Object> m : entry.getValue()) {
                     ActionItem item = new ActionItem(Material.valueOf((String) m.get("material")), BuyActions.valueOf((String) m.get("action")).getAction());
                     ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET,ChatColor.WHITE, m.get("name")));
+                    meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.WHITE, m.get("name")));
                     meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.YELLOW, ((String) m.get("name")).toLowerCase())));
                     item.setItemMeta(meta);
                     topBar.add(item);
+                }
+            } else if (entry.getKey().equalsIgnoreCase("Upgrades")) {
+                for (Map<String, Object> m : entry.getValue()) {
+                    List<Long> costAmount = (List<Long>) m.get("costAmount");
+                    List<ItemStack> cost = new ArrayList<>();
+                    costAmount.forEach(i -> cost.add(new ItemStack(Material.valueOf((String) m.get("costMaterial")), Math.toIntExact(i))));
+                    UpgradableItem item = new UpgradableItem(Material.valueOf((String) m.get("buyMaterial")), BuyActions.valueOf((String) m.get("action")).getAction(), (String) m.get("name"), cost.size()+1, cost);
+                    upgrades.add(item);
+                    items.put((String) m.get("name"), item);
                 }
             } else {
                 List<ShopItem> list = new ArrayList<>();
@@ -66,8 +77,8 @@ public class Shop {
     }
 
     public ActionItem getTopBarItem(ItemStack i) {
-        for(ActionItem actionItem : topBar){
-            if(actionItem.getItemMeta().getDisplayName().equals(i.getItemMeta().getDisplayName())){
+        for (ActionItem actionItem : topBar) {
+            if (actionItem.getItemMeta().getDisplayName().equals(i.getItemMeta().getDisplayName())) {
                 return actionItem;
             }
         }
@@ -92,14 +103,17 @@ public class Shop {
 
     public Inventory getUpgradeTab(Player p) {
         Inventory inv = Bukkit.createInventory(p, 9, "Upgrades");
-        for (ShopItem i : getShopTab("Upgrades")) {
-            int indexOf = getShopTab("Upgrades").indexOf(i);
+        for (UpgradableItem i : upgrades) {
+            int indexOf = upgrades.indexOf(i);
             inv.setItem(indexOf * 2 + 2, i);
         }
         return inv;
     }
 
-    public ShopItem getShopItem(ItemStack item) {
+    public ActionItem getActionItem(ItemStack item) {
         return items.get(item.getItemMeta().getDisplayName());
+    }
+    public ActionItem getActionItemFromString(String s){
+        return items.get(s);
     }
 }

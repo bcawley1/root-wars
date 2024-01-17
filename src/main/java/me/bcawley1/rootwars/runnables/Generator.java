@@ -3,7 +3,6 @@ package me.bcawley1.rootwars.runnables;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.util.GeneratorData;
 import me.bcawley1.rootwars.util.GeneratorItem;
-import me.bcawley1.rootwars.util.Upgradable;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
@@ -14,17 +13,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class Generator extends BukkitRunnable implements Upgradable{
+public class Generator extends BukkitRunnable{
     private static List<UUID> droppedItems = new ArrayList<>();
     private final Location location;
-    private final GeneratorData generatorData;
-    private int upgradeValue;
+    private GeneratorData generatorData;
 
     public Generator(Location location, GeneratorData generatorData) {
-        upgradeValue=0;
         this.generatorData = generatorData;
         this.location = location;
-        this.location.add(0.5,0,0.5);
     }
 
     public GeneratorData getGeneratorData() {
@@ -56,10 +52,5 @@ public class Generator extends BukkitRunnable implements Upgradable{
                 break;
             }
         }
-    }
-
-    @Override
-    public void upgrade() {
-        RootWars.getCurrentGameMode().get
     }
 }

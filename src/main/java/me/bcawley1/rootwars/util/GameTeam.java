@@ -2,12 +2,15 @@ package me.bcawley1.rootwars.util;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.runnables.Generator;
+import me.bcawley1.rootwars.shop.Shop;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,25 +24,27 @@ public class GameTeam {
     private final Location spawnLoc;
     private final Location genLocation;
     private Generator generator;
-    private boolean genUpgrade;
-    private boolean protection;
-    private boolean sharpness;
-    private GameMap map;
+    private int generatorStage;
+    private int protection;
+    private int sharpness;
     private int rootCheckID;
     private List<Player> playersInTeam;
+    private Shop shop;
 
-    public GameTeam(GameMap map, String name, GeneratorData generatorData) {
+    public GameTeam(String name, GeneratorData generatorData) {
+        generatorStage = 0;
+        shop = new Shop();
+        GameMap map = RootWars.getCurrentMap();
         playersInTeam = new ArrayList<>();
-        protection = false;
-        sharpness = false;
-        genUpgrade = false;
+        protection = 0;
+        sharpness = 0;
         this.color = name;
-        this.map = map;
         hasRoot = true;
         itemVilLoc = map.getItemVillagerLocation(name);
-        generator = new Generator(map.getGeneratorLocation(name), generatorData);
         upgVilLoc = map.getUpgradeVillager(name);
         genLocation = map.getGeneratorLocation(name);
+        genLocation.add(0.5, 0, 0.5);
+        generator = new Generator(genLocation, generatorData);
         spawnLoc = map.getSpawnPointLocation(name);
         rootLoc = map.getRootLocation(name);
         rootCheckID = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
@@ -67,40 +72,43 @@ public class GameTeam {
         RootWars.getPlayer(p).setTeam(this);
     }
 
-    public void setGenUpgrade(boolean genUpgrade) {
-        this.genUpgrade = genUpgrade;
-    }
-
-    public boolean isGenUpgrade() {
-        return genUpgrade;
-    }
-
     public Generator getGenerator() {
         return generator;
     }
-
-    public void setProtection(boolean protection) {
-        this.protection = protection;
+    public void upgradeProtection(){
+        protection++;
+        for(Player p : playersInTeam){
+            for (ItemStack armor : p.getInventory().getArmorContents()){
+                if(armor!=null) {
+                    armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, protection);
+                }
+            }
+        }
     }
 
-    public void setSharpness(boolean sharpness) {
-        this.sharpness = sharpness;
-    }
-
-    public boolean isProtection() {
+    public int getProtection() {
         return protection;
     }
 
-    public boolean isSharpness() {
+    public int getSharpness() {
         return sharpness;
+    }
+
+    public void upgradeSharpness(){
+        sharpness++;
+        for(Player p : playersInTeam){
+            for (ItemStack item : p.getInventory()){
+                if(item!=null){
+                    switch (item.getType()){
+                        case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD -> item.addEnchantment(Enchantment.DAMAGE_ALL, sharpness);
+                    }
+                }
+            }
+        }
     }
 
     public String getName() {
         return color;
-    }
-
-    public GameMap getMap() {
-        return map;
     }
 
     public Location getSpawnLoc() {
@@ -117,11 +125,22 @@ public class GameTeam {
     public boolean hasRoot() {
         return hasRoot;
     }
+
+    public Shop getShop() {
+        return shop;
+    }
+
     public Location getRootLocation(){
         return rootLoc;
     }
     public void removeGenerator(){
         generator.cancel();
+    }
+    public void upgradeGenerator(){
+        generatorStage++;
+        generator.cancel();
+        generator = new Generator(genLocation, RootWars.getCurrentGameMode().getGeneratorUpgrade(generatorStage));
+        generator.startGenerator();
     }
 
     public void spawnVillagers() {
@@ -135,11 +154,6 @@ public class GameTeam {
         villager.setInvulnerable(true);
         villager.setPersistent(true);
         villager.setAI(false);
-    }
-
-    public void upgradeGenerator(GeneratorData data){
-        generator.cancel();
-        generator = new Generator(genLocation, data);
     }
 
     @Override

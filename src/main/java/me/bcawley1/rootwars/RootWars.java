@@ -110,7 +110,6 @@ public final class RootWars extends JavaPlugin {
         return players.get(p);
     }
 
-
     public static GameMode getCurrentGameMode() {
         return gameMode;
     }

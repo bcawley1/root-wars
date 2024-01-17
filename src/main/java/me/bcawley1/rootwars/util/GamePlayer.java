@@ -1,6 +1,6 @@
 package me.bcawley1.rootwars.util;
 
-import me.bcawley1.rootwars.util.GameTeam;
+import me.bcawley1.rootwars.RootWars;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -32,14 +32,26 @@ public class GamePlayer {
         player = p;
     }
 
-    public void respawnPlayer(){
+    public void respawnPlayer() {
         ItemStack[] armor = player.getInventory().getArmorContents();
         player.getInventory().clear();
         player.getInventory().setArmorContents(armor);
         player.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD));
         player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-        player.getActivePotionEffects().forEach(potionEffect -> player.removePotionEffect(potionEffect.getType()));
+        player.getActivePotionEffects().forEach(potionEffect -> {
+            if (!RootWars.getCurrentGameMode().isGlobalEffect(potionEffect.getType())) {
+                player.removePotionEffect(potionEffect.getType());
+            }
+        });
         player.setGameMode(GameMode.SURVIVAL);
         player.teleport(team.getSpawnLoc());
+    }
+
+    @Override
+    public String toString() {
+        return "GamePlayer{" +
+                "player=" + player +
+                ", team=" + team +
+                '}';
     }
 }

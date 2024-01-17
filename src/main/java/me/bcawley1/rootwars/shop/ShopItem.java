@@ -15,7 +15,7 @@ public class ShopItem extends ActionItem {
     private int costAmount;
     private static PlayerCooldown buyCooldown = new PlayerCooldown();
 
-    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, BiConsumer<Player, ShopItem> action) {
+    public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, BiConsumer<Player, ActionItem> action) {
         super(buyItem, buyAmount, action);
         String description = "%s%sCost: %s%s %s\n%sClick to buy!!!!".formatted(ChatColor.RESET, ChatColor.GRAY, ChatColor.WHITE, costAmount, ShopItem.getFormattedName(costItem), ChatColor.YELLOW);
         ItemMeta meta = getItemMeta();
@@ -29,10 +29,6 @@ public class ShopItem extends ActionItem {
 
     public static PlayerCooldown getBuyCooldown() {
         return buyCooldown;
-    }
-
-    public void onItemClick(Player p) {
-        action.accept(p, this);
     }
 
     public ItemStack getPurchasedItem() {
