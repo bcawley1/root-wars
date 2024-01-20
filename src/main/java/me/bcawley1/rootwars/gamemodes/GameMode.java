@@ -62,6 +62,7 @@ public abstract class GameMode implements Listener, Votable {
     protected final List<GeneratorData> generatorUpgradeData;
     protected List<Generator> emeraldGenerators;
     protected List<Generator> diamondGenerators;
+    protected List<ScheduledEvent> events;
 
 
     protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
@@ -73,6 +74,11 @@ public abstract class GameMode implements Listener, Votable {
         this.playerHealth = playerHealth;
         this.initialShop = new Shop();
         effects = new ArrayList<>();
+        events = new ArrayList<>(List.of(
+                new ScheduledEvent("Emerald II", 1200, () -> {
+                    emeraldGenerators.forEach(generator -> generator.);
+                });
+        ));
         generatorUpgradeData = new ArrayList<>(List.of(
                 new GeneratorData(15, new GeneratorItem(Material.IRON_INGOT, 80), new GeneratorItem(Material.GOLD_INGOT, 20)),
                 new GeneratorData(10, new GeneratorItem(Material.IRON_INGOT, 70), new GeneratorItem(Material.GOLD_INGOT, 30)),
@@ -124,6 +130,8 @@ public abstract class GameMode implements Listener, Votable {
             t.spawnVillagers();
             t.getGenerator().runTaskTimer(RootWars.getPlugin(), 0, generatorUpgradeData.get(0).delay());
         });
+
+        //
 
         //registers the events defined in this class.
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());

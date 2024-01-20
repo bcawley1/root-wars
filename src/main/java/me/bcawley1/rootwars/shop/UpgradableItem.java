@@ -15,7 +15,7 @@ public class UpgradableItem extends ActionItem{
     private final int numUpgrades;
     private List<ItemStack> cost;
     private String upgradeName;
-    public UpgradableItem(Material type, BiConsumer<Player, ActionItem> action, String upgradeName, int numUpgrades, List<ItemStack> cost) {
+    public UpgradableItem(Material type, BuyActions action, String upgradeName, int numUpgrades, List<ItemStack> cost) {
         super(type, action);
         this.cost = new ArrayList<>(cost);
         this.numUpgrades = numUpgrades;

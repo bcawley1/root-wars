@@ -38,7 +38,7 @@ public class Shop {
         for (Map.Entry<String, ArrayList<Map<String, Object>>> entry : JSONMap.entrySet()) {
             if (entry.getKey().equalsIgnoreCase("Top Bar")) {
                 for (Map<String, Object> m : entry.getValue()) {
-                    ActionItem item = new ActionItem(Material.valueOf((String) m.get("material")), BuyActions.valueOf((String) m.get("action")).getAction());
+                    ActionItem item = new ActionItem(Material.valueOf((String) m.get("material")), BuyActions.valueOf((String) m.get("action")));
                     ItemMeta meta = item.getItemMeta();
                     meta.setDisplayName("%s%s%s".formatted(ChatColor.RESET, ChatColor.WHITE, m.get("name")));
                     meta.setLore(List.of("%s%sClick to open the %s menu.".formatted(ChatColor.RESET, ChatColor.YELLOW, ((String) m.get("name")).toLowerCase())));
@@ -50,7 +50,7 @@ public class Shop {
                     List<Long> costAmount = (List<Long>) m.get("costAmount");
                     List<ItemStack> cost = new ArrayList<>();
                     costAmount.forEach(i -> cost.add(new ItemStack(Material.valueOf((String) m.get("costMaterial")), Math.toIntExact(i))));
-                    UpgradableItem item = new UpgradableItem(Material.valueOf((String) m.get("buyMaterial")), BuyActions.valueOf((String) m.get("action")).getAction(), (String) m.get("name"), cost.size()+1, cost);
+                    UpgradableItem item = new UpgradableItem(Material.valueOf((String) m.get("buyMaterial")), BuyActions.valueOf((String) m.get("action")), (String) m.get("name"), cost.size()+1, cost);
                     upgrades.add(item);
                     items.put((String) m.get("name"), item);
                 }
@@ -59,7 +59,7 @@ public class Shop {
                 for (Map<String, Object> m : entry.getValue()) {
                     ShopItem item;
                     item = new ShopItem(Material.valueOf((String) m.get("buyMaterial")), Math.toIntExact((Long) m.get("buyAmount")),
-                            Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"), m.containsKey("action") ? BuyActions.valueOf((String) m.get("action")).getAction() : BuyActions.DEFAULT.getAction());
+                            Material.valueOf((String) m.get("costMaterial")), Math.toIntExact((Long) m.get("costAmount")), (String) m.get("name"), m.containsKey("action") ? BuyActions.valueOf((String) m.get("action")) : BuyActions.DEFAULT);
                     list.add(item);
                     items.put(item.getItemMeta().getDisplayName(), item);
                 }

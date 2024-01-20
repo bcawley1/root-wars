@@ -10,14 +10,14 @@ public class ActionItem extends ItemStack {
     protected BiConsumer<Player, ActionItem> action;
 
 
-    public ActionItem(Material type, int amount, BiConsumer<Player, ActionItem> action) {
+    public ActionItem(Material type, int amount, BuyActions action) {
         super(type, amount);
-        this.action = action;
+        this.action = action.getAction();
     }
 
-    public ActionItem(Material type, BiConsumer<Player, ActionItem> action) {
+    public ActionItem(Material type, BuyActions action) {
         super(type);
-        this.action = action;
+        this.action = action.getAction();
     }
 
     public void onItemClick(Player p) {
