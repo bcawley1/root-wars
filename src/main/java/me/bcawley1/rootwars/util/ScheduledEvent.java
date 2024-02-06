@@ -33,6 +33,10 @@ public class ScheduledEvent implements Comparable<ScheduledEvent>{
         return name;
     }
 
+    public int getDelay() {
+        return delay;
+    }
+
     @Override
     public int compareTo(@NotNull ScheduledEvent o) {
         return delay-o.delay;

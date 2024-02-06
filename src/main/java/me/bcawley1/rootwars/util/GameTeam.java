@@ -24,15 +24,13 @@ public class GameTeam {
     private final Location spawnLoc;
     private final Location genLocation;
     private Generator generator;
-    private int generatorStage;
     private int protection;
     private int sharpness;
     private int rootCheckID;
     private List<Player> playersInTeam;
     private Shop shop;
 
-    public GameTeam(String name, GeneratorData generatorData) {
-        generatorStage = 0;
+    public GameTeam(String name, GeneratorData... generatorData) {
         shop = new Shop();
         GameMap map = RootWars.getCurrentMap();
         playersInTeam = new ArrayList<>();
@@ -49,9 +47,7 @@ public class GameTeam {
         rootLoc = map.getRootLocation(name);
         rootCheckID = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
             if(!RootWars.getWorld().getBlockAt(rootLoc).getType().equals(Material.MANGROVE_ROOTS)){
-                hasRoot = false;
-                RootWars.getCurrentGameMode().onRootBreak(this);
-                Bukkit.getScheduler().cancelTask(rootCheckID);
+                breakRoot();
             }
         }, 0, 1).getTaskId();
     }
@@ -125,6 +121,11 @@ public class GameTeam {
     public boolean hasRoot() {
         return hasRoot;
     }
+    public void breakRoot(){
+        hasRoot = false;
+        RootWars.getCurrentGameMode().onRootBreak(this);
+        Bukkit.getScheduler().cancelTask(rootCheckID);
+    }
 
     public Shop getShop() {
         return shop;
@@ -132,15 +133,6 @@ public class GameTeam {
 
     public Location getRootLocation(){
         return rootLoc;
-    }
-    public void removeGenerator(){
-        generator.cancel();
-    }
-    public void upgradeGenerator(){
-        generatorStage++;
-        generator.cancel();
-        generator = new Generator(genLocation, RootWars.getCurrentGameMode().getGeneratorUpgrade(generatorStage));
-        generator.startGenerator();
     }
 
     public void spawnVillagers() {

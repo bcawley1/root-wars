@@ -1,11 +1,12 @@
 package me.bcawley1.rootwars.gamemodes;
 
-import me.bcawley1.rootwars.runnables.Generator;
-import me.bcawley1.rootwars.util.*;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
+import me.bcawley1.rootwars.shop.Shop;
+import me.bcawley1.rootwars.util.*;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -32,17 +33,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import me.bcawley1.rootwars.shop.Shop;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class GameMode implements Listener, Votable {
     protected final String[] teamColors;
@@ -59,13 +56,18 @@ public abstract class GameMode implements Listener, Votable {
     protected int emeraldCooldown;
     protected Regen regen;
     protected final Shop initialShop;
-    protected final List<GeneratorData> generatorUpgradeData;
+    //Generator Variables
+    protected final GeneratorData[] playerGeneratorUpgradeData;
     protected List<Generator> emeraldGenerators;
+    protected final GeneratorData[] emeraldUpgradeData;
     protected List<Generator> diamondGenerators;
+    protected final GeneratorData[] diamondUpgradeData;
     protected List<ScheduledEvent> events;
+    protected BukkitTask scoreboardUpdateTask;
+    protected long startTick;
 
-
-    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
+    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth,
+                       GeneratorData[] playerGeneratorUpgradeData, GeneratorData[] emeraldUpgradeData, GeneratorData[] diamondUpgradeData) {
         this.gameModeName = gameModeName;
         this.description = description;
         this.material = material;
@@ -73,28 +75,48 @@ public abstract class GameMode implements Listener, Votable {
         this.teamColors = teamColors;
         this.playerHealth = playerHealth;
         this.initialShop = new Shop();
+        this.playerGeneratorUpgradeData = playerGeneratorUpgradeData;
+        this.emeraldUpgradeData = emeraldUpgradeData;
+        this.diamondUpgradeData = diamondUpgradeData;
         effects = new ArrayList<>();
         events = new ArrayList<>(List.of(
-                new ScheduledEvent("Emerald II", 1200, () -> {
-                    emeraldGenerators.forEach(generator -> generator.);
-                });
-        ));
-        generatorUpgradeData = new ArrayList<>(List.of(
-                new GeneratorData(15, new GeneratorItem(Material.IRON_INGOT, 80), new GeneratorItem(Material.GOLD_INGOT, 20)),
-                new GeneratorData(10, new GeneratorItem(Material.IRON_INGOT, 70), new GeneratorItem(Material.GOLD_INGOT, 30)),
-                new GeneratorData(7, new GeneratorItem(Material.IRON_INGOT, 63), new GeneratorItem(Material.GOLD_INGOT, 35), new GeneratorItem(Material.EMERALD, 2)),
-                new GeneratorData(5, new GeneratorItem(Material.IRON_INGOT, 60), new GeneratorItem(Material.GOLD_INGOT, 35), new GeneratorItem(Material.EMERALD, 5))));
+                new ScheduledEvent("Emerald II", 2400, () -> emeraldGenerators.forEach(Generator::upgradeGenerator)),
+                new ScheduledEvent("Diamond II", 4800, () -> diamondGenerators.forEach(Generator::upgradeGenerator)),
+                new ScheduledEvent("Emerald III", 7200, () -> emeraldGenerators.forEach(Generator::upgradeGenerator)),
+                new ScheduledEvent("Diamond III", 9600, () -> diamondGenerators.forEach(Generator::upgradeGenerator)),
+                new ScheduledEvent("Roots Break", 24000, () -> teams.forEach(GameTeam::breakRoot))));
         effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 255, false, false, false));
     }
 
+    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
+        this(gameModeName, description, material, respawnTime, teamColors, playerHealth,
+                new GeneratorData[]{
+                        new GeneratorData(15, new GeneratorItem(Material.IRON_INGOT, 80), new GeneratorItem(Material.GOLD_INGOT, 20)),
+                        new GeneratorData(10, new GeneratorItem(Material.IRON_INGOT, 75), new GeneratorItem(Material.GOLD_INGOT, 25)),
+                        new GeneratorData(7, new GeneratorItem(Material.IRON_INGOT, 74), new GeneratorItem(Material.GOLD_INGOT, 25), new GeneratorItem(Material.EMERALD, 1)),
+                        new GeneratorData(5, new GeneratorItem(Material.IRON_INGOT, 72), new GeneratorItem(Material.GOLD_INGOT, 25), new GeneratorItem(Material.EMERALD, 3))},
+                new GeneratorData[]{
+                        new GeneratorData(1200, new GeneratorItem(Material.EMERALD, 100)),
+                        new GeneratorData(600, new GeneratorItem(Material.EMERALD, 100)),
+                        new GeneratorData(300, new GeneratorItem(Material.EMERALD, 100))},
+                new GeneratorData[]{
+                        new GeneratorData(600, new GeneratorItem(Material.DIAMOND, 100)),
+                        new GeneratorData(300, new GeneratorItem(Material.DIAMOND, 100)),
+                        new GeneratorData(150, new GeneratorItem(Material.DIAMOND, 100))});
+    }
+
     public void startGame() {
+        scoreboardUpdateTask = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), this::updateScoreboard, 0, 20);
+        Collections.sort(events);
+        startTick = RootWars.getWorld().getGameTime();
         Bukkit.getOnlinePlayers().forEach(RootWars::addPlayer);
         RootWars.getCurrentMap().buildMap();
 
         //Creates and starts the emerald and diamond generators.
         emeraldGenerators = new ArrayList<>();
         diamondGenerators = new ArrayList<>();
-        createGenerators();
+        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(loc -> emeraldGenerators.add(new Generator(loc, emeraldUpgradeData)));
+        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(loc -> diamondGenerators.add(new Generator(loc, diamondUpgradeData)));
         diamondGenerators.forEach(Generator::startGenerator);
         emeraldGenerators.forEach(Generator::startGenerator);
 
@@ -105,7 +127,7 @@ public abstract class GameMode implements Listener, Votable {
         //Creates the teams listed in the teamColors array.
         teams = new ArrayList<>();
         for (String s : teamColors) {
-            teams.add(new GameTeam(s, generatorUpgradeData.get(0)));
+            teams.add(new GameTeam(s, playerGeneratorUpgradeData));
         }
 
 
@@ -128,16 +150,18 @@ public abstract class GameMode implements Listener, Votable {
         //Initializes things related to teams.
         teams.forEach(t -> {
             t.spawnVillagers();
-            t.getGenerator().runTaskTimer(RootWars.getPlugin(), 0, generatorUpgradeData.get(0).delay());
+            t.getGenerator().startGenerator();
         });
 
-        //
+        //Sets the ScheduledEvents to run at their specific time
+        events.forEach(ScheduledEvent::scheduleEvent);
 
         //registers the events defined in this class.
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
     }
 
     public void endGame() {
+        scoreboardUpdateTask.cancel();
         regen.cancel();
 
         //Creates a new instance of the LobbyEvent class and registers the events defined in it.
@@ -158,12 +182,15 @@ public abstract class GameMode implements Listener, Votable {
             }
         }
 
+        //removes scheduled events
+        events.forEach(ScheduledEvent::cancelEvent);
+
         //Removes the generator for each team.
         for (GameTeam team : teams) {
-            team.removeGenerator();
+            team.getGenerator().stopGenerator();
         }
-        emeraldGenerators.forEach(BukkitRunnable::cancel);
-        diamondGenerators.forEach(BukkitRunnable::cancel);
+        emeraldGenerators.forEach(Generator::stopGenerator);
+        diamondGenerators.forEach(Generator::stopGenerator);
     }
 
 
@@ -198,10 +225,19 @@ public abstract class GameMode implements Listener, Votable {
         Objective objective = scoreboard.registerNewObjective("game", Criteria.DUMMY, "%s%sRoot Wars".formatted(ChatColor.YELLOW, ChatColor.BOLD));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        objective.getScore("Teams:").setScore(teams.size() + 3);
+        objective.getScore("Teams:").setScore(teams.size() + 5);
         teams.forEach(t -> {
-            objective.getScore(ChatColor.valueOf(t.getName().toUpperCase()) + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 3);
+            objective.getScore(ChatColor.valueOf(t.getName().toUpperCase()) + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 5);
         });
+        objective.getScore("  ").setScore(4);
+        long currentGameTick = RootWars.getWorld().getGameTime() - startTick;
+        for (ScheduledEvent event : events) {
+            if (event.getDelay() > currentGameTick) {
+                long ticksUntilEvent = event.getDelay() - currentGameTick;
+                objective.getScore(ChatColor.AQUA + event.getName() + ": " + ChatColor.DARK_GREEN + (ticksUntilEvent > 1200 ? "%s Min".formatted(ticksUntilEvent / 1200) : "%s Sec".formatted(ticksUntilEvent / 20))).setScore(3);
+                break;
+            }
+        }
         objective.getScore(" ").setScore(2);
         objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
         //sets new scoreboard to players
@@ -252,7 +288,7 @@ public abstract class GameMode implements Listener, Votable {
                 shop.getActionItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
             }
             event.setCancelled(true);
-        } else if(event.getView().getOriginalTitle().equalsIgnoreCase("Upgrades")&&event.getCurrentItem()!=null){
+        } else if (event.getView().getOriginalTitle().equalsIgnoreCase("Upgrades") && event.getCurrentItem() != null) {
             System.out.println(event.getCurrentItem().getItemMeta().getDisplayName().split(" Upgrade:")[0].substring(2));
             shop.getActionItemFromString(event.getCurrentItem().getItemMeta().getDisplayName().split(" Upgrade:")[0].substring(2)).onItemClick((Player) event.getWhoClicked());
             event.setCancelled(true);
@@ -341,7 +377,7 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void playerLeave(PlayerQuitEvent event) {
-        if (Bukkit.getOnlinePlayers().size()==1&&Bukkit.getOnlinePlayers().contains(event.getPlayer())) {
+        if (Bukkit.getOnlinePlayers().size() == 1 && Bukkit.getOnlinePlayers().contains(event.getPlayer())) {
             endGame();
         }
     }
@@ -352,9 +388,9 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @EventHandler
-    public void entityLoadEvent(EntitiesLoadEvent event){
+    public void entityLoadEvent(EntitiesLoadEvent event) {
         event.getEntities().forEach(entity -> {
-            if(entity.getType()==EntityType.DROPPED_ITEM&&!Generator.droppedByGenerator((Item) entity)){
+            if (entity.getType() == EntityType.DROPPED_ITEM && !Generator.droppedByGenerator((Item) entity)) {
                 entity.remove();
             }
         });
@@ -377,17 +413,6 @@ public abstract class GameMode implements Listener, Votable {
 
     protected static void startRespawnTimer(int time, Player p) {
         new Respawn(time, p).runTaskTimer(RootWars.getPlugin(), 0, 20);
-    }
-
-    public GeneratorData getGeneratorUpgrade(int i) {
-        return i >= generatorUpgradeData.size() ? null : generatorUpgradeData.get(i);
-    }
-
-    protected void createGenerators() {
-        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(l -> emeraldGenerators.add(
-                new Generator(l, new GeneratorData(300, new GeneratorItem(Material.EMERALD, 100)))));
-        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(l -> diamondGenerators.add(
-                new Generator(l, new GeneratorData(150, new GeneratorItem(Material.DIAMOND, 100)))));
     }
 
     protected void initializePlayer(Player p) {
@@ -419,8 +444,8 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public boolean isGlobalEffect(PotionEffectType effectType) {
-        for(PotionEffect effect : effects){
-            if(effect.getType()==effectType){
+        for (PotionEffect effect : effects) {
+            if (effect.getType() == effectType) {
                 return true;
             }
         }

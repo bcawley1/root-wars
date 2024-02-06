@@ -219,7 +219,7 @@ public enum BuyActions {
             }
             p.getInventory().removeItem(item.getCost());
             item.upgrade();
-            team.upgradeGenerator();
+            team.getGenerator().upgradeGenerator();
             p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
