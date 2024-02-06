@@ -80,11 +80,11 @@ public abstract class GameMode implements Listener, Votable {
         this.diamondUpgradeData = diamondUpgradeData;
         effects = new ArrayList<>();
         events = new ArrayList<>(List.of(
-                new ScheduledEvent("Emerald II", 2400, () -> emeraldGenerators.forEach(Generator::upgradeGenerator)),
-                new ScheduledEvent("Diamond II", 4800, () -> diamondGenerators.forEach(Generator::upgradeGenerator)),
-                new ScheduledEvent("Emerald III", 7200, () -> emeraldGenerators.forEach(Generator::upgradeGenerator)),
-                new ScheduledEvent("Diamond III", 9600, () -> diamondGenerators.forEach(Generator::upgradeGenerator)),
-                new ScheduledEvent("Roots Break", 24000, () -> teams.forEach(GameTeam::breakRoot))));
+                new ScheduledEvent("Emerald II", 2400, () -> emeraldGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
+                new ScheduledEvent("Diamond II", 4800, () -> diamondGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
+                new ScheduledEvent("Emerald III", 7200, () -> emeraldGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
+                new ScheduledEvent("Diamond III", 9600, () -> diamondGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
+                new ScheduledEvent("Roots Break", 24000, () -> teams.forEach(GameTeam::breakRoot), ScheduledEvent.EventType.ONCE)));
         effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 255, false, false, false));
     }
 
@@ -281,6 +281,9 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         Shop shop = RootWars.getPlayer((Player) event.getWhoClicked()).getTeam().getShop();
+        if (event.getCurrentItem() == null) {
+            return;
+        }
         if (shop.containsTab(event.getView().getOriginalTitle())) {
             if (shop.isTopBar(event.getCurrentItem())) {
                 shop.getTopBarItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
@@ -295,10 +298,10 @@ public abstract class GameMode implements Listener, Votable {
         }
     }
 
+    //On player death
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player && ((Player) event.getEntity()).getHealth() - event.getFinalDamage() <= 0) {
-            Player p = (Player) event.getEntity();
+        if (event.getEntity() instanceof Player p && p.getHealth() - event.getFinalDamage() <= 0) {
             event.setCancelled(true);
             respawnPlayer(p);
             if (RootWars.getPlayer((Player) event.getEntity()).getTeam().hasRoot()) {
@@ -327,7 +330,7 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void onEntityInteract(PlayerInteractEntityEvent event) {
-        if (event.getRightClicked() instanceof Villager) {
+        if (event.getRightClicked() instanceof Villager && RootWars.getPlayer(event.getPlayer()).getTeam() != null) {
             Shop shop = RootWars.getPlayer(event.getPlayer()).getTeam().getShop();
             for (GameTeam team : teams) {
                 if (team.isItemVillager(event.getRightClicked().getLocation())) {
