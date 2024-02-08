@@ -6,18 +6,16 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 public class ScheduledEvent implements Comparable<ScheduledEvent> {
-    private EventType eventType;
     private final int delay;
     private final String name;
     private final Runnable runnable;
     private BukkitTask task;
 
 
-    public ScheduledEvent(String name, int delay, Runnable runnable, EventType type) {
+    public ScheduledEvent(String name, int delay, Runnable runnable) {
         this.name = name;
         this.delay = delay;
         this.runnable = runnable;
-        this.eventType = type;
     }
 
     public void scheduleEvent() {
@@ -26,6 +24,19 @@ public class ScheduledEvent implements Comparable<ScheduledEvent> {
         }
         task = Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), runnable, delay);
     }
+
+    protected Runnable getRunnable() {
+        return runnable;
+    }
+
+    protected BukkitTask getTask() {
+        return task;
+    }
+
+    protected void setTask(BukkitTask task) {
+        this.task = task;
+    }
+
     public boolean isAlreadyScheduled(){
         return task!=null;
     }
@@ -42,14 +53,9 @@ public class ScheduledEvent implements Comparable<ScheduledEvent> {
         return delay;
     }
 
-    public EventType getEventType() {
-        return eventType;
-    }
-
     @Override
     public int compareTo(@NotNull ScheduledEvent o) {
         return delay - o.delay;
     }
 
-    public enum EventType {REPEAT, ONCE}
 }

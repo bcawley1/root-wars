@@ -15,8 +15,8 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.gamemodes.GameMode;
+import me.bcawley1.rootwars.gamemodes.Overgrowth;
 import me.bcawley1.rootwars.gamemodes.Standard;
-import me.bcawley1.rootwars.gamemodes.TwoTeams;
 import me.bcawley1.rootwars.util.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.Bukkit;
@@ -61,7 +61,8 @@ public final class RootWars extends JavaPlugin {
         }
 
         new Standard();
-        new TwoTeams();
+        new Overgrowth();
+//        new TwoTeams();
 //        new Rush();
 
         // Sets Commands

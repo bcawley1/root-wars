@@ -4,15 +4,17 @@ import me.bcawley1.rootwars.RootWars;
 import org.bukkit.Bukkit;
 
 public class RepeatableEvent extends ScheduledEvent{
+    private final int repeatTime;
 
-    public RepeatableEvent(String name, int delay, int repeatTime, Runnable runnable, EventType type) {
-        super(name, delay, runnable, type);
+    public RepeatableEvent(String name, int delay, int repeatTime, Runnable runnable) {
+        super(name, delay, runnable);
+        this.repeatTime = repeatTime;
     }
     @Override
     public void scheduleEvent() {
         if(isAlreadyScheduled()){
            cancelEvent();
         }
-        task = Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), runnable, delay);
+        setTask(Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), getRunnable(), getDelay(), repeatTime));
     }
 }

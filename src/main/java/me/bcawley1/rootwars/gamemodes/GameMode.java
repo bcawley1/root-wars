@@ -41,16 +41,14 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 public abstract class GameMode implements Listener, Votable {
     protected final String[] teamColors;
-    public List<GameTeam> teams;
+    protected List<GameTeam> teams;
     protected String gameModeName;
     protected String description;
 
@@ -60,7 +58,6 @@ public abstract class GameMode implements Listener, Votable {
     protected int playerHealth;
     protected int regenTime;
     protected List<PotionEffect> effects;
-    //TODO: remove these things because i dont like them
     protected Regen regen;
     //Generator Variables
     protected final GeneratorData[] playerGeneratorUpgradeData;
@@ -69,13 +66,14 @@ public abstract class GameMode implements Listener, Votable {
     protected List<Generator> diamondGenerators;
     protected final GeneratorData[] diamondUpgradeData;
     protected final List<ScheduledEvent> events;
+    protected final List<RepeatableEvent> repeatableEvents;
     protected BukkitTask scoreboardUpdateTask;
     protected long startTick;
 
     protected GameMode(String jsonName) {
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObj = null;
-        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsoluteFile() + "/%s.json".formatted(jsonName))) {
+        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsoluteFile() + "/GameModes/%s.json".formatted(jsonName))) {
             Object obj = jsonParser.parse(reader);
             jsonObj = (JSONObject) obj;
         } catch (Exception e) {
@@ -86,9 +84,9 @@ public abstract class GameMode implements Listener, Votable {
         gameModeName = (String) data.get("name");
         description = (String) data.get("description");
         material = Material.valueOf((String) data.get("voteItem"));
-        respawnTime = (int) data.get("respawnTime");
-        playerHealth = (int) data.get("playerHealth");
-        regenTime = (int) data.get("regenTimer");
+        respawnTime = Math.toIntExact((long) data.get("respawnTime"));
+        playerHealth = Math.toIntExact((long) data.get("playerHealth"));
+        regenTime = Math.toIntExact((long) data.get("regenTimer"));
 
         playerGeneratorUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("teamGeneratorTiers"));
         emeraldUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("emeraldGeneratorTiers"));
@@ -96,54 +94,22 @@ public abstract class GameMode implements Listener, Votable {
 
         events = new ArrayList<>();
         for (Map<String, Object> map : (List<Map<String, Object>>) data.get("events")) {
-            events.add(new ScheduledEvent((String) map.get("name"), (int) map.get("delay"), getRunnable((String) map.get("runnable")), ScheduledEvent.EventType.ONCE));
+            events.add(new ScheduledEvent((String) map.get("name"), Math.toIntExact((long) map.get("delay")), getRunnable((String) map.get("runnable"))));
+        }
+
+        repeatableEvents = new ArrayList<>();
+        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("repeatingEvents")) {
+            repeatableEvents.add(new RepeatableEvent((String) map.get("name"), Math.toIntExact((long) map.get("delay")), Math.toIntExact((long) map.get("repeatTime")), getRunnable((String) map.get("runnable"))));
         }
 
         effects = new ArrayList<>();
         for (Map<String, Object> map : (List<Map<String, Object>>) data.get("effects")) {
-            effects.add(new PotionEffect(PotionEffectType.getByName((String) map.get("name")), -1, (Integer) map.get("amplifier"), false, false, false));
+            effects.add(new PotionEffect(PotionEffectType.getByName((String) map.get("name")), -1, Math.toIntExact((long) map.get("amplifier")), false, false, false));
         }
 
-        teamColors = (String[]) ((List<String>)data.get("teams")).toArray();
+        teamColors = ((List<String>) data.get("teams")).toArray(new String[0]);
+        gameModes.put(gameModeName, this);
     }
-
-/*    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth,
-                       GeneratorData[] playerGeneratorUpgradeData, GeneratorData[] emeraldUpgradeData, GeneratorData[] diamondUpgradeData) {
-        this.gameModeName = gameModeName;
-        this.description = description;
-        this.material = material;
-        this.respawnTime = respawnTime;
-        this.teamColors = teamColors;
-        this.playerHealth = playerHealth;
-        this.playerGeneratorUpgradeData = playerGeneratorUpgradeData;
-        this.emeraldUpgradeData = emeraldUpgradeData;
-        this.diamondUpgradeData = diamondUpgradeData;
-        effects = new ArrayList<>();
-        events = new ArrayList<>(List.of(
-                new ScheduledEvent("Emerald II", 2400, () -> emeraldGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
-                new ScheduledEvent("Diamond II", 4800, () -> diamondGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
-                new ScheduledEvent("Emerald III", 7200, () -> emeraldGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
-                new ScheduledEvent("Diamond III", 9600, () -> diamondGenerators.forEach(Generator::upgradeGenerator), ScheduledEvent.EventType.ONCE),
-                new ScheduledEvent("Roots Break", 24000, () -> teams.forEach(GameTeam::breakRoot), ScheduledEvent.EventType.ONCE)));
-        effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, -1, 255, false, false, false));
-    }
-
-    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth) {
-        this(gameModeName, description, material, respawnTime, teamColors, playerHealth,
-                new GeneratorData[]{
-                        new GeneratorData(15, new GeneratorItem(Material.IRON_INGOT, 80), new GeneratorItem(Material.GOLD_INGOT, 20)),
-                        new GeneratorData(10, new GeneratorItem(Material.IRON_INGOT, 75), new GeneratorItem(Material.GOLD_INGOT, 25)),
-                        new GeneratorData(7, new GeneratorItem(Material.IRON_INGOT, 74), new GeneratorItem(Material.GOLD_INGOT, 25), new GeneratorItem(Material.EMERALD, 1)),
-                        new GeneratorData(5, new GeneratorItem(Material.IRON_INGOT, 72), new GeneratorItem(Material.GOLD_INGOT, 25), new GeneratorItem(Material.EMERALD, 3))},
-                new GeneratorData[]{
-                        new GeneratorData(1200, new GeneratorItem(Material.EMERALD, 100)),
-                        new GeneratorData(600, new GeneratorItem(Material.EMERALD, 100)),
-                        new GeneratorData(300, new GeneratorItem(Material.EMERALD, 100))},
-                new GeneratorData[]{
-                        new GeneratorData(600, new GeneratorItem(Material.DIAMOND, 100)),
-                        new GeneratorData(300, new GeneratorItem(Material.DIAMOND, 100)),
-                        new GeneratorData(150, new GeneratorItem(Material.DIAMOND, 100))});
-    }*/
 
     private GeneratorData[] getGeneratorData(List<HashMap<String, Object>> data) {
         GeneratorData[] dataArray = new GeneratorData[data.size()];
@@ -151,9 +117,9 @@ public abstract class GameMode implements Listener, Votable {
             List<HashMap<String, Object>> items = (List<HashMap<String, Object>>) data.get(i).get("items");
             GeneratorItem[] itemsButCooler = new GeneratorItem[items.size()];
             for (int j = 0; j < items.size(); j++) {
-                itemsButCooler[j] = new GeneratorItem(Material.valueOf((String) items.get(j).get("item")), (Integer) items.get(j).get("chance"));
+                itemsButCooler[j] = new GeneratorItem(Material.valueOf((String) items.get(j).get("item")), Math.toIntExact((long) items.get(j).get("chance")));
             }
-            dataArray[i] = new GeneratorData((int) data.get(i).get("delay"), itemsButCooler);
+            dataArray[i] = new GeneratorData(Math.toIntExact((long) data.get(i).get("delay")), itemsButCooler);
         }
         return dataArray;
     }
@@ -209,6 +175,9 @@ public abstract class GameMode implements Listener, Votable {
         //Sets the ScheduledEvents to run at their specific time
         events.forEach(ScheduledEvent::scheduleEvent);
 
+        //Sets the RepeatableEvents to run
+        repeatableEvents.forEach(RepeatableEvent::scheduleEvent);
+
         //registers the events defined in this class.
         Bukkit.getPluginManager().registerEvents(this, RootWars.getPlugin());
     }
@@ -237,6 +206,7 @@ public abstract class GameMode implements Listener, Votable {
 
         //removes scheduled events
         events.forEach(ScheduledEvent::cancelEvent);
+        repeatableEvents.forEach(RepeatableEvent::cancelEvent);
 
         //Removes the generator for each team.
         for (GameTeam team : teams) {
@@ -247,7 +217,11 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     protected Runnable getRunnable(String s) {
-        return Events.valueOf(s).getRunnable();
+        try {
+            return Events.valueOf(s).getRunnable();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 
