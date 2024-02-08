@@ -38,8 +38,15 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 public abstract class GameMode implements Listener, Votable {
     protected final String[] teamColors;
@@ -51,22 +58,56 @@ public abstract class GameMode implements Listener, Votable {
     protected static Map<String, GameMode> gameModes = new HashMap<>();
     protected int respawnTime;
     protected int playerHealth;
+    protected int regenTime;
     protected List<PotionEffect> effects;
-    protected int diamondCooldown;
-    protected int emeraldCooldown;
+    //TODO: remove these things because i dont like them
     protected Regen regen;
-    protected final Shop initialShop;
     //Generator Variables
     protected final GeneratorData[] playerGeneratorUpgradeData;
     protected List<Generator> emeraldGenerators;
     protected final GeneratorData[] emeraldUpgradeData;
     protected List<Generator> diamondGenerators;
     protected final GeneratorData[] diamondUpgradeData;
-    protected List<ScheduledEvent> events;
+    protected final List<ScheduledEvent> events;
     protected BukkitTask scoreboardUpdateTask;
     protected long startTick;
 
-    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth,
+    protected GameMode(String jsonName) {
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObj = null;
+        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsoluteFile() + "/%s.json".formatted(jsonName))) {
+            Object obj = jsonParser.parse(reader);
+            jsonObj = (JSONObject) obj;
+        } catch (Exception e) {
+            RootWars.getPlugin().getLogger().log(new LogRecord(Level.SEVERE, "Error while trying to parse %s.json.".formatted(jsonName)));
+        }
+        HashMap<String, Object> data = jsonObj;
+
+        gameModeName = (String) data.get("name");
+        description = (String) data.get("description");
+        material = Material.valueOf((String) data.get("voteItem"));
+        respawnTime = (int) data.get("respawnTime");
+        playerHealth = (int) data.get("playerHealth");
+        regenTime = (int) data.get("regenTimer");
+
+        playerGeneratorUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("teamGeneratorTiers"));
+        emeraldUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("emeraldGeneratorTiers"));
+        diamondUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("diamondGeneratorTiers"));
+
+        events = new ArrayList<>();
+        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("events")) {
+            events.add(new ScheduledEvent((String) map.get("name"), (int) map.get("delay"), getRunnable((String) map.get("runnable")), ScheduledEvent.EventType.ONCE));
+        }
+
+        effects = new ArrayList<>();
+        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("effects")) {
+            effects.add(new PotionEffect(PotionEffectType.getByName((String) map.get("name")), -1, (Integer) map.get("amplifier"), false, false, false));
+        }
+
+        teamColors = (String[]) ((List<String>)data.get("teams")).toArray();
+    }
+
+/*    protected GameMode(String gameModeName, String description, Material material, int respawnTime, String[] teamColors, int playerHealth,
                        GeneratorData[] playerGeneratorUpgradeData, GeneratorData[] emeraldUpgradeData, GeneratorData[] diamondUpgradeData) {
         this.gameModeName = gameModeName;
         this.description = description;
@@ -74,7 +115,6 @@ public abstract class GameMode implements Listener, Votable {
         this.respawnTime = respawnTime;
         this.teamColors = teamColors;
         this.playerHealth = playerHealth;
-        this.initialShop = new Shop();
         this.playerGeneratorUpgradeData = playerGeneratorUpgradeData;
         this.emeraldUpgradeData = emeraldUpgradeData;
         this.diamondUpgradeData = diamondUpgradeData;
@@ -103,6 +143,19 @@ public abstract class GameMode implements Listener, Votable {
                         new GeneratorData(600, new GeneratorItem(Material.DIAMOND, 100)),
                         new GeneratorData(300, new GeneratorItem(Material.DIAMOND, 100)),
                         new GeneratorData(150, new GeneratorItem(Material.DIAMOND, 100))});
+    }*/
+
+    private GeneratorData[] getGeneratorData(List<HashMap<String, Object>> data) {
+        GeneratorData[] dataArray = new GeneratorData[data.size()];
+        for (int i = 0; i < data.size(); i++) {
+            List<HashMap<String, Object>> items = (List<HashMap<String, Object>>) data.get(i).get("items");
+            GeneratorItem[] itemsButCooler = new GeneratorItem[items.size()];
+            for (int j = 0; j < items.size(); j++) {
+                itemsButCooler[j] = new GeneratorItem(Material.valueOf((String) items.get(j).get("item")), (Integer) items.get(j).get("chance"));
+            }
+            dataArray[i] = new GeneratorData((int) data.get(i).get("delay"), itemsButCooler);
+        }
+        return dataArray;
     }
 
     public void startGame() {
@@ -122,7 +175,7 @@ public abstract class GameMode implements Listener, Votable {
 
         //Starts a health regeneration timer.
         regen = new Regen();
-        regen.runTaskTimer(RootWars.getPlugin(), 0, 20);
+        regen.runTaskTimer(RootWars.getPlugin(), 0, regenTime);
 
         //Creates the teams listed in the teamColors array.
         teams = new ArrayList<>();
@@ -193,6 +246,10 @@ public abstract class GameMode implements Listener, Votable {
         diamondGenerators.forEach(Generator::stopGenerator);
     }
 
+    protected Runnable getRunnable(String s) {
+        return Events.valueOf(s).getRunnable();
+    }
+
 
     public void onRootBreak(GameTeam team) {
         updateScoreboard();
@@ -214,10 +271,6 @@ public abstract class GameMode implements Listener, Votable {
     @Override
     public String getName() {
         return gameModeName;
-    }
-
-    public Shop getInitialShop() {
-        return initialShop;
     }
 
     public void updateScoreboard() {
@@ -244,10 +297,6 @@ public abstract class GameMode implements Listener, Votable {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.setScoreboard(scoreboard);
         }
-    }
-
-    public Material getMaterial() {
-        return material;
     }
 
     @EventHandler
@@ -453,5 +502,23 @@ public abstract class GameMode implements Listener, Votable {
             }
         }
         return false;
+    }
+
+    private enum Events {
+        EMERALD_II(() -> RootWars.getCurrentGameMode().emeraldGenerators.forEach(Generator::upgradeGenerator)),
+        DIAMOND_II(() -> RootWars.getCurrentGameMode().diamondGenerators.forEach(Generator::upgradeGenerator)),
+        EMERALD_III(() -> RootWars.getCurrentGameMode().emeraldGenerators.forEach(Generator::upgradeGenerator)),
+        DIAMOND_III(() -> RootWars.getCurrentGameMode().diamondGenerators.forEach(Generator::upgradeGenerator)),
+        ROOTS_BREAK(() -> RootWars.getCurrentGameMode().teams.forEach(GameTeam::breakRoot));
+
+        private final Runnable runnable;
+
+        Events(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        public Runnable getRunnable() {
+            return runnable;
+        }
     }
 }

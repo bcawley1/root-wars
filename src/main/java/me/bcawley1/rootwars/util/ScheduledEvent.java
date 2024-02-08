@@ -24,11 +24,10 @@ public class ScheduledEvent implements Comparable<ScheduledEvent> {
         if (task != null) {
             task.cancel();
         }
-        if(eventType==EventType.ONCE) {
-            task = Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), runnable, delay);
-        } else {
-            task = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), runnable, delay, delay);
-        }
+        task = Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), runnable, delay);
+    }
+    public boolean isAlreadyScheduled(){
+        return task!=null;
     }
 
     public void cancelEvent() {

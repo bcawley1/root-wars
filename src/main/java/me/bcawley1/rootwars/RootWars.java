@@ -162,12 +162,12 @@ public final class RootWars extends JavaPlugin {
 //        customItem.put("action", "");
 //        tab.add(defaultItem);
 //        tab.add(customItem);
-//        JSONObject me.bcawley1.rootwars.shop = new JSONObject();
-//        me.bcawley1.rootwars.shop.put("Quick Buy", tab);
+//        JSONObject shop = new JSONObject();
+//        shop.put("Quick Buy", tab);
 //
 //        try (FileWriter file = new FileWriter(new File(Bukkit.getServer().getPluginManager().getPlugin("RootWars").getDataFolder().getAbsolutePath() + "/me.bcawley1.rootwars.shop.json"))) {
 //            //We can write any JSONArray or JSONObject instance to the file
-//            file.write(me.bcawley1.rootwars.shop.toJSONString());
+//            file.write(shop.toJSONString());
 //            file.flush();
 //
 //        } catch (IOException e) {
