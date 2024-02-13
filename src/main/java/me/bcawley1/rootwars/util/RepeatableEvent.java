@@ -15,6 +15,6 @@ public class RepeatableEvent extends ScheduledEvent{
         if(isAlreadyScheduled()){
            cancelEvent();
         }
-        setTask(Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), getRunnable(), getDelay(), repeatTime));
+        setTask(Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), runnable, delay, repeatTime));
     }
 }

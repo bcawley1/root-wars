@@ -6,9 +6,9 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 public class ScheduledEvent implements Comparable<ScheduledEvent> {
-    private final int delay;
-    private final String name;
-    private final Runnable runnable;
+    protected final int delay;
+    protected final String name;
+    protected final Runnable runnable;
     private BukkitTask task;
 
 
@@ -19,18 +19,10 @@ public class ScheduledEvent implements Comparable<ScheduledEvent> {
     }
 
     public void scheduleEvent() {
-        if (task != null) {
+        if (isAlreadyScheduled()) {
             task.cancel();
         }
         task = Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), runnable, delay);
-    }
-
-    protected Runnable getRunnable() {
-        return runnable;
-    }
-
-    protected BukkitTask getTask() {
-        return task;
     }
 
     protected void setTask(BukkitTask task) {
