@@ -1,5 +1,7 @@
 package me.bcawley1.rootwars.shop;
 
+import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.util.GameTeam;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -50,5 +52,39 @@ public class UpgradableItem extends ActionItem{
     }
     public boolean isMax(){
         return stage>=numUpgrades-1;
+    }
+
+    public boolean defaultBuyCheck(Player p) {
+
+
+        if(buyCooldown.getCooldown(p.getUniqueId())==0&&p.getInventory().containsAtLeast(getCostItem(), costAmount)){
+            buyCooldown.setCooldown(p.getUniqueId());
+            p.getInventory().removeItem(getCostItem());
+            p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(getItemMeta().getDisplayName().substring(2)));
+            return true;
+        } else if(!p.getInventory().containsAtLeast(getCostItem(), costAmount)){
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+        return false;
+    }
+
+            if (i instanceof UpgradableItem item && shopItem.defaultBuyCheck(p)) {
+        p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
+    }
+
+    UpgradableItem item = (UpgradableItem) i;
+    GameTeam team = RootWars.getPlayer(p).getTeam();
+        if (item.isMax()) {
+        p.sendMessage(ChatColor.RED + "You cannot buy anymore protection upgrades.");
+    } else if (p.getInventory().containsAtLeast(item.getCost(), item.getCost().getAmount())) {
+        for (Player player : team.getPlayersInTeam()) {
+            player.sendMessage(ChatColor.GREEN + "Purchased protection tier %s!".formatted(item.getStage() + 2));
+        }
+        p.getInventory().removeItem(item.getCost());
+        item.upgrade();
+        team.upgradeProtection();
+        p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
+    } else {
+        p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
     }
 }

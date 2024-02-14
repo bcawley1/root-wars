@@ -16,16 +16,8 @@ import java.util.function.BiConsumer;
 
 public enum BuyActions {
     DEFAULT((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
-                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.getInventory().addItem(shopItem.getPurchasedItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            }
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            p.getInventory().addItem(shopItem.getPurchasedItem());
         }
     }),
 
@@ -37,7 +29,7 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if(RootWars.getPlayer(p).getTeam().getProtection()>0) {
+                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
                     meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
                 }
                 helmet.setItemMeta(meta);
@@ -65,7 +57,7 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if(RootWars.getPlayer(p).getTeam().getProtection()>0) {
+                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
                     meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
                 }
                 helmet.setItemMeta(meta);
@@ -93,7 +85,7 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if(RootWars.getPlayer(p).getTeam().getProtection()>0) {
+                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
                     meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
                 }
                 helmet.setItemMeta(meta);
@@ -114,67 +106,38 @@ public enum BuyActions {
         }
     }),
     WOOL((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
-                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
-                p.sendMessage(ChatColor.GREEN + "You purchased wool!!!");
-            }
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
         }
     }),
     TERRACOTTA((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
-                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_TERRACOTTA"), 16));
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            }
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_TERRACOTTA"), 16));
         }
     }),
     KNOCKBACK_STICK((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
-                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                ItemStack item = new ItemStack(Material.STICK);
-                ItemMeta meta = item.getItemMeta();
-                meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
-                item.setItemMeta(meta);
-                p.getInventory().addItem(item);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            }
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            ItemStack item = new ItemStack(Material.STICK);
+            ItemMeta meta = item.getItemMeta();
+            meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
+            item.setItemMeta(meta);
+            p.getInventory().addItem(item);
         }
     }),
     SWORD((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-            if (ShopItem.getBuyCooldown().getCooldown(p.getUniqueId()) == 0) {
-                ShopItem.getBuyCooldown().setCooldown(p.getUniqueId(), 200);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                ItemStack item = shopItem.getPurchasedItem();
-                if(RootWars.getPlayer(p).getTeam().getSharpness()>0) {
-                    item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection());
-                }
-                p.getInventory().addItem(item);
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            ItemStack item = shopItem.getPurchasedItem();
+            if (RootWars.getPlayer(p).getTeam().getSharpness() > 0) {
+                item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection());
             }
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+            p.getInventory().addItem(item);
         }
     }),
     PROTECTION((p, i) -> {
+        if (i instanceof UpgradableItem item && shopItem.defaultBuyCheck(p)) {
+            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
+        }
+
         UpgradableItem item = (UpgradableItem) i;
         GameTeam team = RootWars.getPlayer(p).getTeam();
         if (item.isMax()) {

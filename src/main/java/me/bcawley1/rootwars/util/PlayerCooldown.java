@@ -6,15 +6,15 @@ import java.util.UUID;
 
 public class PlayerCooldown {
     private Map<UUID, Long> cooldowns;
-    private int length;
+    private final int length;
 
-    public PlayerCooldown() {
+    public PlayerCooldown(int length) {
+        this.length = length;
         cooldowns = new HashMap<>();
     }
 
-    public void setCooldown(UUID uuid, int length) {
+    public void setCooldown(UUID uuid) {
         cooldowns.put(uuid, System.currentTimeMillis());
-        this.length = length;
     }
 
     public long getCooldown(UUID uuid) {

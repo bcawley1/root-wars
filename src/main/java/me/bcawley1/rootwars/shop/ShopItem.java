@@ -8,12 +8,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class ShopItem extends ActionItem {
-    private Material costItem;
-    private int costAmount;
-    private static PlayerCooldown buyCooldown = new PlayerCooldown();
+    private final Material costItem;
+    private final int costAmount;
+    private final PlayerCooldown buyCooldown;
 
     public ShopItem(Material buyItem, int buyAmount, Material costItem, int costAmount, String name, BuyActions action) {
         super(buyItem, buyAmount, action);
@@ -23,12 +22,21 @@ public class ShopItem extends ActionItem {
         meta.setLore(List.of(description.split("\n")));
         setItemMeta(meta);
 
+        this.buyCooldown = new PlayerCooldown(200);
         this.costItem = costItem;
         this.costAmount = costAmount;
     }
 
-    public static PlayerCooldown getBuyCooldown() {
-        return buyCooldown;
+    public boolean defaultBuyCheck(Player p) {
+        if(buyCooldown.getCooldown(p.getUniqueId())==0&&p.getInventory().containsAtLeast(getCostItem(), costAmount)){
+            buyCooldown.setCooldown(p.getUniqueId());
+            p.getInventory().removeItem(getCostItem());
+            p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(getItemMeta().getDisplayName().substring(2)));
+            return true;
+        } else if(!p.getInventory().containsAtLeast(getCostItem(), costAmount)){
+            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        }
+        return false;
     }
 
     public ItemStack getPurchasedItem() {
