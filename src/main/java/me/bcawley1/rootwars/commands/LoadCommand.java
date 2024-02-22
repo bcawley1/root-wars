@@ -23,6 +23,7 @@ public class LoadCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (command.getName().equalsIgnoreCase("load")) {
             Player p = (Player) commandSender;
+
             RootWars.setCurrentMap(GameMap.getMaps().get("Greenery"));
             RootWars.startGame(GameMode.getGameModes().get("Standard"));
             p.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));

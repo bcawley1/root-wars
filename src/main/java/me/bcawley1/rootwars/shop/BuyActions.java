@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
@@ -22,37 +23,8 @@ public enum BuyActions {
     }),
 
     CHAINMAIL_ARMOR((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().getHelmet() == null || !p.getInventory().getHelmet().getType().equals(Material.DIAMOND_HELMET) && !p.getInventory().getHelmet().getType().equals(Material.IRON_HELMET) && !p.getInventory().getHelmet().getType().equals(Material.CHAINMAIL_HELMET)) {
-            if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
-                ItemStack helmet = new ItemStack(Material.CHAINMAIL_HELMET);
-                ItemMeta meta = helmet.getItemMeta();
-                meta.setUnbreakable(true);
-                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
-                }
-                helmet.setItemMeta(meta);
-                ItemStack boots = new ItemStack(Material.CHAINMAIL_BOOTS);
-                boots.setItemMeta(meta);
-                ItemStack leggings = new ItemStack(Material.CHAINMAIL_LEGGINGS);
-                leggings.setItemMeta(meta);
-                p.getInventory().setLeggings(leggings);
-                p.getInventory().setHelmet(helmet);
-                p.getInventory().setBoots(boots);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            } else {
-                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
-            }
-        } else {
-            p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to chainmail.");
-        }
-    }),
-    IRON_ARMOR((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().getHelmet() == null || !p.getInventory().getHelmet().getType().equals(Material.DIAMOND_HELMET) && !p.getInventory().getHelmet().getType().equals(Material.IRON_HELMET)) {
-            if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            if(p.getInventory().getHelmet()==null || p.getInventory().getHelmet().getType()!=Material.DIAMOND_HELMET && p.getInventory().getHelmet().getType()!=Material.IRON_HELMET && p.getInventory().getHelmet().getType()!=Material.CHAINMAIL_HELMET){
                 ItemStack helmet = new ItemStack(Material.IRON_HELMET);
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
@@ -68,19 +40,33 @@ public enum BuyActions {
                 p.getInventory().setLeggings(leggings);
                 p.getInventory().setHelmet(helmet);
                 p.getInventory().setBoots(boots);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            } else {
-                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
-        } else {
-            p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to iron.");
+        }
+    }),
+    IRON_ARMOR((p, i) -> {
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            if(p.getInventory().getHelmet()==null || p.getInventory().getHelmet().getType()!=Material.DIAMOND_HELMET && p.getInventory().getHelmet().getType()!=Material.IRON_HELMET){
+                ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+                ItemMeta meta = helmet.getItemMeta();
+                meta.setUnbreakable(true);
+                meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
+                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
+                }
+                helmet.setItemMeta(meta);
+                ItemStack boots = new ItemStack(Material.IRON_BOOTS);
+                boots.setItemMeta(meta);
+                ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
+                leggings.setItemMeta(meta);
+                p.getInventory().setLeggings(leggings);
+                p.getInventory().setHelmet(helmet);
+                p.getInventory().setBoots(boots);
+            }
         }
     }),
     DIAMOND_ARMOR((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().getHelmet() == null || !p.getInventory().getHelmet().getType().equals(Material.DIAMOND_HELMET)) {
-            if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
+            if(p.getInventory().getHelmet()==null || p.getInventory().getHelmet().getType()!=Material.DIAMOND_HELMET){
                 ItemStack helmet = new ItemStack(Material.DIAMOND_HELMET);
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
@@ -96,13 +82,7 @@ public enum BuyActions {
                 p.getInventory().setLeggings(leggings);
                 p.getInventory().setHelmet(helmet);
                 p.getInventory().setBoots(boots);
-                p.getInventory().removeItem(shopItem.getCostItem());
-                p.sendMessage(ChatColor.GREEN + "You purchased %s!!!".formatted(ShopItem.getFormattedName(shopItem.getPurchasedItem().getType())));
-            } else {
-                p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
             }
-        } else {
-            p.sendMessage(ChatColor.RED + "You already have armor that is better or equal to diamond.");
         }
     }),
     WOOL((p, i) -> {
@@ -134,84 +114,36 @@ public enum BuyActions {
         }
     }),
     PROTECTION((p, i) -> {
-        if (i instanceof UpgradableItem item && shopItem.defaultBuyCheck(p)) {
-            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
-        }
-
-        UpgradableItem item = (UpgradableItem) i;
-        GameTeam team = RootWars.getPlayer(p).getTeam();
-        if (item.isMax()) {
-            p.sendMessage(ChatColor.RED + "You cannot buy anymore protection upgrades.");
-        } else if (p.getInventory().containsAtLeast(item.getCost(), item.getCost().getAmount())) {
-            for (Player player : team.getPlayersInTeam()) {
-                player.sendMessage(ChatColor.GREEN + "Purchased protection tier %s!".formatted(item.getStage() + 2));
-            }
-            p.getInventory().removeItem(item.getCost());
-            item.upgrade();
-            team.upgradeProtection();
-            p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
+            RootWars.getPlayer(p).getTeam().upgradeProtection();
         }
     }),
     SHARPNESS((p, i) -> {
-        UpgradableItem item = (UpgradableItem) i;
-        GameTeam team = RootWars.getPlayer(p).getTeam();
-        if (item.isMax()) {
-            p.sendMessage(ChatColor.RED + "You cannot buy anymore sharpness upgrades.");
-        } else if (p.getInventory().containsAtLeast(item.getCost(), item.getCost().getAmount())) {
-            for (Player player : team.getPlayersInTeam()) {
-                player.sendMessage(ChatColor.GREEN + "Purchased sharpness tier %s!".formatted(item.getStage() + 2));
-            }
-            p.getInventory().removeItem(item.getCost());
-            item.upgrade();
-            team.upgradeSharpness();
-            p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
+            RootWars.getPlayer(p).getTeam().upgradeSharpness();
         }
     }),
     GENERATOR((p, i) -> {
-        UpgradableItem item = (UpgradableItem) i;
-        GameTeam team = RootWars.getPlayer(p).getTeam();
-        if (item.isMax()) {
-            p.sendMessage(ChatColor.RED + "You cannot buy anymore generator upgrades.");
-        } else if (p.getInventory().containsAtLeast(item.getCost(), item.getCost().getAmount())) {
-            for (Player player : team.getPlayersInTeam()) {
-                player.sendMessage(ChatColor.GREEN + "Purchased generator tier %s!".formatted(item.getStage() + 2));
-            }
-            p.getInventory().removeItem(item.getCost());
-            item.upgrade();
-            team.getGenerator().upgradeGenerator();
-            p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
+        if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
+            RootWars.getPlayer(p).getTeam().getGenerator().upgradeGenerator();
         }
     }),
     JUMP((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = new ItemStack(Material.POTION);
             PotionMeta meta = (PotionMeta) item.getItemMeta();
             meta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP, 900, 4, true, true), true);
             item.setItemMeta(meta);
             p.getInventory().addItem(item);
-            p.getInventory().removeItem(shopItem.getCostItem());
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
         }
     }),
     SPEED((p, i) -> {
-        ShopItem shopItem = (ShopItem) i;
-        if (p.getInventory().containsAtLeast(shopItem.getCostItem(), shopItem.getCostItem().getAmount())) {
+        if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = new ItemStack(Material.POTION);
             PotionMeta meta = (PotionMeta) item.getItemMeta();
             meta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 900, 1, true, true), true);
             item.setItemMeta(meta);
             p.getInventory().addItem(item);
-            p.getInventory().removeItem(shopItem.getCostItem());
-        } else {
-            p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");
         }
     }),
     TAB_QUICK((p, i) -> {

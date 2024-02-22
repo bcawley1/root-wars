@@ -6,7 +6,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class Respawn extends BukkitRunnable {
     private int time;
-    private Player p;
+    private final Player p;
 
     public Respawn(int time, Player p) {
         this.time = time;

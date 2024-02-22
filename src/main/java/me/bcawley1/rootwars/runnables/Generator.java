@@ -16,7 +16,6 @@ import java.util.UUID;
 
 public class Generator {
     private static List<UUID> droppedItems = new ArrayList<>();
-    private final Location location;
     private final GeneratorData[] generatorData;
     private int stage;
     private final Runnable runnable;
@@ -25,7 +24,6 @@ public class Generator {
     public Generator(Location location, GeneratorData... generatorData) {
         this.stage = 0;
         this.generatorData = generatorData;
-        this.location = location;
         runnable = () -> {
             float randomNumber = new Random().nextFloat(0, 100);
             int itemChance = 0;

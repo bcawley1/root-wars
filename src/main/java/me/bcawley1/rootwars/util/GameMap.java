@@ -18,9 +18,15 @@ import java.util.Map;
 
 public class GameMap implements Votable {
     private static Map<String, GameMap> maps = new HashMap<>();
+
+    private Map<String, Location> teamGen;
+    private Map<String, Location> root;
     private Map<String, Map<String, Map<String, Long>>> bases;
+    //team -> location -> xyz
     private Map<String, List<Map<String, Long>>> generators;
+    //em/dia -> xyz
     private Map<String, Map<String, Long>> mapLocations;
+    //borders and spawnloc
     private final ItemStack item;
     private String mapName;
 
@@ -127,5 +133,47 @@ public class GameMap implements Votable {
         borders.put("posY", Math.toIntExact(mapLocations.get("positiveYBorder").get("y")));
         borders.put("negY", Math.toIntExact(mapLocations.get("negativeYBorder").get("y")));
         return borders;
+    }
+
+    public class MapBorder {
+        private final int positiveX;
+        private final int positiveY;
+        private final int positiveZ;
+        private final int negativeX;
+        private final int negativeY;
+        private final int negativeZ;
+
+        private MapBorder() {
+            positiveX = Math.toIntExact(mapLocations.get("positiveXBorder").get("x"));
+            positiveY = Math.toIntExact(mapLocations.get("negativeXBorder").get("x"));
+            positiveZ = Math.toIntExact(mapLocations.get("positiveZBorder").get("z"));
+            negativeX = Math.toIntExact(mapLocations.get("negativeZBorder").get("z"));
+            negativeY = Math.toIntExact(mapLocations.get("positiveYBorder").get("y"));
+            negativeZ = Math.toIntExact(mapLocations.get("negativeYBorder").get("y"));
+        }
+
+        public int getPositiveX() {
+            return positiveX;
+        }
+
+        public int getPositiveY() {
+            return positiveY;
+        }
+
+        public int getPositiveZ() {
+            return positiveZ;
+        }
+
+        public int getNegativeX() {
+            return negativeX;
+        }
+
+        public int getNegativeY() {
+            return negativeY;
+        }
+
+        public int getNegativeZ() {
+            return negativeZ;
+        }
     }
 }
