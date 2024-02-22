@@ -1,0 +1,17 @@
+name: RootWars
+version: '1.0-SNAPSHOT'
+main: me.bcawley1.rootwars.RootWars
+api-version: '1.20'
+depend: [WorldEdit]
+commands:
+  Generator:
+    permission: root.generator
+    description: Sets generator stuff!!!!!
+    usage: "Usage: /<command> x, y, z, [true | false]"
+  Load:
+    permission: root.load
+    description: loads test schem
+    usage: "idk"
+  Villager:
+    description: spawns villager
+    usage: "idk"
