@@ -11,6 +11,7 @@ me\bcawley1\rootwars\runnables\Generator.class
 me\bcawley1\rootwars\events\LobbyEvent.class
 me\bcawley1\rootwars\gamemodes\Rush.class
 me\bcawley1\rootwars\util\GameTeam$1.class
+me\bcawley1\rootwars\util\GameMap$MapBorder.class
 me\bcawley1\rootwars\shop\Shop.class
 me\bcawley1\rootwars\gamemodes\Standard.class
 me\bcawley1\rootwars\shop\ActionItem.class
