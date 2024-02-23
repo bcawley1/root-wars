@@ -1,5 +1,5 @@
 # Root Wars
-## A Minecraft server plugin using the [SpigotAPI](https://www.spigotmc.org/), that brings a fun PvP based minigame to your server.
+## A Minecraft server plugin using the [Spigot API](https://www.spigotmc.org/), that brings a fun PvP based minigame to your server.
 ## Features
 - **Voting System:** Players can vote for the map and game mode that they would like to play. The item with the most amount of votes wins and is automatically selected for next game.
 - **Custom Maps:** Using the WorldEdit API, custom maps are allowed to be loaded from `.schem` files as well as having important data stored in a JSON file.
