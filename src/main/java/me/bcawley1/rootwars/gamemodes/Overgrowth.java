@@ -26,7 +26,7 @@ public class Overgrowth extends GameMode {
     public void startGame() {
         super.startGame();
         expandedBlocks = new HashSet<>();
-        teams.forEach(gameTeam -> expandedBlocks.add(gameTeam.getRootLocation()));
+        teams.forEach(gameTeam -> expandedBlocks.add(gameTeam.getTeamData().getRootLocation()));
         rootExpand = 0;
     }
 

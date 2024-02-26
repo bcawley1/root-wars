@@ -44,7 +44,7 @@ public class GamePlayer {
             }
         });
         player.setGameMode(GameMode.SURVIVAL);
-        player.teleport(team.getSpawnLoc());
+        player.teleport(team.getTeamData().getSpawnPoint());
     }
 
     @Override
