@@ -4,6 +4,10 @@ main: me.bcawley1.rootwars.RootWars
 api-version: '1.20'
 depend: [WorldEdit]
 commands:
+  RootWars:
+    permission: rootwars.admin
+    description: Command related to modifying things related to the game.
+    usage: "Usage: /rootwars [start | stop] [game mode name] [map name]"
   Generator:
     permission: root.generator
     description: Sets generator stuff!!!!!

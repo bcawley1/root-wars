@@ -2,6 +2,7 @@ package me.bcawley1.rootwars.gamemodes;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
@@ -134,8 +135,8 @@ public abstract class GameMode implements Listener, Votable {
         //Creates and starts the emerald and diamond generators.
         emeraldGenerators = new ArrayList<>();
         diamondGenerators = new ArrayList<>();
-        RootWars.getCurrentMap().getEmeraldGeneratorLocations().forEach(loc -> emeraldGenerators.add(new Generator(loc, emeraldUpgradeData)));
-        RootWars.getCurrentMap().getDiamondGeneratorLocations().forEach(loc -> diamondGenerators.add(new Generator(loc, diamondUpgradeData)));
+        RootWars.getCurrentMap().getEmeraldGenerators().forEach(loc -> emeraldGenerators.add(new Generator(loc, emeraldUpgradeData)));
+        RootWars.getCurrentMap().getDiamondGenerators().forEach(loc -> diamondGenerators.add(new Generator(loc, diamondUpgradeData)));
         diamondGenerators.forEach(Generator::startGenerator);
         emeraldGenerators.forEach(Generator::startGenerator);
 
@@ -282,9 +283,9 @@ public abstract class GameMode implements Listener, Votable {
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
-        if (!(blockLocation.getX() > currentMap.getMapBorder().get("negX") && blockLocation.getX() < currentMap.getMapBorder().get("posX") &&
-                blockLocation.getY() > currentMap.getMapBorder().get("negY") && blockLocation.getY() < currentMap.getMapBorder().get("posY") &&
-                blockLocation.getZ() > currentMap.getMapBorder().get("negZ") && blockLocation.getZ() < currentMap.getMapBorder().get("posZ"))) {
+        if (!(blockLocation.getX() > currentMap.getMapBorder().getNegativeX() && blockLocation.getX() < currentMap.getMapBorder().getPositiveX() &&
+                blockLocation.getY() > currentMap.getMapBorder().getNegativeY() && blockLocation.getY() < currentMap.getMapBorder().getPositiveY() &&
+                blockLocation.getZ() > currentMap.getMapBorder().getNegativeZ() && blockLocation.getZ() < currentMap.getMapBorder().getPositiveZ())) {
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot place blocks outside of the map.");
             event.setCancelled(true);
         }
@@ -294,7 +295,7 @@ public abstract class GameMode implements Listener, Votable {
     public void onBlockBreak(BlockBreakEvent event) {
         GamePlayer gp = RootWars.getPlayer(event.getPlayer());
         for (GameTeam team : teams) {
-            if (event.getBlock().getLocation().equals(team.getRootLocation()) && gp.getTeam().equals(team)) {
+            if (event.getBlock().getLocation().equals(team.getTeamData().getRootLocation()) && gp.getTeam().equals(team)) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.RED + "You cannot break your own root anymore \uD83D\uDE14");
             }
@@ -329,11 +330,11 @@ public abstract class GameMode implements Listener, Votable {
             respawnPlayer(p);
             if (RootWars.getPlayer((Player) event.getEntity()).getTeam().hasRoot()) {
                 p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-                p.teleport(RootWars.getPlayer(p).getTeam().getSpawnLoc());
+                p.teleport(RootWars.getPlayer(p).getTeam().getTeamData().getSpawnPoint());
                 startRespawnTimer(respawnTime, p);
             } else {
                 p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-                p.teleport(RootWars.getPlayer(p).getTeam().getSpawnLoc());
+                p.teleport(RootWars.getPlayer(p).getTeam().getTeamData().getSpawnPoint());
                 RootWars.getPlayer(p).getTeam().removePlayer(p);
 
                 int teamsAlive = 0;
@@ -449,7 +450,7 @@ public abstract class GameMode implements Listener, Votable {
             p.getInventory().setChestplate(getTeamChestplate(p));
         } else {
             p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-            p.teleport(RootWars.getCurrentMap().getEmeraldGeneratorLocations().get(0));
+            p.teleport(RootWars.getCurrentMap().getDiamondGenerators().get(0));
         }
         updateScoreboard();
     }

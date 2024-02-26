@@ -11,7 +11,7 @@ public class NoBuild extends GameMode{
     @Override
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        event.getPlayer().sendMessage("Remember, no blocks silly!");
+        event.getPlayer().sendMessage("No building in this game mode!");
         event.setCancelled(true);
     }
 }

@@ -1,6 +1,8 @@
 package me.bcawley1.rootwars.util;
 
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.maps.GameMap;
+import me.bcawley1.rootwars.maps.TeamData;
 import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.shop.Shop;
 import org.bukkit.Bukkit;
@@ -16,19 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameTeam {
-    private final String color;
+    private final TeamColor color;
+    private final TeamData teamData;
     private boolean hasRoot;
-    private final Location itemVilLoc;
-    private final Location upgVilLoc;
-    private final Location rootLoc;
-    private final Location spawnLoc;
-    private final Location genLocation;
-    private Generator generator;
+    private final Generator generator;
     private int protection;
     private int sharpness;
     private int rootCheckID;
-    private List<Player> playersInTeam;
-    private Shop shop;
+    private final List<Player> playersInTeam;
+    private final Shop shop;
 
     public GameTeam(String name, GeneratorData... generatorData) {
         shop = new Shop();
@@ -36,17 +34,13 @@ public class GameTeam {
         playersInTeam = new ArrayList<>();
         protection = 0;
         sharpness = 0;
-        this.color = name;
+        this.color = TeamColor.valueOf(name.toUpperCase());
         hasRoot = true;
-        itemVilLoc = map.getItemVillagerLocation(name);
-        upgVilLoc = map.getUpgradeVillager(name);
-        genLocation = map.getGeneratorLocation(name);
-        genLocation.add(0.5, 0, 0.5);
-        generator = new Generator(genLocation, generatorData);
-        spawnLoc = map.getSpawnPointLocation(name);
-        rootLoc = map.getRootLocation(name);
+        teamData = map.getTeamData(color);
+        generator = new Generator(teamData.getGeneratorLocation().add(0.5, 0.5, 0.5), generatorData);
+
         rootCheckID = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
-            if(!RootWars.getWorld().getBlockAt(rootLoc).getType().equals(Material.MANGROVE_ROOTS)){
+            if (!RootWars.getWorld().getBlockAt(teamData.getRootLocation()).getType().equals(Material.MANGROVE_ROOTS)) {
                 breakRoot();
             }
         }, 0, 1).getTaskId();
@@ -55,15 +49,17 @@ public class GameTeam {
     public List<Player> getPlayersInTeam() {
         return playersInTeam;
     }
-    public int numPlayersInTeam(){
+
+    public int numPlayersInTeam() {
         return playersInTeam.size();
     }
-    public void removePlayer(Player p){
+
+    public void removePlayer(Player p) {
         playersInTeam.remove(p);
         RootWars.getPlayer(p).setTeam(null);
     }
 
-    public void addPlayer(Player p){
+    public void addPlayer(Player p) {
         playersInTeam.add(p);
         RootWars.getPlayer(p).setTeam(this);
     }
@@ -71,11 +67,12 @@ public class GameTeam {
     public Generator getGenerator() {
         return generator;
     }
-    public void upgradeProtection(){
+
+    public void upgradeProtection() {
         protection++;
-        for(Player p : playersInTeam){
-            for (ItemStack armor : p.getInventory().getArmorContents()){
-                if(armor!=null) {
+        for (Player p : playersInTeam) {
+            for (ItemStack armor : p.getInventory().getArmorContents()) {
+                if (armor != null) {
                     armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, protection);
                 }
             }
@@ -90,13 +87,14 @@ public class GameTeam {
         return sharpness;
     }
 
-    public void upgradeSharpness(){
+    public void upgradeSharpness() {
         sharpness++;
-        for(Player p : playersInTeam){
-            for (ItemStack item : p.getInventory()){
-                if(item!=null){
-                    switch (item.getType()){
-                        case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD -> item.addEnchantment(Enchantment.DAMAGE_ALL, sharpness);
+        for (Player p : playersInTeam) {
+            for (ItemStack item : p.getInventory()) {
+                if (item != null) {
+                    switch (item.getType()) {
+                        case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD ->
+                                item.addEnchantment(Enchantment.DAMAGE_ALL, sharpness);
                     }
                 }
             }
@@ -104,24 +102,22 @@ public class GameTeam {
     }
 
     public String getName() {
-        return color;
+        return color.toString().toLowerCase();
     }
 
-    public Location getSpawnLoc() {
-        return spawnLoc;
+    public boolean isItemVillager(Location location) {
+        return teamData.getItemVillager().equals(location);
     }
 
-    public boolean isItemVillager(Location location){
-        return itemVilLoc.equals(location);
-    }
-    public boolean isUpgradeVillager(Location location){
-        return upgVilLoc.equals(location);
+    public boolean isUpgradeVillager(Location location) {
+        return teamData.getUpgradeVillager().equals(location);
     }
 
     public boolean hasRoot() {
         return hasRoot;
     }
-    public void breakRoot(){
+
+    public void breakRoot() {
         hasRoot = false;
         RootWars.getCurrentGameMode().onRootBreak(this);
         Bukkit.getScheduler().cancelTask(rootCheckID);
@@ -131,17 +127,18 @@ public class GameTeam {
         return shop;
     }
 
-    public Location getRootLocation(){
-        return rootLoc;
+    public TeamData getTeamData() {
+        return teamData;
     }
 
     public void spawnVillagers() {
-        Villager itemVillager = (Villager) RootWars.getWorld().spawnEntity(itemVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
-        Villager upgVillager = (Villager) RootWars.getWorld().spawnEntity(upgVilLoc.add(0.5, 0, 0.5), EntityType.VILLAGER);
+        Villager itemVillager = (Villager) RootWars.getWorld().spawnEntity(teamData.getItemVillager().add(0.5, 0, 0.5), EntityType.VILLAGER);
+        Villager upgVillager = (Villager) RootWars.getWorld().spawnEntity(teamData.getUpgradeVillager().add(0.5, 0, 0.5), EntityType.VILLAGER);
         setVillagerStuff(itemVillager);
         setVillagerStuff(upgVillager);
     }
-    private void setVillagerStuff(Villager villager){
+
+    private void setVillagerStuff(Villager villager) {
         villager.setGravity(false);
         villager.setInvulnerable(true);
         villager.setPersistent(true);
@@ -152,4 +149,6 @@ public class GameTeam {
     public String toString() {
         return playersInTeam.toString();
     }
+
+    public enum TeamColor {RED, BLUE, GREEN, YELLOW}
 }

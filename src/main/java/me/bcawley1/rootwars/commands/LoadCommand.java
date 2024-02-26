@@ -2,7 +2,7 @@ package me.bcawley1.rootwars.commands;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.gamemodes.GameMode;
-import me.bcawley1.rootwars.util.GameMap;
+import me.bcawley1.rootwars.maps.GameMap;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

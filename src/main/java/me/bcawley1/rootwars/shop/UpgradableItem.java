@@ -1,8 +1,6 @@
 package me.bcawley1.rootwars.shop;
 
 import me.bcawley1.rootwars.RootWars;
-import me.bcawley1.rootwars.util.GameTeam;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,13 +9,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class UpgradableItem extends ActionItem {
     private int stage;
     private final int numUpgrades;
-    private List<ItemStack> cost;
-    private String upgradeName;
+    private final List<ItemStack> cost;
+    private final String upgradeName;
 
     public UpgradableItem(Material type, BuyActions action, String upgradeName, int numUpgrades, List<ItemStack> cost) {
         super(type, action);

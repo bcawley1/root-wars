@@ -59,6 +59,7 @@ public class Generator {
             task = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), runnable, 0, generatorData[stage].delay());
         }
     }
+
     public void stopGenerator(){
         task.cancel();
     }

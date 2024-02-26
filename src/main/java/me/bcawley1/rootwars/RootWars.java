@@ -14,13 +14,12 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.commands.LoadCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.files.Config;
 import me.bcawley1.rootwars.gamemodes.*;
-import me.bcawley1.rootwars.util.GameMap;
+import me.bcawley1.rootwars.gamemodes.GameMode;
+import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameRule;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,6 +43,7 @@ public final class RootWars extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
+        Config.setup();
 
         if(this.getConfig().getString("world")==null){
             this.getConfig().set("world", Bukkit.getServer().getWorlds().get(0).getName());
@@ -53,9 +53,8 @@ public final class RootWars extends JavaPlugin {
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, this.getConfig().getBoolean("daylight-cycle"));
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, this.getConfig().getBoolean("weather-cycle"));
 
-        File[] files = new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles();
-        for(int i = 0; i < files.length; i++){
-            GameMap.registerMap(files[i].getName(), i);
+        for(File file : new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles()){
+         GameMap.registerMap(file.getName());
         }
 
         new Standard();
@@ -66,6 +65,7 @@ public final class RootWars extends JavaPlugin {
 
         // Sets Commands
         getCommand("Load").setExecutor(new LoadCommand(this));
+        getCommand("RootWars").setExecutor(new RootWars());
 
         Bukkit.getPluginManager().registerEvents(new LobbyEvent(), this);
 
@@ -75,6 +75,10 @@ public final class RootWars extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+    }
+
+    public static void pasteSchem(Location loc, String schem){
+        pasteSchem((int) loc.getX(), (int) loc.getY(), (int) loc.getZ(), schem);
     }
 
     public static void pasteSchem(int x, int y, int z, String schem){

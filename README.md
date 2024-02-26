@@ -6,7 +6,7 @@
   
     <img src='images/vote.png' width='500'>
 
-- **Custom Maps:** Using the WorldEdit API, custom maps are allowed to be loaded from `.schem` files as well as having important data stored in a JSON file.
+- **Custom Maps:** Using the WorldEdit API, custom maps are allowed to be loaded from `.schem` me.bcawley1.rootwars.files as well as having important data stored in a JSON file.
   
     <img src='images/island.png' width='500'>
  

@@ -1,6 +1,6 @@
 package me.bcawley1.rootwars.events;
 
-import me.bcawley1.rootwars.util.GameMap;
+import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.vote.Vote;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class LobbyEvent implements Listener {
     public void putPlayerInLobby(Player p) {
+        //Resets players and places them in the lobby.
         p.setMaxHealth(20);
         p.setGameMode(org.bukkit.GameMode.ADVENTURE);
         p.getInventory().clear();
@@ -39,6 +40,7 @@ public class LobbyEvent implements Listener {
 
     @EventHandler
     public void itemInteract(PlayerInteractEvent event) {
+        //If a player interacts with a diamond, the voting process will begin.
         if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND)) {
             new Vote(new ArrayList<>(GameMap.getMaps().values()), "Map", s -> {
                 RootWars.setCurrentMap(GameMap.getMaps().get(s));
