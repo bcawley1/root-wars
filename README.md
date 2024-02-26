@@ -23,9 +23,9 @@
     <img src='images/customizable.png' width='700'>
 
 ## Installation
-1. Download the Root Wars plugin JAR file from the releases section of this repository.
-2. Place the downloaded JAR file into the 'plugins' folder of your Minecraft server running Spigot or Paper.
-3. Ensure that you have the latest version of the WorldEdit plugin installed as well.
+1. Download the Root Wars plugin JAR file from the [releases](https://github.com/bcawley1/root-wars/releases) section of this repository.
+2. Place the downloaded JAR file into the `plugins` folder of your Minecraft server running Spigot or Paper.
+3. Ensure that you have the latest version of the [WorldEdit](https://enginehub.org/worldedit) plugin installed as well.
 4. Restart your server to enable the plugin.
 ## Dependencies
 - The latest version of [WorldEdit](https://enginehub.org/worldedit).
