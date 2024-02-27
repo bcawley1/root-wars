@@ -1,0 +1,158 @@
+{
+  "bases": {
+    "red": {
+      "itemVillager": {
+        "x": 2824,
+        "y": 23,
+        "z": -98
+      },
+      "spawnPoint": {
+        "x": 2821,
+        "y": 23,
+        "z": -95
+      },
+      "root": {
+        "x": 2845,
+        "y": 29,
+        "z": -95
+      },
+      "generator": {
+        "x": 2821,
+        "y": 23,
+        "z": -95
+      },
+      "upgradeVillager": {
+        "x": 2824,
+        "y": 23,
+        "z": -92
+      }
+    },
+    "green": {
+      "itemVillager": {
+        "x": 2902,
+        "y": 23,
+        "z": -14
+      },
+      "spawnPoint": {
+        "x": 2905,
+        "y": 23,
+        "z": -11
+      },
+      "root": {
+        "x": 2905,
+        "y": 29,
+        "z": -35
+      },
+      "generator": {
+        "x": 2905,
+        "y": 23,
+        "z": -11
+      },
+      "upgradeVillager": {
+        "x": 2908,
+        "y": 23,
+        "z": -14
+      }
+    },
+    "blue": {
+      "itemVillager": {
+        "x": 2986,
+        "y": 23,
+        "z": -92
+      },
+      "spawnPoint": {
+        "x": 2989,
+        "y": 23,
+        "z": -95
+      },
+      "root": {
+        "x": 2965,
+        "y": 29,
+        "z": -95
+      },
+      "generator": {
+        "x": 2989,
+        "y": 23,
+        "z": -95
+      },
+      "upgradeVillager": {
+        "x": 2986,
+        "y": 23,
+        "z": -98
+      }
+    },
+    "yellow": {
+      "itemVillager": {
+        "x": 2908,
+        "y": 23,
+        "z": -176
+      },
+      "spawnPoint": {
+        "x": 2905,
+        "y": 23,
+        "z": -179
+      },
+      "root": {
+        "x": 2905,
+        "y": 29,
+        "z": -155
+      },
+      "generator": {
+        "x": 2905,
+        "y": 23,
+        "z": -179
+      },
+      "upgradeVillager": {
+        "x": 2902,
+        "y": 23,
+        "z": -175
+      }
+    }
+  },
+  "mapLocations": {
+    "positiveXBorder": {
+      "x": 3000
+    },
+    "negativeZBorder": {
+      "z": -190
+    },
+    "positiveYBorder": {
+      "y": 64
+    },
+    "negativeXBorder": {
+      "x": 2811
+    },
+    "positiveZBorder": {
+      "z": 0
+    },
+    "negativeYBorder": {
+      "y": -16
+    },
+    "spawnBlock": {
+      "x": 3000,
+      "y": 64,
+      "z": 0
+    }
+  },
+  "generators": {
+    "diamond": [
+      {
+        "x": 2982,
+        "y": 23,
+        "z": -172
+      },
+      {
+        "x": 2828,
+        "y": 23,
+        "z": -18
+      }
+    ],
+    "emerald": [
+      {
+        "x": 2905,
+        "y": 37,
+        "z": -95
+      }
+    ]
+  }
+}
