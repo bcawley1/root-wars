@@ -92,10 +92,11 @@
     },
     {
       "buyAmount": 1,
-      "name": "Bang Energy",
+      "name": "Invisibility Potion",
       "costAmount": 2,
       "buyMaterial": "POTION",
-      "costMaterial": "EMERALD"
+      "costMaterial": "EMERALD",
+      "action": "INVIS"
     },
     {
       "buyAmount": 1,
@@ -338,10 +339,11 @@
   "Potions": [
     {
       "buyAmount": 1,
-      "name": "Bang Energy",
+      "name": "Invisibility Potion",
       "costAmount": 2,
       "buyMaterial": "POTION",
-      "costMaterial": "EMERALD"
+      "costMaterial": "EMERALD",
+      "action": "INVIS"
     },
     {
       "buyAmount": 1,
@@ -465,21 +467,33 @@
       "name": "Generator",
       "buyMaterial": "FURNACE",
       "costMaterial": "DIAMOND",
-      "costAmount": [4,8,12],
+      "costAmount": [
+        4,
+        8,
+        12
+      ],
       "action": "GENERATOR"
     },
     {
       "name": "Reinforced Armor",
       "buyMaterial": "DIAMOND_CHESTPLATE",
       "costMaterial": "DIAMOND",
-      "costAmount": [2,6,10],
+      "costAmount": [
+        2,
+        6,
+        10
+      ],
       "action": "PROTECTION"
     },
     {
       "name": "Sharper Swords",
       "buyMaterial": "DIAMOND_SWORD",
       "costMaterial": "DIAMOND",
-      "costAmount": [4,8,12],
+      "costAmount": [
+        4,
+        8,
+        12
+      ],
       "action": "SHARPNESS"
     }
   ]

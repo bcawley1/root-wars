@@ -24,14 +24,12 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
@@ -70,6 +68,7 @@ public abstract class GameMode implements Listener, Votable {
     protected final List<RepeatableEvent> repeatableEvents;
     protected BukkitTask scoreboardUpdateTask;
     protected long startTick;
+    protected boolean gameOn;
 
     protected GameMode(String jsonName) {
         JSONParser jsonParser = new JSONParser();
@@ -126,6 +125,7 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public void startGame() {
+        gameOn = true;
         scoreboardUpdateTask = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), this::updateScoreboard, 0, 20);
         Collections.sort(events);
         startTick = RootWars.getWorld().getGameTime();
@@ -184,6 +184,7 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public void endGame() {
+        gameOn = false;
         scoreboardUpdateTask.cancel();
         regen.cancel();
 
@@ -236,6 +237,10 @@ public abstract class GameMode implements Listener, Votable {
 
     public static Map<String, GameMode> getGameModes() {
         return gameModes;
+    }
+
+    public boolean isGameOn() {
+        return gameOn;
     }
 
     @Override
@@ -421,6 +426,14 @@ public abstract class GameMode implements Listener, Votable {
                 entity.remove();
             }
         });
+    }
+
+    @EventHandler
+    public void playerConsumeEvent(PlayerItemConsumeEvent event){
+        if (((PotionMeta)event.getItem().getItemMeta()).getCustomEffects().get(0).getType().equals(PotionEffectType.INVISIBILITY)){
+            ItemStack[] armor = event.getPlayer().getInventory().getArmorContents();
+            Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), () -> event.getPlayer().getInventory().setArmorContents(armor), 2400);
+        }
     }
 
     protected static void throwFireball(Player p) {
