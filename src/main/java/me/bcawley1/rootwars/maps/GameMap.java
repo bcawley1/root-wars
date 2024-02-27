@@ -22,18 +22,15 @@ public class GameMap implements Votable {
     private final MapBorder border;
     private final Location mapPlacementLocation;
     private final Map<GameTeam.TeamColor, TeamData> teamData;
-    //team -> location -> xyz
     private final List<Location> emeraldGenerators;
     private final List<Location> diamondGenerators;
-    //em/dia -> xyz
-//    private Map<String, Map<String, Long>> mapLocations;
-    //borders and spawnloc
     private final ItemStack item;
     private final String mapName;
 
     private GameMap(String mapName, int colorNum) {
         this.item = Vote.getItem(Material.valueOf(RootWars.colors[colorNum % RootWars.colors.length] + "_WOOL"), mapName);
 
+        //Parses through the maps json file
         this.mapName = mapName;
         JSONParser jsonParser = new JSONParser();
         JSONObject JSONObj = null;
@@ -66,12 +63,12 @@ public class GameMap implements Votable {
 
 
     public static Map<String, GameMap> getMaps() {
-        return maps;
+        return new HashMap<>(maps);
     }
 
     @Override
     public ItemStack getItem() {
-        return item;
+        return item.clone();
     }
 
     @Override
@@ -92,15 +89,11 @@ public class GameMap implements Votable {
     }
 
     public List<Location> getEmeraldGenerators() {
-        return emeraldGenerators;
+        return new ArrayList<>(emeraldGenerators);
     }
 
     public List<Location> getDiamondGenerators() {
-        return diamondGenerators;
-    }
-
-    public Location getMapPlacementLocation() {
-        return mapPlacementLocation;
+        return new ArrayList<>(diamondGenerators);
     }
 
     public MapBorder getMapBorder() {

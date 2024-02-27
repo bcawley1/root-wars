@@ -2,8 +2,10 @@ package me.bcawley1.rootwars.gamemodes;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.generator.GeneratorData;
+import me.bcawley1.rootwars.generator.GeneratorItem;
 import me.bcawley1.rootwars.maps.GameMap;
-import me.bcawley1.rootwars.runnables.Generator;
+import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.shop.Shop;

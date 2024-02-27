@@ -9,7 +9,6 @@ import java.util.function.BiConsumer;
 public class ActionItem extends ItemStack {
     protected BiConsumer<Player, ActionItem> action;
 
-
     public ActionItem(Material type, int amount, BuyActions action) {
         super(type, amount);
         this.action = action.getAction();

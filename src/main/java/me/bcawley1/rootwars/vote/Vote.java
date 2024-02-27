@@ -26,17 +26,17 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-public class Vote {
-    private VoteBoard voteBoard;
+public class Vote<T extends Votable> {
+    private final String name;
+    private final VoteBoard voteBoard;
+    private final VoteEvent event = new Vote.VoteEvent();
     private String winningItem;
     private int taskID;
     private int secondsLeft;
-    private final VoteEvent event = new Vote.VoteEvent();
-    private final List<? extends Votable> voteItems;
-    private Consumer<String> endVote;
-    private String name;
+    private final List<T> voteItems;
+    private final Consumer<String> endVote;
 
-    public Vote(List<? extends Votable> items, String name, Consumer<String> endVote) {
+    public Vote(List<T> items, String name, Consumer<String> endVote) {
         this.name = name;
         voteItems = items;
         voteBoard = new VoteBoard(items);
