@@ -37,20 +37,21 @@ public class RootWarsCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (command.getName().equalsIgnoreCase("rootwars") && commandSender instanceof Player p) {
             if (strings[0].equalsIgnoreCase("stop")) {
-                if (RootWars.getCurrentGameMode().isGameOn()) {
+                if (RootWars.getCurrentGameMode()!=null && RootWars.getCurrentGameMode().isGameOn()) {
                     RootWars.getCurrentGameMode().endGame();
                 } else {
                     p.sendMessage(ChatColor.RED + "There is currently no game in session.");
                 }
                 return true;
             } else if (strings[0].equalsIgnoreCase("start")) {
-                if (RootWars.getCurrentGameMode().isGameOn()) {
+                if (RootWars.getCurrentGameMode()!=null && RootWars.getCurrentGameMode().isGameOn()) {
                     p.sendMessage(ChatColor.RED + "There is already a game in session.");
                     return true;
                 } else {
                     if (gameModeNames.containsKey(strings[1].toLowerCase()) && mapNames.containsKey(strings[2].toLowerCase())) {
                         RootWars.setCurrentMap(GameMap.getMaps().get(mapNames.get(strings[2])));
-                        GameMode.getGameModes().get(gameModeNames.get(strings[1].toLowerCase())).startGame();
+                        RootWars.startGame(GameMode.getGameModes().get(gameModeNames.get(strings[1].toLowerCase())));
+                        return true;
                     }
                 }
             }

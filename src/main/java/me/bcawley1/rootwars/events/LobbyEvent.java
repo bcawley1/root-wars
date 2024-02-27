@@ -21,6 +21,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 
 public class LobbyEvent implements Listener {
+    private static LobbyEvent currentLobbyEvent;
+
+    public LobbyEvent() {
+        currentLobbyEvent = this;
+    }
+
     public void putPlayerInLobby(Player p) {
         //Resets players and places them in the lobby.
         p.setMaxHealth(20);
@@ -60,5 +66,9 @@ public class LobbyEvent implements Listener {
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
         event.setCancelled(true);
+    }
+
+    public static LobbyEvent getCurrentLobbyEvent() {
+        return currentLobbyEvent;
     }
 }

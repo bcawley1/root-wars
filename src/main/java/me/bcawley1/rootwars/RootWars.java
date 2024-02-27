@@ -21,6 +21,7 @@ import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -110,6 +111,7 @@ public final class RootWars extends JavaPlugin {
     public static void startGame(GameMode mode) {
         gameMode = mode;
         getPlugin().getLogger().log(new LogRecord(Level.INFO, "Starting game on map: %s, with game mode: %s".formatted(currentMap.getName(), gameMode.getName())));
+        HandlerList.unregisterAll(LobbyEvent.getCurrentLobbyEvent());
         gameMode.startGame();
     }
 
