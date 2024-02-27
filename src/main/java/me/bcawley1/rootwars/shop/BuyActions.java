@@ -146,6 +146,15 @@ public enum BuyActions {
             p.getInventory().addItem(item);
         }
     }),
+    INVIS((p, i) -> {
+        if(i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)){
+            ItemStack item = new ItemStack(Material.POTION);
+            PotionMeta meta = (PotionMeta) item.getItemMeta();
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2400, 1, true, true), true);
+            item.setItemMeta(meta);
+            p.getInventory().addItem(item);
+        }
+    }),
     TAB_QUICK((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
         p.openInventory(shop.getInventoryTab(p, "Quick Buy"));
