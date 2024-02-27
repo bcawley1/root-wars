@@ -12,11 +12,11 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import me.bcawley1.rootwars.commands.LoadCommand;
+import me.bcawley1.rootwars.commands.RootWarsCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.files.Config;
-import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.gamemodes.GameMode;
+import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
@@ -45,16 +45,17 @@ public final class RootWars extends JavaPlugin {
         saveDefaultConfig();
         Config.setup();
 
-        if(this.getConfig().getString("world")==null){
+        if (this.getConfig().getString("world") == null) {
             this.getConfig().set("world", Bukkit.getServer().getWorlds().get(0).getName());
+            this.saveConfig();
         }
         world = Bukkit.getWorld(this.getConfig().getString("world"));
 
         world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, this.getConfig().getBoolean("daylight-cycle"));
         world.setGameRule(GameRule.DO_WEATHER_CYCLE, this.getConfig().getBoolean("weather-cycle"));
 
-        for(File file : new File(this.getDataFolder().getAbsolutePath()+"/Maps").listFiles()){
-         GameMap.registerMap(file.getName());
+        for (File file : new File(this.getDataFolder().getAbsolutePath() + "/Maps").listFiles()) {
+            GameMap.registerMap(file.getName());
         }
 
         new Standard();
@@ -64,8 +65,7 @@ public final class RootWars extends JavaPlugin {
         new NoBuild();
 
         // Sets Commands
-        getCommand("Load").setExecutor(new LoadCommand(this));
-        getCommand("RootWars").setExecutor(new RootWars());
+        getCommand("RootWars").setExecutor(new RootWarsCommand());
 
         Bukkit.getPluginManager().registerEvents(new LobbyEvent(), this);
 
@@ -77,22 +77,24 @@ public final class RootWars extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static void pasteSchem(Location loc, String schem){
+    public static void pasteSchem(Location loc, String schem) {
         pasteSchem((int) loc.getX(), (int) loc.getY(), (int) loc.getZ(), schem);
     }
 
-    public static void pasteSchem(int x, int y, int z, String schem){
+    public static void pasteSchem(int x, int y, int z, String schem) {
         File myfile = new File(plugin.getDataFolder().getAbsolutePath() + "/%s.schem".formatted(schem));
         ClipboardFormat format = ClipboardFormats.findByFile(myfile);
         ClipboardReader reader = null;
         try {
             reader = format.getReader(new FileInputStream(myfile));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         Clipboard clipboard = null;
         try {
             clipboard = reader.read();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         try (
                 EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(RootWars.getWorld()))) {
@@ -101,12 +103,13 @@ public final class RootWars extends JavaPlugin {
                     .to(BlockVector3.at(x, y, z))
                     .build();
             Operations.complete(operation);
-        } catch (WorldEditException ignored) {}
+        } catch (WorldEditException ignored) {
+        }
     }
 
-    public static void startGame(GameMode mode){
+    public static void startGame(GameMode mode) {
         gameMode = mode;
-        getPlugin().getLogger().log(new LogRecord(Level.INFO, "Starting game on map: %s, with game mode: %s".formatted(currentMap.getName(),gameMode.getName())));
+        getPlugin().getLogger().log(new LogRecord(Level.INFO, "Starting game on map: %s, with game mode: %s".formatted(currentMap.getName(), gameMode.getName())));
         gameMode.startGame();
     }
 
@@ -133,17 +136,18 @@ public final class RootWars extends JavaPlugin {
     public static JavaPlugin getPlugin() {
         return plugin;
     }
-    public static void addPlayer(Player p){
-        if(players.containsKey(p)) {
+
+    public static void addPlayer(Player p) {
+        if (players.containsKey(p)) {
             players.get(p).replacePlayer(p);
         } else {
             players.put(p, new GamePlayer(p));
         }
     }
 
-    public static void defaultJoin(Player p){
+    public static void defaultJoin(Player p) {
         RootWars.addPlayer(p);
-        String message = RootWars.getPlugin().getConfig().getString("join-message").replace("{player}",p.getName());
+        String message = RootWars.getPlugin().getConfig().getString("join-message").replace("{player}", p.getName());
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 

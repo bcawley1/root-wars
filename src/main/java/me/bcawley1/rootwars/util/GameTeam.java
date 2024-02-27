@@ -106,11 +106,11 @@ public class GameTeam {
     }
 
     public boolean isItemVillager(Location location) {
-        return teamData.getItemVillager().equals(location);
+        return teamData.getItemVillager().equals(location.add(-0.5, 0, -0.5));
     }
 
     public boolean isUpgradeVillager(Location location) {
-        return teamData.getUpgradeVillager().equals(location);
+        return teamData.getUpgradeVillager().equals(location.add(-0.5, 0, -0.5));
     }
 
     public boolean hasRoot() {

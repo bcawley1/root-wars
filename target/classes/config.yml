@@ -1,8 +1,0 @@
-world: null #The name of the world that you want the maps to load into. Default should be the overworld.
-daylight-cycle: false
-weather-cycle: false
-fireball-strength: 2 #Default is 2
-death-message: '{player} has died'
-join-message: '&c{player} &6has joined'
-leave-message: '{player} has left'
-can-break-own-root: false

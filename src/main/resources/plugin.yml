@@ -8,14 +8,3 @@ commands:
     permission: rootwars.admin
     description: Command related to modifying things related to the game.
     usage: "Usage: /rootwars [start | stop] [game mode name] [map name]"
-  Generator:
-    permission: root.generator
-    description: Sets generator stuff!!!!!
-    usage: "Usage: /<command> x, y, z, [true | false]"
-  Load:
-    permission: root.load
-    description: loads test schem
-    usage: "idk"
-  Villager:
-    description: spawns villager
-    usage: "idk"

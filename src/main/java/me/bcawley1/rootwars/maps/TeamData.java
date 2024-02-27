@@ -17,7 +17,7 @@ public class TeamData {
         this.itemVillager = new Location(RootWars.getWorld(), teamData.get("itemVillager").get("x"), teamData.get("itemVillager").get("y"), teamData.get("itemVillager").get("z"));
         this.upgradeVillager = new Location(RootWars.getWorld(), teamData.get("upgradeVillager").get("x"), teamData.get("upgradeVillager").get("y"), teamData.get("upgradeVillager").get("z"));
         this.generatorLocation = new Location(RootWars.getWorld(), teamData.get("spawnPoint").get("x"), teamData.get("spawnPoint").get("y"), teamData.get("spawnPoint").get("z"));
-        this.rootLocation = new Location(RootWars.getWorld(), teamData.get("spawnPoint").get("x"), teamData.get("spawnPoint").get("y"), teamData.get("spawnPoint").get("z"));
+        this.rootLocation = new Location(RootWars.getWorld(), teamData.get("root").get("x"), teamData.get("root").get("y"), teamData.get("root").get("z"));
     }
 
     public Location getSpawnPoint() {

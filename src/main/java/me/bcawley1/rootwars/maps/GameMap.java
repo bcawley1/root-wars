@@ -45,7 +45,7 @@ public class GameMap implements Votable {
 
         teamData = new HashMap<>();
         for (GameTeam.TeamColor color : GameTeam.TeamColor.values()) {
-            teamData.put(color, new TeamData((JSONObject) JSONObj.get("bases")));
+            teamData.put(color, new TeamData((JSONObject) ((JSONObject) JSONObj.get("bases")).get(color.toString().toLowerCase())));
         }
 
         Map<String, Long> mapLocation = (Map<String, Long>) ((JSONObject) JSONObj.get("mapLocations")).get("spawnBlock");
@@ -57,7 +57,7 @@ public class GameMap implements Votable {
     }
 
     public static void registerMap(String mapName) {
-        maps.put(mapName, new GameMap(mapName, maps.size() - 1));
+        maps.put(mapName, new GameMap(mapName, maps.size()));
     }
 
     public void buildMap() {
