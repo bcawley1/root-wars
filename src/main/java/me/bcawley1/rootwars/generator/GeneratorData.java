@@ -1,9 +1,9 @@
-package me.bcawley1.rootwars.util;
+package me.bcawley1.rootwars.generator;
 
 import java.util.Arrays;
 
 public record GeneratorData(int delay, GeneratorItem[] items) {
     public GeneratorData {
-        Arrays.sort(items, new GeneratorItem.GeneratorItemComparator());
+        Arrays.sort(items);
     }
 }

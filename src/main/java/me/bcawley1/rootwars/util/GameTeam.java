@@ -1,9 +1,10 @@
 package me.bcawley1.rootwars.util;
 
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.generator.GeneratorData;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.maps.TeamData;
-import me.bcawley1.rootwars.runnables.Generator;
+import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.shop.Shop;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

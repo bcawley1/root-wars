@@ -1,8 +1,6 @@
-package me.bcawley1.rootwars.runnables;
+package me.bcawley1.rootwars.generator;
 
 import me.bcawley1.rootwars.RootWars;
-import me.bcawley1.rootwars.util.GeneratorData;
-import me.bcawley1.rootwars.util.GeneratorItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
