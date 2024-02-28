@@ -96,6 +96,12 @@ public class GameMap implements Votable {
         return new ArrayList<>(diamondGenerators);
     }
 
+    public boolean isInsideBorders(Location loc){
+        return (loc.getX() > getMapBorder().getNegativeX() && loc.getX() < getMapBorder().getPositiveX() &&
+                loc.getY() > getMapBorder().getNegativeY() && loc.getY() < getMapBorder().getPositiveY() &&
+                loc.getZ() > getMapBorder().getNegativeZ() && loc.getZ() < getMapBorder().getPositiveZ());
+    }
+
     public MapBorder getMapBorder() {
         return border;
     }

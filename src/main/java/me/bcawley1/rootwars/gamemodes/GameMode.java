@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -290,9 +291,7 @@ public abstract class GameMode implements Listener, Votable {
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
-        if (!(blockLocation.getX() > currentMap.getMapBorder().getNegativeX() && blockLocation.getX() < currentMap.getMapBorder().getPositiveX() &&
-                blockLocation.getY() > currentMap.getMapBorder().getNegativeY() && blockLocation.getY() < currentMap.getMapBorder().getPositiveY() &&
-                blockLocation.getZ() > currentMap.getMapBorder().getNegativeZ() && blockLocation.getZ() < currentMap.getMapBorder().getPositiveZ())) {
+        if (!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())) {
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot place blocks outside of the map.");
             event.setCancelled(true);
         }
@@ -434,7 +433,22 @@ public abstract class GameMode implements Listener, Votable {
     public void playerConsumeEvent(PlayerItemConsumeEvent event){
         if (((PotionMeta)event.getItem().getItemMeta()).getCustomEffects().get(0).getType().equals(PotionEffectType.INVISIBILITY)){
             ItemStack[] armor = event.getPlayer().getInventory().getArmorContents();
+            event.getPlayer().getInventory().setArmorContents(new ItemStack[]{null, null, null, null});
             Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), () -> event.getPlayer().getInventory().setArmorContents(armor), 2400);
+        }
+    }
+
+    @EventHandler
+    public void blockFormedEvent(BlockFormEvent event){
+        if(!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void bucketUsedEvent(PlayerBucketEmptyEvent event){
+        if(!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())){
+            event.setCancelled(true);
         }
     }
 
