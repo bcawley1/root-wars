@@ -28,7 +28,7 @@ public class GameMap implements Votable {
     private final String mapName;
 
     private GameMap(String mapName, int colorNum) {
-        this.item = Vote.getItem(Material.valueOf(RootWars.colors[colorNum % RootWars.colors.length] + "_WOOL"), mapName);
+        this.item = Vote.getItem(Material.valueOf(RootWars.COLORS[colorNum % RootWars.COLORS.length] + "_WOOL"), mapName);
 
         //Parses through the maps json file
         this.mapName = mapName;

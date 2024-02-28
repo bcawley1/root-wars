@@ -1,6 +1,7 @@
 package me.bcawley1.rootwars.util;
 
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.events.RootCheckEvent;
 import me.bcawley1.rootwars.generator.GeneratorData;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.maps.TeamData;
@@ -25,7 +26,7 @@ public class GameTeam {
     private final Generator generator;
     private int protection;
     private int sharpness;
-    private int rootCheckID;
+    private RootCheckEvent rootCheckEvent;
     private final List<Player> playersInTeam;
     private final Shop shop;
 
@@ -39,12 +40,8 @@ public class GameTeam {
         hasRoot = true;
         teamData = map.getTeamData(color);
         generator = new Generator(teamData.getGeneratorLocation().add(0.5, 0.5, 0.5), generatorData);
-
-        rootCheckID = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
-            if (!RootWars.getWorld().getBlockAt(teamData.getRootLocation()).getType().equals(Material.MANGROVE_ROOTS)) {
-                breakRoot();
-            }
-        }, 0, 1).getTaskId();
+        rootCheckEvent = new RootCheckEvent(this);
+        rootCheckEvent.register();
     }
 
     public List<Player> getPlayersInTeam() {
@@ -121,7 +118,7 @@ public class GameTeam {
     public void breakRoot() {
         hasRoot = false;
         RootWars.getCurrentGameMode().onRootBreak(this);
-        Bukkit.getScheduler().cancelTask(rootCheckID);
+        rootCheckEvent.cancel();
     }
 
     public Shop getShop() {

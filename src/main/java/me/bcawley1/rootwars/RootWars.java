@@ -38,7 +38,7 @@ public final class RootWars extends JavaPlugin {
     private static GameMap currentMap;
     private static GameMode gameMode;
     private static World world;
-    public final static String[] colors = {"BLUE", "RED", "YELLOW", "GREEN", "CYAN", "MAGENTA", "ORANGE", "GRAY", "BLACK", "BROWN", "LIME", "PINK", "PURPLE", "WHITE", "LIGHT_BLUE", "LIGHT_GRAY"};
+    public final static String[] COLORS = {"BLUE", "RED", "YELLOW", "GREEN", "CYAN", "MAGENTA", "ORANGE", "GRAY", "BLACK", "BROWN", "LIME", "PINK", "PURPLE", "WHITE", "LIGHT_BLUE", "LIGHT_GRAY"};
 
     @Override
     public void onEnable() {
@@ -60,7 +60,6 @@ public final class RootWars extends JavaPlugin {
         }
 
         new Standard();
-//        new Overgrowth();
         new TwoTeams();
         new Rush();
         new NoBuild();

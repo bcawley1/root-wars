@@ -508,6 +508,10 @@ public abstract class GameMode implements Listener, Votable {
         return false;
     }
 
+    public List<GameTeam> getTeams() {
+        return teams;
+    }
+
     private enum Events {
         EMERALD_II(() -> RootWars.getCurrentGameMode().emeraldGenerators.forEach(Generator::upgradeGenerator)),
         DIAMOND_II(() -> RootWars.getCurrentGameMode().diamondGenerators.forEach(Generator::upgradeGenerator)),
