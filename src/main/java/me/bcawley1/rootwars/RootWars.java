@@ -27,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -44,7 +45,13 @@ public final class RootWars extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
-        Config.setup();
+        try {
+            Config.setup();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         if (this.getConfig().getString("world") == null) {
             this.getConfig().set("world", Bukkit.getServer().getWorlds().get(0).getName());

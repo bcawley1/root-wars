@@ -334,6 +334,22 @@
       "costAmount": 2,
       "buyMaterial": "ARROW",
       "costMaterial": "GOLD_INGOT"
+    },
+    {
+      "buyAmount": 2,
+      "name": "Firework",
+      "costAmount": 17,
+      "buyMaterial": "FIREWORK",
+      "costMaterial": "GOLD_INGOT,",
+      "action": "FIREWORK"
+    },
+    {
+      "buyAmount": 1,
+      "name": "Crossbow",
+      "costAmount": 16,
+      "buyMaterial": "CROSSBOW",
+      "costMaterial": "GOLD_INGOT",
+      "action": "CROSSBOW"
     }
   ],
   "Potions": [
