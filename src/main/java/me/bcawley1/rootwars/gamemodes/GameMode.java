@@ -2,7 +2,6 @@ package me.bcawley1.rootwars.gamemodes;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
-import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.runnables.Generator;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
@@ -18,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -281,16 +281,12 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        GameMap currentMap = RootWars.getCurrentMap();
-        Location blockLocation = event.getBlock().getLocation();
         if (event.getBlock().getType().equals(Material.TNT)) {
             RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
-        if (!(blockLocation.getX() > currentMap.getMapBorder().getNegativeX() && blockLocation.getX() < currentMap.getMapBorder().getPositiveX() &&
-                blockLocation.getY() > currentMap.getMapBorder().getNegativeY() && blockLocation.getY() < currentMap.getMapBorder().getPositiveY() &&
-                blockLocation.getZ() > currentMap.getMapBorder().getNegativeZ() && blockLocation.getZ() < currentMap.getMapBorder().getPositiveZ())) {
+        if (!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())) {
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot place blocks outside of the map.");
             event.setCancelled(true);
         }
@@ -433,6 +429,13 @@ public abstract class GameMode implements Listener, Votable {
         if (((PotionMeta)event.getItem().getItemMeta()).getCustomEffects().get(0).getType().equals(PotionEffectType.INVISIBILITY)){
             ItemStack[] armor = event.getPlayer().getInventory().getArmorContents();
             Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), () -> event.getPlayer().getInventory().setArmorContents(armor), 2400);
+        }
+    }
+
+    @EventHandler
+    public void blockFormedEvent(BlockFormEvent event){
+        if(!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())){
+            event.setCancelled(true);
         }
     }
 
