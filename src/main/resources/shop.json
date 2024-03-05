@@ -338,7 +338,7 @@
     {
       "buyAmount": 2,
       "name": "Firework",
-      "costAmount": 17,
+      "costAmount": 8,
       "buyMaterial": "FIREWORK",
       "costMaterial": "GOLD_INGOT,",
       "action": "FIREWORK"
