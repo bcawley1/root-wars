@@ -1,18 +1,18 @@
 package me.bcawley1.rootwars.shop;
 
 import me.bcawley1.rootwars.RootWars;
-import me.bcawley1.rootwars.util.GameTeam;
-import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
@@ -151,6 +151,16 @@ public enum BuyActions {
             ItemStack item = new ItemStack(Material.POTION);
             PotionMeta meta = (PotionMeta) item.getItemMeta();
             meta.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 2400, 1, true, true), true);
+            item.setItemMeta(meta);
+            p.getInventory().addItem(item);
+        }
+    }),
+    FIREWORK((p, i) -> {
+        if(i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)){
+            ItemStack item = new ItemStack(Material.FIREWORK_ROCKET, 2);
+            FireworkMeta meta = (FireworkMeta) item.getItemMeta();
+            meta.addEffect(FireworkEffect.builder().trail(true).withColor(Color.AQUA).build());
+            meta.addEffect(FireworkEffect.builder().trail(true).withColor(Color.LIME).build());
             item.setItemMeta(meta);
             p.getInventory().addItem(item);
         }
