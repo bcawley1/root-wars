@@ -2,15 +2,15 @@ package me.bcawley1.rootwars.vote;
 
 import java.util.*;
 
-public class VoteBoard {
-    private Map<String, Integer> votes;
+public class VoteBoard<T extends Votable> {
+    private Map<T, Integer> votes;
     private Map<UUID, String> playerVotes;
 
-    public <T extends Votable> VoteBoard(List<T> items) {
+    public VoteBoard(List<T> items) {
         votes = new HashMap<>();
         playerVotes = new HashMap<>();
-        for (Votable item : items) {
-            votes.put(item.getName(), 0);
+        for (T item : items) {
+            votes.put(item, 0);
         }
     }
 

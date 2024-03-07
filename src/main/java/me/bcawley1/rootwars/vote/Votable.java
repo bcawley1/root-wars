@@ -5,4 +5,5 @@ import org.bukkit.inventory.ItemStack;
 public interface Votable {
     String getName();
     ItemStack getItem();
+    Votable get
 }

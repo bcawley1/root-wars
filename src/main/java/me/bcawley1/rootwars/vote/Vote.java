@@ -28,7 +28,7 @@ import java.util.logging.LogRecord;
 
 public class Vote<T extends Votable> {
     private final String name;
-    private final VoteBoard voteBoard;
+    private final VoteBoard<T> voteBoard;
     private final VoteEvent event = new Vote.VoteEvent();
     private String winningItem;
     private int taskID;
@@ -39,7 +39,7 @@ public class Vote<T extends Votable> {
     public Vote(List<T> items, String name, Consumer<String> endVote) {
         this.name = name;
         voteItems = items;
-        voteBoard = new VoteBoard(items);
+        voteBoard = new VoteBoard<>(items);
         this.endVote = endVote;
 
     }

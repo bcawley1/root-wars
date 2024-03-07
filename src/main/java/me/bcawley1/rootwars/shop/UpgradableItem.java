@@ -1,26 +1,24 @@
 package me.bcawley1.rootwars.shop;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UpgradableItem extends ActionItem {
+    @JsonIgnore
     private int stage;
     private final int numUpgrades;
-    private final List<ItemStack> cost;
-    private final String upgradeName;
+    private final ItemStack[] cost;
 
-    public UpgradableItem(Material type, BuyActions action, String upgradeName, int numUpgrades, List<ItemStack> cost) {
-        super(type, action);
-        this.cost = new ArrayList<>(cost);
+    public UpgradableItem(Material type, BuyActions action, String name, int numUpgrades, ItemStack[] cost) {
+        super(name, type, action);
+        this.cost = cost;
         this.numUpgrades = numUpgrades;
-        this.upgradeName = upgradeName;
         stage = 0;
         updateItemMeta();
     }
@@ -31,21 +29,24 @@ public class UpgradableItem extends ActionItem {
     }
 
     private void updateItemMeta() {
-        ItemMeta meta = getItemMeta();
+        String displayName;
+        String description;
         if (stage >= numUpgrades - 1) {
-            String description = "%sYou have all of the %s upgrades.".formatted(ChatColor.RED, upgradeName.toLowerCase());
-            meta.setLore(List.of(description));
-            meta.setDisplayName(ChatColor.WHITE + upgradeName + " Upgrade: %sMAX".formatted(ChatColor.RED));
+            displayName = "&f%s Upgrade: &cMAX".formatted(name);
+            description = """
+                    &cYou have all of the %s upgrades!""".formatted(name);
         } else {
-            String description = "%s%sCost: %s%s %s\n%sClick to buy!!!!".formatted(ChatColor.RESET, ChatColor.GRAY, ChatColor.WHITE, cost.get(stage).getAmount(), ShopItem.getFormattedName(cost.get(0).getType()), ChatColor.YELLOW);
-            meta.setLore(List.of(description.split("\n")));
-            meta.setDisplayName(ChatColor.WHITE + upgradeName + " Upgrade: Tier " + (stage + 2));
+            displayName = "&f%s Upgrade: &cTier %s".formatted(name, stage + 2);
+            description = """
+                    &r&7Cost: &f%s %s
+                    &eClick to buy!""".formatted(cost[stage]);
         }
-        setItemMeta(meta);
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+        meta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', description).split("\n")));
     }
 
     public ItemStack getCost() {
-        return cost.get(stage);
+        return cost[stage];
     }
 
     public boolean isMax() {
@@ -54,10 +55,10 @@ public class UpgradableItem extends ActionItem {
 
     public boolean defaultBuyCheck(Player p) {
         if (isMax()) {
-            p.sendMessage(ChatColor.RED + "You cannot buy anymore %s upgrades", upgradeName);
+            p.sendMessage(ChatColor.RED + "You cannot buy anymore %s upgrades", name);
         } else if (p.getInventory().containsAtLeast(getCost(), getCost().getAmount())) {
             for (Player player : RootWars.getPlayer(p).getTeam().getPlayersInTeam()) {
-                player.sendMessage("You purchased %s upgrade!!!!!".formatted(upgradeName));
+                player.sendMessage("You purchased %s upgrade!!!!!".formatted(name));
             }
             p.getInventory().removeItem(getCost());
             upgrade();
