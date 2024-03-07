@@ -364,7 +364,7 @@ public abstract class GameMode implements Listener, Votable {
             Shop shop = RootWars.getPlayer(event.getPlayer()).getTeam().getShop();
             for (GameTeam team : teams) {
                 if (team.isItemVillager(event.getRightClicked().getLocation())) {
-                    event.getPlayer().openInventory(shop.getInventoryTab(event.getPlayer(), "Quick Buy"));
+                    event.getPlayer().openInventory(shop.getInventoryTab(event.getPlayer(), Shop.ShopTab.QUICK));
                 } else if (team.isUpgradeVillager(event.getRightClicked().getLocation())) {
                     event.getPlayer().openInventory(shop.getUpgradeTab(event.getPlayer()));
                 }

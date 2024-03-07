@@ -15,7 +15,7 @@ import java.io.FileReader;
 import java.util.*;
 
 public class Shop {
-    private Map<String, List<ShopItem>> shop;
+    private Map<ShopTab, List<ShopItem>> shop;
     private Map<String, ActionItem> items;
     private final List<ActionItem> topBar;
     private List<UpgradableItem> upgrades;
@@ -63,17 +63,13 @@ public class Shop {
                     list.add(item);
                     items.put(item.getItemMeta().getDisplayName(), item);
                 }
-                shop.put(entry.getKey(), list);
+//                shop.put(entry.getKey(), list);
             }
         }
     }
 
     public boolean containsTab(String tab) {
         return shop.containsKey(tab);
-    }
-
-    public List<ShopItem> getShopTab(String tab) {
-        return shop.get(tab);
     }
 
     public ActionItem getTopBarItem(ItemStack i) {
@@ -89,13 +85,13 @@ public class Shop {
         return getTopBarItem(i) != null;
     }
 
-    public Inventory getInventoryTab(Player p, String tab) {
-        Inventory inv = Bukkit.createInventory(p, 54, tab);
+    public Inventory getInventoryTab(Player p, ShopTab tab) {
+        Inventory inv = Bukkit.createInventory(p, 54, tab.getName());
         for (ActionItem i : topBar) {
             inv.setItem(topBar.indexOf(i), i);
         }
-        for (ShopItem i : getShopTab(tab)) {
-            int indexOf = getShopTab(tab).indexOf(i);
+        for (ShopItem i : shop.get(tab)) {
+            int indexOf = shop.get(tab).indexOf(i);
             inv.setItem((indexOf % 7 + 1) + 9 * (2 + indexOf / 7), i);
         }
         return inv;
@@ -115,5 +111,17 @@ public class Shop {
     }
     public ActionItem getActionItemFromString(String s){
         return items.get(s);
+    }
+
+    public enum ShopTab{
+        QUICK("Quick Buy"), BLOCKS("Blocks"), MELEE("Melee"), ARMOR("Armor"),TOOLS("Tools"),RANGED("Ranged"),POTION("Potions"),UTILITY("Utility");
+        private final String name;
+        ShopTab(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

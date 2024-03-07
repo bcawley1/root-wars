@@ -167,35 +167,35 @@ public enum BuyActions {
     }),
     TAB_QUICK((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Quick Buy"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.QUICK));
     }),
     TAB_BLOCKS((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Blocks"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.BLOCKS));
     }),
     TAB_MELEE((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Melee"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.MELEE));
     }),
     TAB_ARMOR((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Armor"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.ARMOR));
     }),
     TAB_TOOLS((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Tools"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.TOOLS));
     }),
     TAB_RANGED((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Ranged"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.RANGED));
     }),
     TAB_POTION((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Potions"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.POTION));
     }),
     TAB_UTILITY((p, i) -> {
         Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Utility"));
+        p.openInventory(shop.getInventoryTab(p, Shop.ShopTab.UTILITY));
     });
 
     BuyActions(final BiConsumer<Player, ActionItem> action) {
