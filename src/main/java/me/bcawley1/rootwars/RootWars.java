@@ -1,5 +1,6 @@
 package me.bcawley1.rootwars;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -18,6 +19,8 @@ import me.bcawley1.rootwars.files.Config;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.maps.GameMap;
+import me.bcawley1.rootwars.shop.ActionItem;
+import me.bcawley1.rootwars.shop.BuyActions;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -43,6 +46,14 @@ public final class RootWars extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        ActionItem actionItem = new ActionItem("Test", Material.BLUE_WOOL, BuyActions.DEFAULT);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(new File(getDataFolder() + "/test.json"), actionItem);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         plugin = this;
         saveDefaultConfig();
         try {

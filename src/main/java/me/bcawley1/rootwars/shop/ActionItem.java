@@ -12,12 +12,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 
 public class ActionItem {
+    @JsonProperty
     protected final String name;
     @JsonProperty("material")
     protected Material type;
+    @JsonProperty
     protected final int amount;
-    @JsonIgnore
-    final protected ItemMeta meta;
+    protected final ItemMeta meta;
+    @JsonProperty
     protected final BuyActions action;
 
     public ActionItem(String name, Material type, int amount, BuyActions action) {
@@ -41,6 +43,7 @@ public class ActionItem {
         return name;
     }
 
+    @JsonIgnore
     public ItemStack getItem() {
         ItemStack item = new ItemStack(type, amount);
         item.setItemMeta(meta);
