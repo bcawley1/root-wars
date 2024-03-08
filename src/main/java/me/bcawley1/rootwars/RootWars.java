@@ -19,12 +19,14 @@ import me.bcawley1.rootwars.files.Config;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.maps.GameMap;
-import me.bcawley1.rootwars.shop.ActionItem;
+import me.bcawley1.rootwars.mixin.ItemStackMixin;
 import me.bcawley1.rootwars.shop.BuyActions;
+import me.bcawley1.rootwars.shop.UpgradableItem;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -46,10 +48,11 @@ public final class RootWars extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        ActionItem actionItem = new ActionItem("Test", Material.BLUE_WOOL, BuyActions.DEFAULT);
+        UpgradableItem upgradableItem = new UpgradableItem(Material.FURNACE, BuyActions.DEFAULT, "Test", 4, new ItemStack[]{new ItemStack(Material.DIAMOND, 2), new ItemStack(Material.DIAMOND, 4), new ItemStack(Material.DIAMOND, 6)});
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.addMixIn(ItemStack.class, ItemStackMixin.class);
         try {
-            objectMapper.writeValue(new File(getDataFolder() + "/test.json"), actionItem);
+            objectMapper.writeValue(new File(getDataFolder() + "/test.json"), upgradableItem);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package me.bcawley1.rootwars.shop;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.util.PlayerCooldown;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -10,9 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class ShopItem extends ActionItem {
+    @JsonProperty
     private final Material costItem;
+    @JsonProperty
     private final int costAmount;
-    @JsonIgnore
     private final PlayerCooldown buyCooldown;
 
     public ShopItem(Material type, int amount, Material costItem, int costAmount, String name, BuyActions action) {
@@ -38,14 +40,17 @@ public class ShopItem extends ActionItem {
         return false;
     }
 
+    @JsonIgnore
     public ItemStack getPurchasedItem() {
         return new ItemStack(type, amount);
     }
 
+    @JsonIgnore
     public ItemStack getCostItem() {
         return new ItemStack(costItem, costAmount);
     }
 
+    @JsonIgnore
     public static String getFormattedName(Material material) {
         StringBuilder builder = new StringBuilder();
         for (String word : material.toString().split("_")) {

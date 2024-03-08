@@ -1,6 +1,7 @@
 package me.bcawley1.rootwars.shop;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ public class UpgradableItem extends ActionItem {
     @JsonIgnore
     private int stage;
     private final int numUpgrades;
+    @JsonProperty
     private final ItemStack[] cost;
 
     public UpgradableItem(Material type, BuyActions action, String name, int numUpgrades, ItemStack[] cost) {
@@ -39,16 +41,18 @@ public class UpgradableItem extends ActionItem {
             displayName = "&f%s Upgrade: &cTier %s".formatted(name, stage + 2);
             description = """
                     &r&7Cost: &f%s %s
-                    &eClick to buy!""".formatted(cost[stage]);
+                    &eClick to buy!""".formatted(cost[stage].getAmount(), ShopItem.getFormattedName(cost[stage].getType()));
         }
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         meta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', description).split("\n")));
     }
 
+    @JsonIgnore
     public ItemStack getCost() {
         return cost[stage];
     }
 
+    @JsonIgnore
     public boolean isMax() {
         return stage >= numUpgrades - 1;
     }
