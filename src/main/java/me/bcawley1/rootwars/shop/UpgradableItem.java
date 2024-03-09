@@ -34,17 +34,17 @@ public class UpgradableItem extends ActionItem {
         String displayName;
         String description;
         if (stage >= numUpgrades - 1) {
-            displayName = "&f%s Upgrade: &cMAX".formatted(name);
+            displayName = "§f§s Upgrade: §cMAX".formatted(name);
             description = """
-                    &cYou have all of the %s upgrades!""".formatted(name);
+                    §cYou have all of the %s upgrades!""".formatted(name);
         } else {
-            displayName = "&f%s Upgrade: &cTier %s".formatted(name, stage + 2);
+            displayName = "§f%s Upgrade: §cTier %s".formatted(name, stage + 2);
             description = """
-                    &r&7Cost: &f%s %s
-                    &eClick to buy!""".formatted(cost[stage].getAmount(), ShopItem.getFormattedName(cost[stage].getType()));
+                    §r§7Cost: §f%s %s
+                    §eClick to buy!""".formatted(cost[stage].getAmount(), ShopItem.getFormattedName(cost[stage].getType()));
         }
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-        meta.setLore(List.of(ChatColor.translateAlternateColorCodes('&', description).split("\n")));
+        meta.setDisplayName(displayName);
+        meta.setLore(List.of(description.split("\n")));
     }
 
     @JsonIgnore

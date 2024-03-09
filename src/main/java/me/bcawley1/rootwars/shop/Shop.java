@@ -1,5 +1,6 @@
 package me.bcawley1.rootwars.shop;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -12,17 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Shop {
+    @JsonIgnore
     private Map<String, ActionItem> items;
-    private Map<ShopTab, List<ShopItem>> shop;
-    private final List<ActionItem> topBar;
+    private List<ShopTab> tabs;
     private List<UpgradableItem> upgrades;
 
     public Shop() {
-        shop = new HashMap<>();
-        topBar = new ArrayList<>();
+        tabs = new ArrayList<>();
         items = new HashMap<>();
         upgrades = new ArrayList<>();
-
 //        JSONParser jsonParser = new JSONParser();
 //        JSONObject JSONObj = null;
 //        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsolutePath() + "/shop.json")) {
@@ -66,13 +65,18 @@ public class Shop {
     }
 
     public boolean containsTab(String tab) {
-        return shop.containsKey(tab);
+        for (ShopTab shopTab : tabs) {
+            if(shopTab.getName().equals(tab)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public ActionItem getTopBarItem(ItemStack i) {
-        for (ActionItem actionItem : topBar) {
-            if (actionItem.getName().equals(ChatColor.stripColor(i.getItemMeta().getDisplayName()))) {
-                return actionItem;
+        for (ShopTab tab : tabs) {
+            if(ChatColor.stripColor(i.getItemMeta().getDisplayName()).equals(tab.getName())){
+                return tab.getTabItem();
             }
         }
         return null;
@@ -80,18 +84,6 @@ public class Shop {
 
     public boolean isTopBar(ItemStack i) {
         return getTopBarItem(i) != null;
-    }
-
-    public Inventory getInventoryTab(Player p, ShopTab tab) {
-        Inventory inv = Bukkit.createInventory(p, 54, tab.getName());
-        for (ActionItem i : topBar) {
-            inv.setItem(topBar.indexOf(i), i.getItem());
-        }
-        for (ShopItem i : shop.get(tab)) {
-            int indexOf = shop.get(tab).indexOf(i);
-            inv.setItem((indexOf % 7 + 1) + 9 * (2 + indexOf / 7), i.getItem());
-        }
-        return inv;
     }
 
     public Inventory getUpgradeTab(Player p) {
@@ -106,19 +98,19 @@ public class Shop {
     public ActionItem getActionItem(ItemStack item) {
         return items.get(item.getItemMeta().getDisplayName());
     }
-    public ActionItem getActionItemFromString(String s){
+    public ActionItem getActionItemFromString(String s) {
         return items.get(s);
     }
 
-    public enum ShopTab{
-        QUICK("Quick Buy"), BLOCKS("Blocks"), MELEE("Melee"), ARMOR("Armor"),TOOLS("Tools"),RANGED("Ranged"),POTION("Potions"),UTILITY("Utility");
-        private final String name;
-        ShopTab(String name) {
-            this.name = name;
+    public List<ActionItem> getTabItems() {
+        List<ActionItem> tabItems = new ArrayList<>();
+        for (ShopTab tab : tabs) {
+            tabItems.add(tab.getTabItem());
         }
+        return tabItems;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public List<ShopTab> getTabs() {
+        return tabs;
     }
 }
