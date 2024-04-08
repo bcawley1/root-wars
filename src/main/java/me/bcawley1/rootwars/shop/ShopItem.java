@@ -1,5 +1,6 @@
 package me.bcawley1.rootwars.shop;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.util.PlayerCooldown;
@@ -11,13 +12,16 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 public class ShopItem extends ActionItem {
-    @JsonProperty
+    @JsonProperty("costMaterial")
     private final Material costItem;
     @JsonProperty
     private final int costAmount;
     private final PlayerCooldown buyCooldown;
 
-    public ShopItem(Material type, int amount, Material costItem, int costAmount, String name, BuyActions action) {
+    //TODO: MAKE PRIVATE
+    @JsonCreator
+    private ShopItem(@JsonProperty("material") Material type, @JsonProperty("amount")int amount, @JsonProperty("costMaterial")Material costItem,
+                    @JsonProperty("costAmount") int costAmount, @JsonProperty("name") String name, @JsonProperty("action") BuyActions action) {
         super(name, type, amount, action);
         this.buyCooldown = new PlayerCooldown(200);
         this.costItem = costItem;

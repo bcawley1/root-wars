@@ -1,15 +1,22 @@
 package me.bcawley1.rootwars.gamemodes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
+import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
 import me.bcawley1.rootwars.generator.GeneratorItem;
 import me.bcawley1.rootwars.maps.GameMap;
-import me.bcawley1.rootwars.generator.Generator;
+import me.bcawley1.rootwars.mixin.ItemStackMixin;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.shop.Shop;
-import me.bcawley1.rootwars.util.*;
+import me.bcawley1.rootwars.util.GamePlayer;
+import me.bcawley1.rootwars.util.GameTeam;
+import me.bcawley1.rootwars.util.RepeatableEvent;
+import me.bcawley1.rootwars.util.ScheduledEvent;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -43,25 +50,31 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 public abstract class GameMode implements Listener, Votable {
-    protected final String[] teamColors;
-    protected List<GameTeam> teams;
-    protected String gameModeName;
-    protected String description;
-
-    protected Material material;
     protected static Map<String, GameMode> gameModes = new HashMap<>();
+    @JsonProperty
+    protected String name;
+    @JsonProperty
+    protected String description;
+    @JsonProperty
     protected int respawnTime;
+    @JsonProperty
     protected int playerHealth;
+    @JsonProperty("teams")
+//    protected final GameTeam.TeamColor[] teamColors;
+    @JsonIgnore
+    protected List<GameTeam> teams;
+    @JsonProperty
     protected int regenTime;
     protected List<PotionEffect> effects;
     protected Regen regen;
-    //Generator Variables
     protected final GeneratorData[] playerGeneratorUpgradeData;
     protected List<Generator> emeraldGenerators;
     protected final GeneratorData[] emeraldUpgradeData;
@@ -72,8 +85,17 @@ public abstract class GameMode implements Listener, Votable {
     protected BukkitTask scoreboardUpdateTask;
     protected long startTick;
     protected boolean gameOn;
+    protected Shop shop;
 
     protected GameMode(String jsonName) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.addMixIn(ItemStack.class, ItemStackMixin.class);
+        try {
+            shop = objectMapper.readValue(new File(RootWars.getPlugin().getDataFolder() + "/shop.json"), Shop.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObj = null;
         try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsoluteFile() + "/GameModes/%s.json".formatted(jsonName))) {
@@ -84,9 +106,8 @@ public abstract class GameMode implements Listener, Votable {
         }
         HashMap<String, Object> data = jsonObj;
 
-        gameModeName = (String) data.get("name");
+        name = (String) data.get("name");
         description = (String) data.get("description");
-        material = Material.valueOf((String) data.get("voteItem"));
         respawnTime = Math.toIntExact((long) data.get("respawnTime"));
         playerHealth = Math.toIntExact((long) data.get("playerHealth"));
         regenTime = Math.toIntExact((long) data.get("regenTimer"));
@@ -110,8 +131,11 @@ public abstract class GameMode implements Listener, Votable {
             effects.add(new PotionEffect(PotionEffectType.getByName((String) map.get("name")), -1, Math.toIntExact((long) map.get("amplifier")), false, false, false));
         }
 
-        teamColors = ((List<String>) data.get("teams")).toArray(new String[0]);
-        gameModes.put(gameModeName, this);
+//        teamColors = ((List<String>) data.get("teams")).toArray(new String[0]);
+
+        Vote.getItem(Material.valueOf(RootWars.COLORS[gameModes.size() % RootWars.COLORS.length] + "_WOOL"), name);
+
+        gameModes.put(name, this);
     }
 
     private GeneratorData[] getGeneratorData(List<HashMap<String, Object>> data) {
@@ -149,9 +173,9 @@ public abstract class GameMode implements Listener, Votable {
 
         //Creates the teams listed in the teamColors array.
         teams = new ArrayList<>();
-        for (String s : teamColors) {
-            teams.add(new GameTeam(s, playerGeneratorUpgradeData));
-        }
+//        for (String s : teamColors) {
+//            teams.add(new GameTeam(s, playerGeneratorUpgradeData));
+//        }
 
 
         //Assigns players to teams equally.
@@ -248,12 +272,12 @@ public abstract class GameMode implements Listener, Votable {
 
     @Override
     public ItemStack getItem() {
-        return Vote.getItem(material, gameModeName, description);
+        return Vote.getItem(Material.RED_WOOL, name, description);
     }
 
     @Override
     public String getName() {
-        return gameModeName;
+        return name;
     }
 
     public void updateScoreboard() {
@@ -310,7 +334,6 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        Shop shop = RootWars.getPlayer((Player) event.getWhoClicked()).getTeam().getShop();
         if (event.getCurrentItem() == null) {
             return;
         }
@@ -361,7 +384,6 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void onEntityInteract(PlayerInteractEntityEvent event) {
         if (event.getRightClicked() instanceof Villager && RootWars.getPlayer(event.getPlayer()).getTeam() != null) {
-            Shop shop = RootWars.getPlayer(event.getPlayer()).getTeam().getShop();
             for (GameTeam team : teams) {
                 if (team.isItemVillager(event.getRightClicked().getLocation())) {
                     event.getPlayer().openInventory(shop.getTabs().get(0).getInventoryTab(event.getPlayer()));
@@ -506,6 +528,10 @@ public abstract class GameMode implements Listener, Votable {
             }
         }
         return false;
+    }
+
+    public Shop getShop() {
+        return shop;
     }
 
     public List<GameTeam> getTeams() {

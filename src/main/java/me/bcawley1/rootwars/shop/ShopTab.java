@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class ShopTab {
     @JsonProperty
@@ -19,10 +18,17 @@ public class ShopTab {
     @JsonProperty
     List<ShopItem> items;
 
+//TODO: REMOVE
+    public ShopTab(String name, Material item, List<ShopItem> items) {
+        this.name = name;
+        this.item = item;
+        this.items = items;
+    }
+
     private ShopTab() {}
 
     @JsonIgnore
-    public ActionItem getTabItem(){
+    public ActionItem getTabItem() {
         TabItem tabItem = new TabItem(name, item);
         tabItem.setLore(List.of("§r§eClick to open the %s menu.".formatted(name)));
         return tabItem;
@@ -30,12 +36,12 @@ public class ShopTab {
 
     public Inventory getInventoryTab(Player p) {
         Inventory inv = Bukkit.createInventory(p, 54, name);
-        List<ActionItem> tabItems = RootWars.getPlayer(p).getTeam().getShop().getTabItems();
+        List<ActionItem> tabItems = RootWars.getCurrentGameMode().getShop().getTabItems();
         for (int i = 0; i < tabItems.size(); i++) {
-            inv.setItem(i, tabItems.get(i).getItem());
+            inv.setItem(i, tabItems.get(i).getItem(p));
         }
         for (int i = 0; i < items.size(); i++) {
-            inv.setItem((i % 7 + 1) + 9 * (2 + i / 7), items.get(i).getItem());
+            inv.setItem((i % 7 + 1) + 9 * (2 + i / 7), items.get(i).getItem(p));
         }
         return inv;
     }
@@ -47,25 +53,25 @@ public class ShopTab {
     public String getName() {
         return name;
     }
-    public class TabItem extends ActionItem{
+
+    //TODO: REMOVE
+    @Override
+    public String toString() {
+        return "ShopTab{" +
+                "name='" + name + '\'' +
+                ", item=" + item +
+                ", items=" + items +
+                '}';
+    }
+
+    public class TabItem extends ActionItem {
         public TabItem(String name, Material type) {
             super(name, type, null);
         }
+
         @Override
         public void onItemClick(Player p) {
             p.openInventory(getInventoryTab(p));
         }
     }
-
-    //    public enum ShopTabNames {
-//        QUICK("Quick Buy"), BLOCKS("Blocks"), MELEE("Melee"), ARMOR("Armor"),TOOLS("Tools"),RANGED("Ranged"),POTION("Potions"),UTILITY("Utility");
-//        private final String name;
-//        ShopTabNames(String name) {
-//            this.name = name;
-//        }
-//
-//        public String getName() {
-//            return name;
-//        }
-//    }
 }

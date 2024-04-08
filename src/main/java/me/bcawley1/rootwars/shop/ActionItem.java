@@ -10,7 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class ActionItem {
     @JsonProperty
@@ -45,7 +44,7 @@ public class ActionItem {
     }
 
     @JsonIgnore
-    public ItemStack getItem() {
+    public ItemStack getItem(Player p) {
         ItemStack item = new ItemStack(type, amount);
         item.setItemMeta(meta);
         return item;
