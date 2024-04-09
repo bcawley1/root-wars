@@ -1,6 +1,5 @@
 package me.bcawley1.rootwars;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -16,16 +15,14 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import me.bcawley1.rootwars.commands.RootWarsCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.files.Config;
+import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.maps.GameMap;
-import me.bcawley1.rootwars.mixin.PotionEffectMixin;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,16 +43,15 @@ public final class RootWars extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        PotionEffect potionEffect = new PotionEffect(PotionEffectType.NIGHT_VISION, -1 , 255, false, false, false);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.addMixIn(PotionEffect.class, PotionEffectMixin.class);
-        try {
+//        PotionEffect potionEffect = new PotionEffect(PotionEffectType.NIGHT_VISION, -1 , 255, false, false, false);
+//
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
 //            System.out.println(objectMapper.readValue(new File(getDataFolder() + "/test.json"), ShopTab.class).toString());
-            objectMapper.writeValue(new File(getDataFolder() + "/potion.json"), potionEffect);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//            objectMapper.writeValue(new File(getDataFolder() + "/potion.json"), potionEffect);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         plugin = this;
         saveDefaultConfig();
@@ -80,10 +76,10 @@ public final class RootWars extends JavaPlugin {
             GameMap.registerMap(file.getName());
         }
 
-//        new Standard();
-//        new TwoTeams();
-//        new Rush();
-//        new NoBuild();
+        Standard.registerGameMode();
+//        Rush.registerGameMode();
+//        NoBuild.registerGameMode();
+//        TwoTeams.registerGameMode();
 
         // Sets Commands
         getCommand("RootWars").setExecutor(new RootWarsCommand());

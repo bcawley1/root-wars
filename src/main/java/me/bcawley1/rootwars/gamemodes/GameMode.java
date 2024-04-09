@@ -7,16 +7,12 @@ import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
-import me.bcawley1.rootwars.generator.GeneratorItem;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.mixin.ItemStackMixin;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.shop.Shop;
-import me.bcawley1.rootwars.util.GamePlayer;
-import me.bcawley1.rootwars.util.GameTeam;
-import me.bcawley1.rootwars.util.RepeatableEvent;
-import me.bcawley1.rootwars.util.ScheduledEvent;
+import me.bcawley1.rootwars.util.*;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -40,116 +36,74 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 public abstract class GameMode implements Listener, Votable {
+    @JsonIgnore
     protected static Map<String, GameMode> gameModes = new HashMap<>();
-    @JsonProperty
+    @JsonProperty("name")
     protected String name;
-    @JsonProperty
+    @JsonProperty("description")
     protected String description;
     @JsonProperty
     protected int respawnTime;
-    @JsonProperty
+    @JsonProperty("playerHealth")
     protected int playerHealth;
     @JsonProperty("teams")
-//    protected final GameTeam.TeamColor[] teamColors;
+    protected GameTeam.TeamColor[] teamColors;
     @JsonIgnore
     protected List<GameTeam> teams;
     @JsonProperty
     protected int regenTime;
-    protected List<PotionEffect> effects;
+    @JsonProperty("effects")
+    protected List<Potion> effects;
+    @JsonIgnore
     protected Regen regen;
-    protected final GeneratorData[] playerGeneratorUpgradeData;
+    @JsonProperty("teamGeneratorTiers")
+    protected GeneratorData[] playerGeneratorUpgradeData;
+    @JsonIgnore
     protected List<Generator> emeraldGenerators;
-    protected final GeneratorData[] emeraldUpgradeData;
+    @JsonProperty("emeraldGeneratorTiers")
+    protected GeneratorData[] emeraldUpgradeData;
+    @JsonIgnore
     protected List<Generator> diamondGenerators;
-    protected final GeneratorData[] diamondUpgradeData;
-    protected final List<ScheduledEvent> events;
-    protected final List<RepeatableEvent> repeatableEvents;
+    @JsonProperty("diamondGeneratorTiers")
+    protected GeneratorData[] diamondUpgradeData;
+    @JsonProperty
+    protected List<ScheduledEvent> events;
+    @JsonProperty("repeatingEvents")
+    protected List<RepeatableEvent> repeatableEvents;
+    @JsonIgnore
     protected BukkitTask scoreboardUpdateTask;
+    @JsonIgnore
     protected long startTick;
+    @JsonIgnore
     protected boolean gameOn;
+    @JsonProperty
     protected Shop shop;
 
-    protected GameMode(String jsonName) {
+    protected static void registerGameMode(Class<? extends GameMode> classToSer){
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(ItemStack.class, ItemStackMixin.class);
         try {
-            shop = objectMapper.readValue(new File(RootWars.getPlugin().getDataFolder() + "/shop.json"), Shop.class);
+            GameMode gameMode = objectMapper.readValue(new File(RootWars.getPlugin().getDataFolder() + "/GameModes/%s.json".formatted(classToSer.getSimpleName().toLowerCase())), classToSer);
+            gameMode.gameOn = false;
+            gameModes.put(gameMode.name, gameMode);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObj = null;
-        try (FileReader reader = new FileReader(RootWars.getPlugin().getDataFolder().getAbsoluteFile() + "/GameModes/%s.json".formatted(jsonName))) {
-            Object obj = jsonParser.parse(reader);
-            jsonObj = (JSONObject) obj;
-        } catch (Exception e) {
-            RootWars.getPlugin().getLogger().log(new LogRecord(Level.SEVERE, "Error while trying to parse %s.json.".formatted(jsonName)));
-        }
-        HashMap<String, Object> data = jsonObj;
-
-        name = (String) data.get("name");
-        description = (String) data.get("description");
-        respawnTime = Math.toIntExact((long) data.get("respawnTime"));
-        playerHealth = Math.toIntExact((long) data.get("playerHealth"));
-        regenTime = Math.toIntExact((long) data.get("regenTimer"));
-
-        playerGeneratorUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("teamGeneratorTiers"));
-        emeraldUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("emeraldGeneratorTiers"));
-        diamondUpgradeData = getGeneratorData((List<HashMap<String, Object>>) data.get("diamondGeneratorTiers"));
-
-        events = new ArrayList<>();
-        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("events")) {
-            events.add(new ScheduledEvent((String) map.get("name"), Math.toIntExact((long) map.get("delay")), getRunnable((String) map.get("runnable"))));
-        }
-
-        repeatableEvents = new ArrayList<>();
-        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("repeatingEvents")) {
-            repeatableEvents.add(new RepeatableEvent((String) map.get("name"), Math.toIntExact((long) map.get("delay")), Math.toIntExact((long) map.get("repeatTime")), getRunnable((String) map.get("runnable"))));
-        }
-
-        effects = new ArrayList<>();
-        for (Map<String, Object> map : (List<Map<String, Object>>) data.get("effects")) {
-            effects.add(new PotionEffect(PotionEffectType.getByName((String) map.get("name")), -1, Math.toIntExact((long) map.get("amplifier")), false, false, false));
-        }
-
-//        teamColors = ((List<String>) data.get("teams")).toArray(new String[0]);
-
-        Vote.getItem(Material.valueOf(RootWars.COLORS[gameModes.size() % RootWars.COLORS.length] + "_WOOL"), name);
-
-        gameModes.put(name, this);
     }
 
-    private GeneratorData[] getGeneratorData(List<HashMap<String, Object>> data) {
-        GeneratorData[] dataArray = new GeneratorData[data.size()];
-        for (int i = 0; i < data.size(); i++) {
-            List<HashMap<String, Object>> items = (List<HashMap<String, Object>>) data.get(i).get("items");
-            GeneratorItem[] itemsButCooler = new GeneratorItem[items.size()];
-            for (int j = 0; j < items.size(); j++) {
-                itemsButCooler[j] = new GeneratorItem(Material.valueOf((String) items.get(j).get("item")), Math.toIntExact((long) items.get(j).get("chance")));
-            }
-            dataArray[i] = new GeneratorData(Math.toIntExact((long) data.get(i).get("delay")), itemsButCooler);
-        }
-        return dataArray;
-    }
+    protected GameMode() {}
 
     public void startGame() {
         gameOn = true;
@@ -173,9 +127,9 @@ public abstract class GameMode implements Listener, Votable {
 
         //Creates the teams listed in the teamColors array.
         teams = new ArrayList<>();
-//        for (String s : teamColors) {
-//            teams.add(new GameTeam(s, playerGeneratorUpgradeData));
-//        }
+        for (GameTeam.TeamColor s : teamColors) {
+            teams.add(new GameTeam(s.name(), playerGeneratorUpgradeData));
+        }
 
 
         //Assigns players to teams equally.
@@ -190,7 +144,7 @@ public abstract class GameMode implements Listener, Votable {
             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(playerHealth);
             p.setFoodLevel(20);
             p.setHealth(playerHealth);
-            p.addPotionEffects(effects);
+            effects.forEach(e -> p.addPotionEffect(e.getPotionEffect()));
             initializePlayer(p);
         });
 
@@ -245,7 +199,8 @@ public abstract class GameMode implements Listener, Votable {
         diamondGenerators.forEach(Generator::stopGenerator);
     }
 
-    protected Runnable getRunnable(String s) {
+    @JsonIgnore
+    public Runnable getRunnable(String s) {
         try {
             return Events.valueOf(s).getRunnable();
         } catch (Exception e) {
@@ -262,19 +217,23 @@ public abstract class GameMode implements Listener, Votable {
         }
     }
 
+    @JsonIgnore
     public static Map<String, GameMode> getGameModes() {
         return gameModes;
     }
 
+    @JsonIgnore
     public boolean isGameOn() {
         return gameOn;
     }
 
+    @JsonIgnore
     @Override
     public ItemStack getItem() {
         return Vote.getItem(Material.RED_WOOL, name, description);
     }
 
+    @JsonIgnore
     @Override
     public String getName() {
         return name;
@@ -506,6 +465,7 @@ public abstract class GameMode implements Listener, Votable {
         updateScoreboard();
     }
 
+    @JsonIgnore
     protected ItemStack getTeamChestplate(Player p) {
         ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
         ItemMeta meta = chestplate.getItemMeta();
@@ -521,19 +481,22 @@ public abstract class GameMode implements Listener, Votable {
         return chestplate;
     }
 
+    @JsonIgnore
     public boolean isGlobalEffect(PotionEffectType effectType) {
-        for (PotionEffect effect : effects) {
-            if (effect.getType() == effectType) {
+        for (Potion effect : effects) {
+            if (effect.getPotionEffect().getType() == effectType) {
                 return true;
             }
         }
         return false;
     }
 
+    @JsonIgnore
     public Shop getShop() {
         return shop;
     }
 
+    @JsonIgnore
     public List<GameTeam> getTeams() {
         return teams;
     }

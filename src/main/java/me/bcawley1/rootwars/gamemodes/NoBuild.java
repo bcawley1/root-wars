@@ -5,7 +5,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class NoBuild extends GameMode{
     public NoBuild() {
-        super("nobuild");
+        super();
+    }
+    public static void registerGameMode(){
+        GameMode.registerGameMode(NoBuild.class);
     }
 
     @Override
