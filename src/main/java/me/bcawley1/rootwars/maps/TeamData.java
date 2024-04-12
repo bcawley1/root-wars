@@ -1,43 +1,50 @@
 package me.bcawley1.rootwars.maps;
 
-import me.bcawley1.rootwars.RootWars;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import me.bcawley1.rootwars.util.DefaultWorldLocation;
 import org.bukkit.Location;
 
-import java.util.Map;
-
 public class TeamData {
+    @JsonProperty
     private final Location spawnPoint;
+    @JsonProperty
     private final Location itemVillager;
+    @JsonProperty
     private final Location upgradeVillager;
+    @JsonProperty
     private final Location generatorLocation;
+    @JsonProperty
     private final Location rootLocation;
 
-    TeamData(Map<String, Map<String, Long>> teamData) {
-        this.spawnPoint = new Location(RootWars.getWorld(), teamData.get("spawnPoint").get("x"), teamData.get("spawnPoint").get("y"), teamData.get("spawnPoint").get("z"));
-        this.itemVillager = new Location(RootWars.getWorld(), teamData.get("itemVillager").get("x"), teamData.get("itemVillager").get("y"), teamData.get("itemVillager").get("z"));
-        this.upgradeVillager = new Location(RootWars.getWorld(), teamData.get("upgradeVillager").get("x"), teamData.get("upgradeVillager").get("y"), teamData.get("upgradeVillager").get("z"));
-        this.generatorLocation = new Location(RootWars.getWorld(), teamData.get("spawnPoint").get("x"), teamData.get("spawnPoint").get("y"), teamData.get("spawnPoint").get("z"));
-        this.rootLocation = new Location(RootWars.getWorld(), teamData.get("root").get("x"), teamData.get("root").get("y"), teamData.get("root").get("z"));
+    @JsonCreator
+    private TeamData(@JsonProperty("spawnPoint") DefaultWorldLocation spawnPoint, @JsonProperty("itemVillager") DefaultWorldLocation itemVillager,
+                     @JsonProperty("upgradeVillager") DefaultWorldLocation upgradeVillager, @JsonProperty("generatorLocation") DefaultWorldLocation generatorLocation, @JsonProperty("rootLocation") DefaultWorldLocation rootLocation) {
+        this.spawnPoint = spawnPoint;
+        this.itemVillager = itemVillager;
+        this.upgradeVillager = upgradeVillager;
+        this.generatorLocation = generatorLocation;
+        this.rootLocation = rootLocation;
     }
 
     public Location getSpawnPoint() {
-        return spawnPoint.clone();
+        return new Location(spawnPoint.getWorld(), spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ(), spawnPoint.getYaw(), spawnPoint.getPitch());
     }
 
     public Location getItemVillager() {
-        return itemVillager.clone();
+        return new Location(itemVillager.getWorld(), itemVillager.getX(), itemVillager.getY(), itemVillager.getZ(), itemVillager.getYaw(), itemVillager.getPitch());
     }
 
     public Location getUpgradeVillager() {
-        return upgradeVillager.clone();
+        return new Location(upgradeVillager.getWorld(), upgradeVillager.getX(), upgradeVillager.getY(), upgradeVillager.getZ(), upgradeVillager.getYaw(), upgradeVillager.getPitch());
     }
 
     public Location getGeneratorLocation() {
-        return generatorLocation.clone();
+        return new Location(generatorLocation.getWorld(), generatorLocation.getX(), generatorLocation.getY(), generatorLocation.getZ(), generatorLocation.getYaw(), generatorLocation.getPitch());
     }
 
     public Location getRootLocation() {
-        return rootLocation.clone();
+        return new Location(rootLocation.getWorld(), rootLocation.getX(), rootLocation.getY(), rootLocation.getZ(), rootLocation.getYaw(), rootLocation.getPitch());
     }
 }
 
