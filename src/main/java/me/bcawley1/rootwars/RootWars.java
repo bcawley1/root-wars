@@ -16,7 +16,7 @@ import me.bcawley1.rootwars.commands.RootWarsCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.files.Config;
 import me.bcawley1.rootwars.gamemodes.GameMode;
-import me.bcawley1.rootwars.gamemodes.Standard;
+import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.util.GamePlayer;
 import org.bukkit.*;
@@ -68,9 +68,9 @@ public final class RootWars extends JavaPlugin {
             GameMap.registerMap(file.getName());
         }
         Standard.registerGameMode();
-//        Rush.registerGameMode();
-//        NoBuild.registerGameMode();
-//        TwoTeams.registerGameMode();
+        Rush.registerGameMode();
+        NoBuild.registerGameMode();
+        TwoTeams.registerGameMode();
 
         // Sets Commands
         getCommand("RootWars").setExecutor(new RootWarsCommand());
