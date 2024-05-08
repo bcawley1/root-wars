@@ -18,13 +18,6 @@ public class ShopTab {
     @JsonProperty
     List<ShopItem> items;
 
-//TODO: REMOVE
-    public ShopTab(String name, Material item, List<ShopItem> items) {
-        this.name = name;
-        this.item = item;
-        this.items = items;
-    }
-
     private ShopTab() {}
 
     @JsonIgnore
@@ -52,16 +45,6 @@ public class ShopTab {
 
     public String getName() {
         return name;
-    }
-
-    //TODO: REMOVE
-    @Override
-    public String toString() {
-        return "ShopTab{" +
-                "name='" + name + '\'' +
-                ", item=" + item +
-                ", items=" + items +
-                '}';
     }
 
     public class TabItem extends ActionItem {

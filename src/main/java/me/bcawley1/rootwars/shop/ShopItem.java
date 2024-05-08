@@ -18,7 +18,6 @@ public class ShopItem extends ActionItem {
     private final int costAmount;
     private final PlayerCooldown buyCooldown;
 
-    //TODO: MAKE PRIVATE
     @JsonCreator
     private ShopItem(@JsonProperty("material") Material type, @JsonProperty("amount")int amount, @JsonProperty("costMaterial")Material costItem,
                     @JsonProperty("costAmount") int costAmount, @JsonProperty("name") String name, @JsonProperty("action") BuyActions action) {
