@@ -2,30 +2,24 @@ package me.bcawley1.rootwars.vote;
 
 import java.util.*;
 
-public class VoteBoard {
-    private Map<String, Integer> votes;
-    private Map<UUID, String> playerVotes;
+public class VoteBoard<T extends Votable> {
+    private final Map<T, Integer> votes;
+    private final Map<UUID, T> playerVotes;
 
-    public <T extends Votable> VoteBoard(List<T> items) {
+    public VoteBoard(List<T> items) {
         votes = new HashMap<>();
         playerVotes = new HashMap<>();
-        for (Votable item : items) {
-            votes.put(item.getName(), 0);
-        }
+        items.forEach(i -> votes.put(i, 0));
     }
 
-    public void addVote(String item, UUID player) {
-        votes.merge(item, 1, Integer::sum);
+    public void addVote(T item, UUID player) {
+        votes.put(item, votes.getOrDefault(item, 0) + 1);
         playerVotes.put(player, item);
     }
 
-    public List<VoteEntry> getBoard() {
-        List<VoteEntry> voteEntries = new ArrayList<>();
-        votes.forEach((key, value) -> {
-            if (value != 0) {
-                voteEntries.add(new VoteEntry(key, value));
-            }
-        });
+    public List<VoteEntry<T>> getBoard() {
+        List<VoteEntry<T>> voteEntries = new ArrayList<>();
+        votes.forEach((key, value) -> voteEntries.add(new VoteEntry<>(key, value)));
         Collections.sort(voteEntries);
         return voteEntries;
     }
@@ -40,7 +34,7 @@ public class VoteBoard {
         return size;
     }
 
-    public String getVotedItem(UUID uuid) {
+    public T getVotedItem(UUID uuid) {
         return playerVotes.get(uuid);
     }
 
