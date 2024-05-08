@@ -1,10 +1,9 @@
 {
   "name": "No Build",
-  "description": "The no build Root Wars experience.",
-  "voteItem": "LIGHT_BLUE_WOOL",
+  "description": "Did you like building? Well not anymore.",
   "respawnTime": 5,
   "playerHealth": 20,
-  "regenTimer": 20,
+  "regenTime": 20,
   "teamGeneratorTiers": [
     {
       "delay": 15,
@@ -126,500 +125,572 @@
     }
   ],
   "shop": {
-    "Quick Buy": [
-      {
-        "buyAmount": 16,
-        "name": "Wool",
-        "costAmount": 4,
-        "buyMaterial": "WHITE_WOOL",
-        "costMaterial": "IRON_INGOT",
-        "action": "WOOL"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Stone Sword",
-        "costAmount": 10,
-        "buyMaterial": "STONE_SWORD",
-        "costMaterial": "IRON_INGOT",
-        "action": "SWORD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Permanganate Chainmail Armor",
-        "costAmount": 24,
-        "buyMaterial": "CHAINMAIL_BOOTS",
-        "costMaterial": "IRON_INGOT",
-        "action": "CHAINMAIL_ARMOR"
-      },
-      {
-        "buyAmount": 4,
-        "name": "Glass",
-        "costAmount": 12,
-        "buyMaterial": "GLASS",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 8,
-        "name": "Ladder",
-        "costAmount": 4,
-        "buyMaterial": "LADDER",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Speed Boost",
-        "costAmount": 1,
-        "buyMaterial": "POTION",
-        "costMaterial": "EMERALD",
-        "action": "SPEED"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Ender Pearl",
-        "costAmount": 4,
-        "buyMaterial": "ENDER_PEARL",
-        "costMaterial": "EMERALD"
-      },
-      {
-        "buyAmount": 16,
-        "name": "Planks",
-        "costAmount": 4,
-        "buyMaterial": "OAK_PLANKS",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "name": "Iron Sword",
-        "costAmount": 7,
-        "buyAmount": 1,
-        "buyMaterial": "IRON_SWORD",
-        "costMaterial": "GOLD_INGOT",
-        "action": "SWORD"
-      },
-      {
-        "name": "Permanganate Iron Armor",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "IRON_BOOTS",
-        "costMaterial": "GOLD_INGOT",
-        "action": "IRON_ARMOR"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Bow",
-        "costAmount": 8,
-        "buyMaterial": "BOW",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Fireball",
-        "costAmount": 40,
-        "buyMaterial": "FIRE_CHARGE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Bang Energy",
-        "costAmount": 2,
-        "buyMaterial": "POTION",
-        "costMaterial": "EMERALD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Water Bucket",
-        "costAmount": 6,
-        "buyMaterial": "PUFFERFISH_BUCKET",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Knockback Stick",
-        "costAmount": 5,
-        "buyMaterial": "STICK",
-        "costMaterial": "GOLD_INGOT",
-        "action": "KNOCKBACK_STICK"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Shears",
-        "costAmount": 20,
-        "buyMaterial": "SHEARS",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "name": "Stone Pickaxe",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "STONE_PICKAXE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 12,
-        "name": "End Stone",
-        "costAmount": 24,
-        "buyMaterial": "END_STONE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Dream Defender",
-        "costAmount": 120,
-        "buyMaterial": "IRON_GOLEM_SPAWN_EGG",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "name": "Stone Axe",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "STONE_AXE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Golden Apple",
-        "costAmount": 3,
-        "buyMaterial": "GOLDEN_APPLE",
-        "costMaterial": "GOLD_INGOT"
-      }
-    ],
-    "Blocks": [
-      {
-        "buyAmount": 16,
-        "name": "Wool",
-        "costAmount": 4,
-        "buyMaterial": "WHITE_WOOL",
-        "costMaterial": "IRON_INGOT",
-        "action": "WOOL"
-      },
-      {
-        "name": "Terracotta",
-        "costAmount": 12,
-        "buyAmount": 16,
-        "buyMaterial": "TERRACOTTA",
-        "costMaterial": "IRON_INGOT",
-        "action": "TERRACOTTA"
-      },
-      {
-        "buyAmount": 4,
-        "name": "Glass",
-        "costAmount": 12,
-        "buyMaterial": "GLASS",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 12,
-        "name": "End Stone",
-        "costAmount": 24,
-        "buyMaterial": "END_STONE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 8,
-        "name": "Ladder",
-        "costAmount": 4,
-        "buyMaterial": "LADDER",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 16,
-        "name": "Planks",
-        "costAmount": 4,
-        "buyMaterial": "OAK_PLANKS",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 4,
-        "name": "Obsidian",
-        "costAmount": 4,
-        "buyMaterial": "OBSIDIAN",
-        "costMaterial": "EMERALD"
-      }
-    ],
-    "Melee": [
-      {
-        "buyAmount": 1,
-        "name": "Stone Sword",
-        "costAmount": 10,
-        "buyMaterial": "STONE_SWORD",
-        "costMaterial": "IRON_INGOT",
-        "action": "SWORD"
-      },
-      {
-        "name": "Iron Sword",
-        "costAmount": 7,
-        "buyAmount": 1,
-        "buyMaterial": "IRON_SWORD",
-        "costMaterial": "GOLD_INGOT",
-        "action": "SWORD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Diamond Sword",
-        "costAmount": 3,
-        "buyMaterial": "DIAMOND_SWORD",
-        "costMaterial": "EMERALD",
-        "action": "SWORD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Knockback Stick",
-        "costAmount": 5,
-        "buyMaterial": "STICK",
-        "costMaterial": "GOLD_INGOT",
-        "action": "KNOCKBACK_STICK"
-      }
-    ],
-    "Armor": [
-      {
-        "buyAmount": 1,
-        "name": "Permanganate Chainmail Armor",
-        "costAmount": 24,
-        "buyMaterial": "CHAINMAIL_BOOTS",
-        "costMaterial": "IRON_INGOT",
-        "action": "CHAINMAIL_ARMOR"
-      },
-      {
-        "name": "Permanganate Iron Armor",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "IRON_BOOTS",
-        "costMaterial": "GOLD_INGOT",
-        "action": "IRON_ARMOR"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Permanganate Diamond Armor",
-        "costAmount": 6,
-        "buyMaterial": "DIAMOND_BOOTS",
-        "costMaterial": "EMERALD",
-        "action": "DIAMOND_ARMOR"
-      }
-    ],
-    "Tools": [
-      {
-        "buyAmount": 1,
-        "name": "Shears",
-        "costAmount": 20,
-        "buyMaterial": "SHEARS",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "name": "Stone Pickaxe",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "STONE_PICKAXE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Iron Pickaxe",
-        "costAmount": 6,
-        "buyMaterial": "IRON_PICKAXE",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Diamond Pickaxe",
-        "costAmount": 24,
-        "buyMaterial": "DIAMOND_PICKAXE",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "name": "Stone Axe",
-        "costAmount": 12,
-        "buyAmount": 1,
-        "buyMaterial": "STONE_AXE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Iron Axe",
-        "costAmount": 6,
-        "buyMaterial": "IRON_AXE",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Diamond Axe",
-        "costAmount": 24,
-        "buyMaterial": "DIAMOND_AXE",
-        "costMaterial": "GOLD_INGOT"
-      }
-    ],
-    "Ranged": [
-      {
-        "buyAmount": 1,
-        "name": "Bow",
-        "costAmount": 8,
-        "buyMaterial": "BOW",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 8,
-        "name": "Arrow",
-        "costAmount": 2,
-        "buyMaterial": "ARROW",
-        "costMaterial": "GOLD_INGOT"
-      }
-    ],
-    "Potions": [
-      {
-        "buyAmount": 1,
-        "name": "Bang Energy",
-        "costAmount": 2,
-        "buyMaterial": "POTION",
-        "costMaterial": "EMERALD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Jump Boost",
-        "costAmount": 1,
-        "buyMaterial": "POTION",
-        "costMaterial": "EMERALD",
-        "action": "JUMP"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Speed Boost",
-        "costAmount": 1,
-        "buyMaterial": "POTION",
-        "costMaterial": "EMERALD",
-        "action": "SPEED"
-      }
-    ],
-    "Utility": [
-      {
-        "buyAmount": 1,
-        "name": "Golden Apple",
-        "costAmount": 3,
-        "buyMaterial": "GOLDEN_APPLE",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Dream Defender",
-        "costAmount": 120,
-        "buyMaterial": "IRON_GOLEM_SPAWN_EGG",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Fireball",
-        "costAmount": 40,
-        "buyMaterial": "FIRE_CHARGE",
-        "costMaterial": "IRON_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "TNT",
-        "costAmount": 8,
-        "buyMaterial": "TNT",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Ender Pearl",
-        "costAmount": 4,
-        "buyMaterial": "ENDER_PEARL",
-        "costMaterial": "EMERALD"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Water Bucket",
-        "costAmount": 6,
-        "buyMaterial": "PUFFERFISH_BUCKET",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 4,
-        "name": "Sponge",
-        "costAmount": 6,
-        "buyMaterial": "SPONGE",
-        "costMaterial": "GOLD_INGOT"
-      },
-      {
-        "buyAmount": 1,
-        "name": "Lava",
-        "costAmount": 6,
-        "buyMaterial": "LAVA_BUCKET",
-        "costMaterial": "GOLD_INGOT"
-      }
-    ],
-    "Top Bar": [
+    "tabs": [
       {
         "name": "Quick Buy",
-        "material": "NETHER_STAR",
-        "action": "TAB_QUICK"
+        "item": "NETHER_STAR",
+        "items": [
+          {
+            "amount": 16,
+            "name": "Wool",
+            "costAmount": 4,
+            "material": "WHITE_WOOL",
+            "costMaterial": "IRON_INGOT",
+            "action": "WOOL"
+          },
+          {
+            "amount": 1,
+            "name": "Stone Sword",
+            "costAmount": 10,
+            "material": "STONE_SWORD",
+            "costMaterial": "IRON_INGOT",
+            "action": "SWORD"
+          },
+          {
+            "amount": 1,
+            "name": "Permanganate Chainmail Armor",
+            "costAmount": 24,
+            "material": "CHAINMAIL_BOOTS",
+            "costMaterial": "IRON_INGOT",
+            "action": "CHAINMAIL_ARMOR"
+          },
+          {
+            "amount": 4,
+            "name": "Glass",
+            "costAmount": 12,
+            "material": "GLASS",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 8,
+            "name": "Ladder",
+            "costAmount": 4,
+            "material": "LADDER",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Speed Boost",
+            "costAmount": 1,
+            "material": "POTION",
+            "costMaterial": "EMERALD",
+            "action": "SPEED"
+          },
+          {
+            "amount": 1,
+            "name": "Ender Pearl",
+            "costAmount": 4,
+            "material": "ENDER_PEARL",
+            "costMaterial": "EMERALD",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 16,
+            "name": "Planks",
+            "costAmount": 4,
+            "material": "OAK_PLANKS",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "name": "Iron Sword",
+            "costAmount": 7,
+            "amount": 1,
+            "material": "IRON_SWORD",
+            "costMaterial": "GOLD_INGOT",
+            "action": "SWORD"
+          },
+          {
+            "name": "Permanganate Iron Armor",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "IRON_BOOTS",
+            "costMaterial": "GOLD_INGOT",
+            "action": "IRON_ARMOR"
+          },
+          {
+            "amount": 1,
+            "name": "Bow",
+            "costAmount": 8,
+            "material": "BOW",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Fireball",
+            "costAmount": 40,
+            "material": "FIRE_CHARGE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Invisibility Potion",
+            "costAmount": 2,
+            "material": "POTION",
+            "costMaterial": "EMERALD",
+            "action": "INVIS"
+          },
+          {
+            "amount": 1,
+            "name": "Water Bucket",
+            "costAmount": 6,
+            "material": "PUFFERFISH_BUCKET",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Knockback Stick",
+            "costAmount": 5,
+            "material": "STICK",
+            "costMaterial": "GOLD_INGOT",
+            "action": "KNOCKBACK_STICK"
+          },
+          {
+            "amount": 1,
+            "name": "Shears",
+            "costAmount": 20,
+            "material": "SHEARS",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "name": "Stone Pickaxe",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "STONE_PICKAXE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 12,
+            "name": "End Stone",
+            "costAmount": 24,
+            "material": "END_STONE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Dream Defender",
+            "costAmount": 120,
+            "material": "IRON_GOLEM_SPAWN_EGG",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "name": "Stone Axe",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "STONE_AXE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Golden Apple",
+            "costAmount": 3,
+            "material": "GOLDEN_APPLE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          }
+        ]
       },
       {
         "name": "Blocks",
-        "material": "TERRACOTTA",
-        "action": "TAB_BLOCKS"
+        "item": "TERRACOTTA",
+        "items": [
+          {
+            "amount": 16,
+            "name": "Wool",
+            "costAmount": 4,
+            "material": "WHITE_WOOL",
+            "costMaterial": "IRON_INGOT",
+            "action": "WOOL"
+          },
+          {
+            "name": "Terracotta",
+            "costAmount": 12,
+            "amount": 16,
+            "material": "TERRACOTTA",
+            "costMaterial": "IRON_INGOT",
+            "action": "TERRACOTTA"
+          },
+          {
+            "amount": 4,
+            "name": "Glass",
+            "costAmount": 12,
+            "material": "GLASS",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 12,
+            "name": "End Stone",
+            "costAmount": 24,
+            "material": "END_STONE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 8,
+            "name": "Ladder",
+            "costAmount": 4,
+            "material": "LADDER",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 16,
+            "name": "Planks",
+            "costAmount": 4,
+            "material": "OAK_PLANKS",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 4,
+            "name": "Obsidian",
+            "costAmount": 4,
+            "material": "OBSIDIAN",
+            "costMaterial": "EMERALD",
+            "action": "DEFAULT"
+          }
+        ]
       },
       {
         "name": "Melee",
-        "material": "IRON_SWORD",
-        "action": "TAB_MELEE"
+        "item": "IRON_SWORD",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Stone Sword",
+            "costAmount": 10,
+            "material": "STONE_SWORD",
+            "costMaterial": "IRON_INGOT",
+            "action": "SWORD"
+          },
+          {
+            "name": "Iron Sword",
+            "costAmount": 7,
+            "amount": 1,
+            "material": "IRON_SWORD",
+            "costMaterial": "GOLD_INGOT",
+            "action": "SWORD"
+          },
+          {
+            "amount": 1,
+            "name": "Diamond Sword",
+            "costAmount": 3,
+            "material": "DIAMOND_SWORD",
+            "costMaterial": "EMERALD",
+            "action": "SWORD"
+          },
+          {
+            "amount": 1,
+            "name": "Knockback Stick",
+            "costAmount": 5,
+            "material": "STICK",
+            "costMaterial": "GOLD_INGOT",
+            "action": "KNOCKBACK_STICK"
+          }
+        ]
       },
       {
         "name": "Armor",
-        "material": "CHAINMAIL_BOOTS",
-        "action": "TAB_ARMOR"
+        "item": "CHAINMAIL_BOOTS",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Permanganate Chainmail Armor",
+            "costAmount": 24,
+            "material": "CHAINMAIL_BOOTS",
+            "costMaterial": "IRON_INGOT",
+            "action": "CHAINMAIL_ARMOR"
+          },
+          {
+            "name": "Permanganate Iron Armor",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "IRON_BOOTS",
+            "costMaterial": "GOLD_INGOT",
+            "action": "IRON_ARMOR"
+          },
+          {
+            "amount": 1,
+            "name": "Permanganate Diamond Armor",
+            "costAmount": 6,
+            "material": "DIAMOND_BOOTS",
+            "costMaterial": "EMERALD",
+            "action": "DIAMOND_ARMOR"
+          }
+        ]
       },
       {
         "name": "Tools",
-        "material": "STONE_PICKAXE",
-        "action": "TAB_TOOLS"
+        "item": "STONE_PICKAXE",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Shears",
+            "costAmount": 20,
+            "material": "SHEARS",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "name": "Stone Pickaxe",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "STONE_PICKAXE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Iron Pickaxe",
+            "costAmount": 6,
+            "material": "IRON_PICKAXE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Diamond Pickaxe",
+            "costAmount": 24,
+            "material": "DIAMOND_PICKAXE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "name": "Stone Axe",
+            "costAmount": 12,
+            "amount": 1,
+            "material": "STONE_AXE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Iron Axe",
+            "costAmount": 6,
+            "material": "IRON_AXE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Diamond Axe",
+            "costAmount": 24,
+            "material": "DIAMOND_AXE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          }
+        ]
       },
       {
         "name": "Ranged",
-        "material": "BOW",
-        "action": "TAB_RANGED"
+        "item": "BOW",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Bow",
+            "costAmount": 8,
+            "material": "BOW",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 8,
+            "name": "Arrow",
+            "costAmount": 2,
+            "material": "ARROW",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 2,
+            "name": "Firework",
+            "costAmount": 8,
+            "material": "FIREWORK_ROCKET",
+            "costMaterial": "GOLD_INGOT",
+            "action": "FIREWORK"
+          },
+          {
+            "amount": 1,
+            "name": "Crossbow",
+            "costAmount": 16,
+            "material": "CROSSBOW",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          }
+        ]
       },
       {
         "name": "Potions",
-        "material": "BREWING_STAND",
-        "action": "TAB_POTION"
+        "item": "BREWING_STAND",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Invisibility Potion",
+            "costAmount": 2,
+            "material": "POTION",
+            "costMaterial": "EMERALD",
+            "action": "INVIS"
+          },
+          {
+            "amount": 1,
+            "name": "Jump Boost",
+            "costAmount": 1,
+            "material": "POTION",
+            "costMaterial": "EMERALD",
+            "action": "JUMP"
+          },
+          {
+            "amount": 1,
+            "name": "Speed Boost",
+            "costAmount": 1,
+            "material": "POTION",
+            "costMaterial": "EMERALD",
+            "action": "SPEED"
+          }
+        ]
       },
       {
         "name": "Utility",
-        "material": "TNT",
-        "action": "TAB_UTILITY"
+        "item": "TNT",
+        "items": [
+          {
+            "amount": 1,
+            "name": "Golden Apple",
+            "costAmount": 3,
+            "material": "GOLDEN_APPLE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Dream Defender",
+            "costAmount": 120,
+            "material": "IRON_GOLEM_SPAWN_EGG",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Fireball",
+            "costAmount": 40,
+            "material": "FIRE_CHARGE",
+            "costMaterial": "IRON_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "TNT",
+            "costAmount": 8,
+            "material": "TNT",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Ender Pearl",
+            "costAmount": 4,
+            "material": "ENDER_PEARL",
+            "costMaterial": "EMERALD",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Water Bucket",
+            "costAmount": 6,
+            "material": "PUFFERFISH_BUCKET",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 4,
+            "name": "Sponge",
+            "costAmount": 6,
+            "material": "SPONGE",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          },
+          {
+            "amount": 1,
+            "name": "Lava",
+            "costAmount": 6,
+            "material": "LAVA_BUCKET",
+            "costMaterial": "GOLD_INGOT",
+            "action": "DEFAULT"
+          }
+        ]
       }
     ],
-    "Upgrades": [
+    "upgrades": [
       {
         "name": "Generator",
-        "buyMaterial": "FURNACE",
-        "costMaterial": "DIAMOND",
-        "costAmount": [
-          4,
-          8,
-          12
+        "amount": 1,
+        "action": "GENERATOR",
+        "cost": [
+          {
+            "amount": 2,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 6,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 10,
+            "material": "DIAMOND"
+          }
         ],
-        "action": "GENERATOR"
+        "material": "FURNACE"
       },
       {
-        "name": "Reinforced Armor",
-        "buyMaterial": "DIAMOND_CHESTPLATE",
-        "costMaterial": "DIAMOND",
-        "costAmount": [
-          2,
-          6,
-          10
+        "name": "Sharpness",
+        "amount": 1,
+        "action": "SHARPNESS",
+        "cost": [
+          {
+            "amount": 4,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 8,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 12,
+            "material": "DIAMOND"
+          }
         ],
-        "action": "PROTECTION"
+        "material": "DIAMOND_SWORD"
       },
       {
-        "name": "Sharper Swords",
-        "buyMaterial": "DIAMOND_SWORD",
-        "costMaterial": "DIAMOND",
-        "costAmount": [
-          4,
-          8,
-          12
+        "name": "Protection",
+        "amount": 1,
+        "action": "PROTECTION",
+        "cost": [
+          {
+            "amount": 2,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 6,
+            "material": "DIAMOND"
+          },
+          {
+            "amount": 10,
+            "material": "DIAMOND"
+          }
         ],
-        "action": "SHARPNESS"
+        "material": "DIAMOND_CHESTPLATE"
       }
     ]
   },
@@ -659,14 +730,14 @@
   ],
   "effects": [
     {
-      "name": "NIGHT_VISION",
+      "type": "NIGHT_VISION",
       "amplifier": 255
     }
   ],
   "teams": [
-    "red",
-    "blue",
-    "green",
-    "yellow"
+    "RED",
+    "BLUE",
+    "GREEN",
+    "YELLOW"
   ]
 }

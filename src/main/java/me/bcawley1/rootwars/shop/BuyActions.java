@@ -1,6 +1,8 @@
 package me.bcawley1.rootwars.shop;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.util.GameTeam;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -16,6 +18,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
+    @JsonEnumDefaultValue
     DEFAULT((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             p.getInventory().addItem(shopItem.getPurchasedItem());
@@ -29,8 +32,8 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
+                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.IRON_BOOTS);
@@ -50,8 +53,8 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
+                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.IRON_BOOTS);
@@ -71,8 +74,8 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getProtection() > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection(), true);
+                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
@@ -107,25 +110,43 @@ public enum BuyActions {
     SWORD((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = shopItem.getPurchasedItem();
-            if (RootWars.getPlayer(p).getTeam().getSharpness() > 0) {
-                item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getProtection());
+            if (RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness") > 0) {
+                item.addEnchantment(Enchantment.DAMAGE_ALL, RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness"));
             }
             p.getInventory().addItem(item);
         }
     }),
     PROTECTION((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            RootWars.getPlayer(p).getTeam().upgradeProtection();
+            GameTeam team = RootWars.getPlayer(p).getTeam();
+            for (Player player : team.getPlayersInTeam()) {
+                for (ItemStack armor : player.getInventory().getArmorContents()) {
+                    if (armor != null) {
+                        armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, team.getUpgrade("Protection"));
+                    }
+                }
+            }
         }
     }),
     SHARPNESS((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            RootWars.getPlayer(p).getTeam().upgradeSharpness();
+            GameTeam team = RootWars.getPlayer(p).getTeam();
+            for (Player player : team.getPlayersInTeam()) {
+                for (ItemStack itemStack : player.getInventory()) {
+                    if (itemStack != null) {
+                        switch (itemStack.getType()) {
+                            case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD ->
+                                    itemStack.addEnchantment(Enchantment.DAMAGE_ALL, team.getUpgrade("Sharpness"));
+                        }
+                    }
+                }
+            }
         }
     }),
     GENERATOR((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            RootWars.getPlayer(p).getTeam().getGenerator().upgradeGenerator();
+            GameTeam team = RootWars.getPlayer(p).getTeam();
+            team.getGenerator().upgradeGenerator();
         }
     }),
     JUMP((p, i) -> {
@@ -164,45 +185,13 @@ public enum BuyActions {
             item.setItemMeta(meta);
             p.getInventory().addItem(item);
         }
-    }),
-    TAB_QUICK((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Quick Buy"));
-    }),
-    TAB_BLOCKS((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Blocks"));
-    }),
-    TAB_MELEE((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Melee"));
-    }),
-    TAB_ARMOR((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Armor"));
-    }),
-    TAB_TOOLS((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Tools"));
-    }),
-    TAB_RANGED((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Ranged"));
-    }),
-    TAB_POTION((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Potions"));
-    }),
-    TAB_UTILITY((p, i) -> {
-        Shop shop = RootWars.getPlayer(p).getTeam().getShop();
-        p.openInventory(shop.getInventoryTab(p, "Utility"));
     });
 
     BuyActions(final BiConsumer<Player, ActionItem> action) {
         this.action = action;
     }
 
-    private BiConsumer<Player, ActionItem> action;
+    private final BiConsumer<Player, ActionItem> action;
 
     public BiConsumer<Player, ActionItem> getAction() {
         return action;

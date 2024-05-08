@@ -1,67 +1,74 @@
 package me.bcawley1.rootwars.shop;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.RootWars;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UpgradableItem extends ActionItem {
-    private int stage;
-    private final int numUpgrades;
-    private final List<ItemStack> cost;
-    private final String upgradeName;
+    @JsonProperty
+    private final ItemStack[] cost;
 
-    public UpgradableItem(Material type, BuyActions action, String upgradeName, int numUpgrades, List<ItemStack> cost) {
-        super(type, action);
-        this.cost = new ArrayList<>(cost);
-        this.numUpgrades = numUpgrades;
-        this.upgradeName = upgradeName;
-        stage = 0;
-        updateItemMeta();
+    UpgradableItem(UpgradableItem item) {
+        super(item.name, item.type, item.action);
+        this.cost = item.cost;
     }
 
-    public void upgrade() {
-        stage++;
-        updateItemMeta();
+    @JsonCreator
+    private UpgradableItem(@JsonProperty("material") Material type, @JsonProperty("action") BuyActions action, @JsonProperty("name") String name, @JsonProperty("cost") ItemStack[] cost) {
+        super(name, type, action);
+        this.cost = cost;
     }
 
-    private void updateItemMeta() {
-        ItemMeta meta = getItemMeta();
-        if (stage >= numUpgrades - 1) {
-            String description = "%sYou have all of the %s upgrades.".formatted(ChatColor.RED, upgradeName.toLowerCase());
-            meta.setLore(List.of(description));
-            meta.setDisplayName(ChatColor.WHITE + upgradeName + " Upgrade: %sMAX".formatted(ChatColor.RED));
+    @JsonIgnore
+    public ItemStack getCost(int tier) {
+        return cost[tier];
+    }
+
+    @JsonIgnore
+    public boolean isMax(int tier) {
+        return tier > cost.length - 1;
+    }
+
+    @Override
+    public ItemStack getItem(Player p) {
+        int tier = RootWars.getPlayer(p).getTeam().getUpgrade(name);
+        String displayName;
+        String description;
+        if (isMax(tier)) {
+            displayName = "§f%s Upgrade: §cMAX".formatted(name);
+            description = """
+                    §cYou have all of the %s upgrades!""".formatted(name);
         } else {
-            String description = "%s%sCost: %s%s %s\n%sClick to buy!!!!".formatted(ChatColor.RESET, ChatColor.GRAY, ChatColor.WHITE, cost.get(stage).getAmount(), ShopItem.getFormattedName(cost.get(0).getType()), ChatColor.YELLOW);
-            meta.setLore(List.of(description.split("\n")));
-            meta.setDisplayName(ChatColor.WHITE + upgradeName + " Upgrade: Tier " + (stage + 2));
+            displayName = "§f%s Upgrade: §cTier %s".formatted(name, tier + 2);
+            description = """
+                    §r§7Cost: §f%s %s
+                    §eClick to buy!""".formatted(cost[tier].getAmount(), ShopItem.getFormattedName(cost[tier].getType()));
         }
-        setItemMeta(meta);
-    }
-
-    public ItemStack getCost() {
-        return cost.get(stage);
-    }
-
-    public boolean isMax() {
-        return stage >= numUpgrades - 1;
+        meta.setDisplayName(displayName);
+        meta.setLore(List.of(description.split("\n")));
+        ItemStack item = new ItemStack(type, amount);
+        item.setItemMeta(meta);
+        return item;
     }
 
     public boolean defaultBuyCheck(Player p) {
-        if (isMax()) {
-            p.sendMessage(ChatColor.RED + "You cannot buy anymore %s upgrades", upgradeName);
-        } else if (p.getInventory().containsAtLeast(getCost(), getCost().getAmount())) {
+        int tier = RootWars.getPlayer(p).getTeam().getUpgrade(name);
+        if (isMax(tier)) {
+            p.sendMessage(ChatColor.RED + "You cannot buy anymore %s upgrades".formatted(name));
+        } else if (p.getInventory().containsAtLeast(getCost(tier), getCost(tier).getAmount())) {
             for (Player player : RootWars.getPlayer(p).getTeam().getPlayersInTeam()) {
-                player.sendMessage("You purchased %s upgrade!!!!!".formatted(upgradeName));
+                player.sendMessage("You purchased %s upgrade!!!!!".formatted(name));
             }
-            p.getInventory().removeItem(getCost());
-            upgrade();
-            p.openInventory(RootWars.getPlayer(p).getTeam().getShop().getUpgradeTab(p));
+            RootWars.getPlayer(p).getTeam().upgrade(name);
+            p.getInventory().removeItem(getCost(tier));
+            p.openInventory(RootWars.getCurrentGameMode().getShop().getUpgradeTab(p));
             return true;
         } else {
             p.sendMessage(ChatColor.RED + "You don't have enough to purchase this item.");

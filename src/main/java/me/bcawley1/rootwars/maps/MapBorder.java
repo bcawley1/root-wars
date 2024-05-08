@@ -1,21 +1,29 @@
 package me.bcawley1.rootwars.maps;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MapBorder {
+    @JsonProperty
     private final int positiveX;
+    @JsonProperty
     private final int positiveY;
+    @JsonProperty
     private final int positiveZ;
+    @JsonProperty
     private final int negativeX;
+    @JsonProperty
     private final int negativeY;
+    @JsonProperty
     private final int negativeZ;
-    MapBorder(Map<String, Map<String, Long>> mapLocations) {
-        positiveX = Math.toIntExact(mapLocations.get("positiveXBorder").get("x"));
-        positiveY = Math.toIntExact(mapLocations.get("positiveYBorder").get("y"));
-        positiveZ = Math.toIntExact(mapLocations.get("positiveZBorder").get("z"));
-        negativeX = Math.toIntExact(mapLocations.get("negativeXBorder").get("x"));
-        negativeY = Math.toIntExact(mapLocations.get("negativeYBorder").get("y"));
-        negativeZ = Math.toIntExact(mapLocations.get("negativeZBorder").get("z"));
+
+    private MapBorder(@JsonProperty("positiveX") int positiveX, @JsonProperty("positiveY") int positiveY, @JsonProperty("positiveZ") int positiveZ,
+                     @JsonProperty("negativeX") int negativeX, @JsonProperty("negativeY") int negativeY, @JsonProperty("negativeZ") int negativeZ) {
+        this.positiveX = positiveX;
+        this.positiveY = positiveY;
+        this.positiveZ = positiveZ;
+        this.negativeX = negativeX;
+        this.negativeY = negativeY;
+        this.negativeZ = negativeZ;
     }
 
     public int getPositiveX() {

@@ -1,158 +1,145 @@
 {
-  "bases": {
-    "red": {
-      "itemVillager": {
-        "x": 2824,
-        "y": 23,
-        "z": -98
-      },
+  "border": {
+    "positiveX": 3000,
+    "positiveY": 64,
+    "positiveZ": 0,
+    "negativeX": 2811,
+    "negativeY": -16,
+    "negativeZ": -190
+  },
+  "mapPlacementLocation": {
+    "x": 3000.0,
+    "y": 64.0,
+    "z": 0.0
+  },
+  "teamData": {
+    "YELLOW": {
       "spawnPoint": {
-        "x": 2821,
-        "y": 23,
-        "z": -95
+        "x": 2905.0,
+        "y": 23.0,
+        "z": -179.0
       },
-      "root": {
-        "x": 2845,
-        "y": 29,
-        "z": -95
-      },
-      "generator": {
-        "x": 2821,
-        "y": 23,
-        "z": -95
+      "itemVillager": {
+        "x": 2908.0,
+        "y": 23.0,
+        "z": -176.0
       },
       "upgradeVillager": {
-        "x": 2824,
-        "y": 23,
-        "z": -92
+        "x": 2902.0,
+        "y": 23.0,
+        "z": -175.0
+      },
+      "generatorLocation": {
+        "x": 2905.0,
+        "y": 23.0,
+        "z": -179.0
+      },
+      "rootLocation": {
+        "x": 2905.0,
+        "y": 29.0,
+        "z": -155.0
       }
     },
-    "green": {
-      "itemVillager": {
-        "x": 2902,
-        "y": 23,
-        "z": -14
-      },
+    "BLUE": {
       "spawnPoint": {
-        "x": 2905,
-        "y": 23,
-        "z": -11
+        "x": 2989.0,
+        "y": 23.0,
+        "z": -95.0
       },
-      "root": {
-        "x": 2905,
-        "y": 29,
-        "z": -35
-      },
-      "generator": {
-        "x": 2905,
-        "y": 23,
-        "z": -11
+      "itemVillager": {
+        "x": 2986.0,
+        "y": 23.0,
+        "z": -92.0
       },
       "upgradeVillager": {
-        "x": 2908,
-        "y": 23,
-        "z": -14
+        "x": 2986.0,
+        "y": 23.0,
+        "z": -98.0
+      },
+      "generatorLocation": {
+        "x": 2989.0,
+        "y": 23.0,
+        "z": -95.0
+      },
+      "rootLocation": {
+        "x": 2965.0,
+        "y": 29.0,
+        "z": -95.0
       }
     },
-    "blue": {
-      "itemVillager": {
-        "x": 2986,
-        "y": 23,
-        "z": -92
-      },
+    "GREEN": {
       "spawnPoint": {
-        "x": 2989,
-        "y": 23,
-        "z": -95
+        "x": 2905.0,
+        "y": 23.0,
+        "z": -11.0
       },
-      "root": {
-        "x": 2965,
-        "y": 29,
-        "z": -95
-      },
-      "generator": {
-        "x": 2989,
-        "y": 23,
-        "z": -95
+      "itemVillager": {
+        "x": 2902.0,
+        "y": 23.0,
+        "z": -14.0
       },
       "upgradeVillager": {
-        "x": 2986,
-        "y": 23,
-        "z": -98
+        "x": 2908.0,
+        "y": 23.0,
+        "z": -14.0
+      },
+      "generatorLocation": {
+        "x": 2905.0,
+        "y": 23.0,
+        "z": -11.0
+      },
+      "rootLocation": {
+        "x": 2905.0,
+        "y": 29.0,
+        "z": -35.0
       }
     },
-    "yellow": {
-      "itemVillager": {
-        "x": 2908,
-        "y": 23,
-        "z": -176
-      },
+    "RED": {
       "spawnPoint": {
-        "x": 2905,
-        "y": 23,
-        "z": -179
+        "x": 2821.0,
+        "y": 23.0,
+        "z": -95.0
       },
-      "root": {
-        "x": 2905,
-        "y": 29,
-        "z": -155
-      },
-      "generator": {
-        "x": 2905,
-        "y": 23,
-        "z": -179
+      "itemVillager": {
+        "x": 2824.0,
+        "y": 23.0,
+        "z": -98.0
       },
       "upgradeVillager": {
-        "x": 2902,
-        "y": 23,
-        "z": -175
+        "x": 2824.0,
+        "y": 23.0,
+        "z": -92.0
+      },
+      "generatorLocation": {
+        "x": 2821.0,
+        "y": 23.0,
+        "z": -95.0
+      },
+      "rootLocation": {
+        "x": 2845.0,
+        "y": 29.0,
+        "z": -95.0
       }
     }
   },
-  "mapLocations": {
-    "positiveXBorder": {
-      "x": 3000
-    },
-    "negativeZBorder": {
-      "z": -190
-    },
-    "positiveYBorder": {
-      "y": 64
-    },
-    "negativeXBorder": {
-      "x": 2811
-    },
-    "positiveZBorder": {
-      "z": 0
-    },
-    "negativeYBorder": {
-      "y": -16
-    },
-    "spawnBlock": {
-      "x": 3000,
-      "y": 64,
-      "z": 0
+  "emeraldGenerators": [
+    {
+      "x": 2905.0,
+      "y": 37.0,
+      "z": -95.0
     }
-  },
-  "generators": {
-    "diamond": [
-      {
-        "x": 2982,
-        "y": 23,
-        "z": -172
-      },
-      {
-        "x": 2828,
-        "y": 23,
-        "z": -18
-      }
-    ],
-    "emerald": [
-      {
-        "x": 2905,
-        "y": 37,
-        "z": -95
-      }
-    ]
-  }
+  ],
+  "diamondGenerators": [
+    {
+      "x": 2982.0,
+      "y": 23.0,
+      "z": -172.0
+    },
+    {
+      "x": 2828.0,
+      "y": 23.0,
+      "z": -18.0
+    }
+  ],
+  "mapName": "Smurf Cat"
 }

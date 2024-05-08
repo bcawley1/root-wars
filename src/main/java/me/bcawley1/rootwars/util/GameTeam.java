@@ -2,40 +2,33 @@ package me.bcawley1.rootwars.util;
 
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.RootCheckEvent;
+import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.maps.TeamData;
-import me.bcawley1.rootwars.generator.Generator;
-import me.bcawley1.rootwars.shop.Shop;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GameTeam {
     private final TeamColor color;
     private final TeamData teamData;
     private boolean hasRoot;
     private final Generator generator;
-    private int protection;
-    private int sharpness;
     private RootCheckEvent rootCheckEvent;
     private final List<Player> playersInTeam;
-    private final Shop shop;
+    private Map<String, Integer> upgrades;
 
     public GameTeam(String name, GeneratorData... generatorData) {
-        shop = new Shop();
         GameMap map = RootWars.getCurrentMap();
         playersInTeam = new ArrayList<>();
-        protection = 0;
-        sharpness = 0;
+        upgrades = new HashMap<>();
         this.color = TeamColor.valueOf(name.toUpperCase());
         hasRoot = true;
         teamData = map.getTeamData(color);
@@ -66,37 +59,12 @@ public class GameTeam {
         return generator;
     }
 
-    public void upgradeProtection() {
-        protection++;
-        for (Player p : playersInTeam) {
-            for (ItemStack armor : p.getInventory().getArmorContents()) {
-                if (armor != null) {
-                    armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, protection);
-                }
-            }
-        }
+    public void upgrade(String s){
+        upgrades.put(s, upgrades.getOrDefault(s, 0) + 1);
     }
 
-    public int getProtection() {
-        return protection;
-    }
-
-    public int getSharpness() {
-        return sharpness;
-    }
-
-    public void upgradeSharpness() {
-        sharpness++;
-        for (Player p : playersInTeam) {
-            for (ItemStack item : p.getInventory()) {
-                if (item != null) {
-                    switch (item.getType()) {
-                        case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD ->
-                                item.addEnchantment(Enchantment.DAMAGE_ALL, sharpness);
-                    }
-                }
-            }
-        }
+    public int getUpgrade(String s) {
+        return upgrades.getOrDefault(s, 0);
     }
 
     public String getName() {
@@ -119,10 +87,6 @@ public class GameTeam {
         hasRoot = false;
         RootWars.getCurrentGameMode().onRootBreak(this);
         rootCheckEvent.cancel();
-    }
-
-    public Shop getShop() {
-        return shop;
     }
 
     public TeamData getTeamData() {
