@@ -1,43 +1,63 @@
 package me.bcawley1.rootwars.util;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.RootCheckEvent;
 import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
 import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.maps.TeamData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GameTeam {
-    private final TeamColor color;
-    private final TeamData teamData;
+    @JsonProperty
+    private String name;
+    @JsonProperty
+    private TeamColor color;
+    @JsonIgnore
+    private TeamData teamData;
+    @JsonIgnore
     private boolean hasRoot;
-    private final Generator generator;
+    @JsonIgnore
+    private Generator generator;
+    @JsonIgnore
     private RootCheckEvent rootCheckEvent;
-    private final List<Player> playersInTeam;
+    @JsonIgnore
+    private List<UUID> playersInTeam;
+    @JsonIgnore
     private Map<String, Integer> upgrades;
 
-    public GameTeam(String name, GeneratorData... generatorData) {
-        GameMap map = RootWars.getCurrentMap();
-        playersInTeam = new ArrayList<>();
-        upgrades = new HashMap<>();
-        this.color = TeamColor.valueOf(name.toUpperCase());
-        hasRoot = true;
-        teamData = map.getTeamData(color);
-        generator = new Generator(teamData.getGeneratorLocation().add(0.5, 0.5, 0.5), generatorData);
-        rootCheckEvent = new RootCheckEvent(this);
-        rootCheckEvent.register();
+    @JsonCreator
+    public GameTeam(@JsonProperty("name") String name, @JsonProperty("color") TeamColor color) {
+        this.name = name;
+        this.color = color;
     }
 
-    public List<Player> getPlayersInTeam() {
+    public void resetTeam(GeneratorData... generatorData) {
+        teamData = RootWars.getCurrentMap().getTeamData(color);
+        hasRoot = true;
+        if (generator != null) {
+            generator.stopGenerator();
+        }
+        if (rootCheckEvent != null) {
+            rootCheckEvent.cancel();
+        }
+        generator = new Generator(teamData.getGeneratorLocation().add(0.5, 0, 0.5), generatorData);
+        rootCheckEvent = new RootCheckEvent(this);
+        rootCheckEvent.register();
+        playersInTeam = new ArrayList<>();
+        upgrades = new HashMap<>();
+    }
+
+    public List<UUID> getPlayersInTeam() {
         return playersInTeam;
     }
 
@@ -45,12 +65,12 @@ public class GameTeam {
         return playersInTeam.size();
     }
 
-    public void removePlayer(Player p) {
-        playersInTeam.remove(p);
+    public void removePlayer(UUID id) {
+        playersInTeam.remove(id);
         RootWars.getPlayer(p).setTeam(null);
     }
 
-    public void addPlayer(Player p) {
+    public void addPlayer(UUID id) {
         playersInTeam.add(p);
         RootWars.getPlayer(p).setTeam(this);
     }
@@ -59,7 +79,7 @@ public class GameTeam {
         return generator;
     }
 
-    public void upgrade(String s){
+    public void upgrade(String s) {
         upgrades.put(s, upgrades.getOrDefault(s, 0) + 1);
     }
 
@@ -105,11 +125,6 @@ public class GameTeam {
         villager.setInvulnerable(true);
         villager.setPersistent(true);
         villager.setAI(false);
-    }
-
-    @Override
-    public String toString() {
-        return playersInTeam.toString();
     }
 
     public enum TeamColor {RED, BLUE, GREEN, YELLOW}

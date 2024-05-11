@@ -211,7 +211,8 @@ public abstract class GameMode implements Listener, Votable {
 
     public void onRootBreak(GameTeam team) {
         updateScoreboard();
-        for (Player p : team.getPlayersInTeam()) {
+        for (UUID id : team.getPlayersInTeam()) {
+            Player p = Bukkit.getPlayer(id);
             p.playSound(p, Sound.ENTITY_WARDEN_ROAR, SoundCategory.MASTER, 1f, 1f);
             p.sendTitle("Your Root Broke", "", 10, 70, 20);
         }
@@ -270,7 +271,7 @@ public abstract class GameMode implements Listener, Votable {
         GameMap currentMap = RootWars.getCurrentMap();
         Location blockLocation = event.getBlock().getLocation();
         if (event.getBlock().getType().equals(Material.TNT)) {
-            RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
+            RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.TNT);
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
@@ -404,7 +405,7 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void entityLoadEvent(EntitiesLoadEvent event) {
         event.getEntities().forEach(entity -> {
-            if (entity.getType() == EntityType.DROPPED_ITEM && !Generator.droppedByGenerator((Item) entity)) {
+            if (entity.getType() == EntityType.ITEM && !Generator.droppedByGenerator((Item) entity)) {
                 entity.remove();
             }
         });

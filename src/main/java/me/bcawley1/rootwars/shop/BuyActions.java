@@ -3,6 +3,7 @@ package me.bcawley1.rootwars.shop;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.util.GameTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
@@ -33,7 +35,7 @@ public enum BuyActions {
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
                 if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                    meta.addEnchant(Enchantment.PROTECTION, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.IRON_BOOTS);
@@ -54,7 +56,7 @@ public enum BuyActions {
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
                 if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                    meta.addEnchant(Enchantment.PROTECTION, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.IRON_BOOTS);
@@ -75,7 +77,7 @@ public enum BuyActions {
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
                 if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                    meta.addEnchant(Enchantment.PROTECTION, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
@@ -111,7 +113,7 @@ public enum BuyActions {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = shopItem.getPurchasedItem();
             if (RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness") > 0) {
-                item.addEnchantment(Enchantment.DAMAGE_ALL, RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness"));
+                item.addEnchantment(Enchantment.SHARPNESS, RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness"));
             }
             p.getInventory().addItem(item);
         }
@@ -119,10 +121,11 @@ public enum BuyActions {
     PROTECTION((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
             GameTeam team = RootWars.getPlayer(p).getTeam();
-            for (Player player : team.getPlayersInTeam()) {
+            for (UUID id : team.getPlayersInTeam()) {
+                Player player = Bukkit.getPlayer(id);
                 for (ItemStack armor : player.getInventory().getArmorContents()) {
                     if (armor != null) {
-                        armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, team.getUpgrade("Protection"));
+                        armor.addEnchantment(Enchantment.PROTECTION, team.getUpgrade("Protection"));
                     }
                 }
             }
@@ -136,7 +139,7 @@ public enum BuyActions {
                     if (itemStack != null) {
                         switch (itemStack.getType()) {
                             case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD ->
-                                    itemStack.addEnchantment(Enchantment.DAMAGE_ALL, team.getUpgrade("Sharpness"));
+                                    itemStack.addEnchantment(Enchantment.SHARPNESS, team.getUpgrade("Sharpness"));
                         }
                     }
                 }
