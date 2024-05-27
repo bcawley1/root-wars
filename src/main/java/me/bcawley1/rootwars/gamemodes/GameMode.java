@@ -7,12 +7,14 @@ import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
-import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.mixin.ItemStackMixin;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.shop.Shop;
-import me.bcawley1.rootwars.util.*;
+import me.bcawley1.rootwars.util.GameTeam;
+import me.bcawley1.rootwars.util.Potion;
+import me.bcawley1.rootwars.util.RepeatableEvent;
+import me.bcawley1.rootwars.util.ScheduledEvent;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -22,7 +24,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -59,8 +60,6 @@ public abstract class GameMode implements Listener, Votable {
     @JsonProperty("playerHealth")
     protected int playerHealth;
     @JsonProperty("teams")
-    protected GameTeam.TeamColor[] teamColors;
-    @JsonIgnore
     protected List<GameTeam> teams;
     @JsonProperty
     protected int regenTime;
@@ -90,27 +89,30 @@ public abstract class GameMode implements Listener, Votable {
     protected boolean gameOn;
     @JsonProperty
     protected Shop shop;
+    @JsonIgnore
+    private ItemStack item;
 
-    protected static void registerGameMode(Class<? extends GameMode> classToSer){
+    protected static void registerGameMode(Class<? extends GameMode> classToSer) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.addMixIn(ItemStack.class, ItemStackMixin.class);
         try {
             GameMode gameMode = objectMapper.readValue(new File(RootWars.getPlugin().getDataFolder() + "/GameModes/%s.json".formatted(classToSer.getSimpleName().toLowerCase())), classToSer);
             gameMode.gameOn = false;
             gameModes.put(gameMode.name, gameMode);
+            gameMode.item = Vote.getItem(Material.valueOf(RootWars.COLORS[gameModes.size() % RootWars.COLORS.length] + "_WOOL"), gameMode.name);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected GameMode() {}
+    protected GameMode() {
+    }
 
     public void startGame() {
         gameOn = true;
         scoreboardUpdateTask = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), this::updateScoreboard, 0, 20);
         Collections.sort(events);
         startTick = RootWars.getWorld().getGameTime();
-        Bukkit.getOnlinePlayers().forEach(RootWars::addPlayer);
         RootWars.getCurrentMap().buildMap();
 
         //Creates and starts the emerald and diamond generators.
@@ -126,16 +128,13 @@ public abstract class GameMode implements Listener, Votable {
         regen.runTaskTimer(RootWars.getPlugin(), 0, regenTime);
 
         //Creates the teams listed in the teamColors array.
-        teams = new ArrayList<>();
-        for (GameTeam.TeamColor s : teamColors) {
-            teams.add(new GameTeam(s.name(), playerGeneratorUpgradeData));
-        }
+        teams.forEach(team -> team.resetTeam(playerGeneratorUpgradeData));
 
 
         //Assigns players to teams equally.
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         for (int i = 0; i < players.size(); i++) {
-            teams.get(i % teams.size()).addPlayer(players.get(i));
+            teams.get(i % teams.size()).addPlayer(players.get(i).getUniqueId());
             players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
         }
 
@@ -145,7 +144,7 @@ public abstract class GameMode implements Listener, Votable {
             p.setFoodLevel(20);
             p.setHealth(playerHealth);
             effects.forEach(e -> p.addPotionEffect(e.getPotionEffect()));
-            initializePlayer(p);
+            initializePlayer(p.getUniqueId());
         });
 
         //Initializes things related to teams.
@@ -180,7 +179,7 @@ public abstract class GameMode implements Listener, Votable {
                 entity.remove();
             } else {
                 Player player = (Player) entity;
-                lobbyEvent.putPlayerInLobby(player);
+                lobbyEvent.putPlayerInLobby(player.getUniqueId());
                 player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
                 player.setHealth(20);
                 player.getActivePotionEffects().forEach(p -> player.removePotionEffect(p.getType()));
@@ -211,7 +210,8 @@ public abstract class GameMode implements Listener, Votable {
 
     public void onRootBreak(GameTeam team) {
         updateScoreboard();
-        for (Player p : team.getPlayersInTeam()) {
+        for (UUID id : team.getPlayersInTeam()) {
+            Player p = Bukkit.getPlayer(id);
             p.playSound(p, Sound.ENTITY_WARDEN_ROAR, SoundCategory.MASTER, 1f, 1f);
             p.sendTitle("Your Root Broke", "", 10, 70, 20);
         }
@@ -230,7 +230,7 @@ public abstract class GameMode implements Listener, Votable {
     @JsonIgnore
     @Override
     public ItemStack getItem() {
-        return Vote.getItem(Material.RED_WOOL, name, description);
+        return item.clone();
     }
 
     @JsonIgnore
@@ -246,7 +246,7 @@ public abstract class GameMode implements Listener, Votable {
 
         objective.getScore("Teams:").setScore(teams.size() + 5);
         teams.forEach(t -> {
-            objective.getScore(ChatColor.valueOf(t.getName().toUpperCase()) + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 5);
+            objective.getScore(t.getColor().chatColor + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 5);
         });
         objective.getScore("  ").setScore(4);
         long currentGameTick = RootWars.getWorld().getGameTime() - startTick;
@@ -267,10 +267,8 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        GameMap currentMap = RootWars.getCurrentMap();
-        Location blockLocation = event.getBlock().getLocation();
         if (event.getBlock().getType().equals(Material.TNT)) {
-            RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
+            RootWars.getWorld().spawnEntity(event.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.TNT);
             event.getPlayer().getInventory().removeItem(new ItemStack(Material.TNT));
             event.setCancelled(true);
         }
@@ -281,31 +279,23 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        GamePlayer gp = RootWars.getPlayer(event.getPlayer());
-        for (GameTeam team : teams) {
-            if (event.getBlock().getLocation().equals(team.getTeamData().getRootLocation()) && gp.getTeam().equals(team)) {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(ChatColor.RED + "You cannot break your own root anymore \uD83D\uDE14");
-            }
-        }
-    }
-
-    @EventHandler
     public void onClick(InventoryClickEvent event) {
         if (event.getCurrentItem() == null) {
             return;
         }
-        if (shop.containsTab(event.getView().getOriginalTitle())) {
-            if (shop.isTopBar(event.getCurrentItem())) {
-                shop.getTopBarItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
-            } else if (event.getCurrentItem() != null) {
-                shop.getActionItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
+        try {
+            if (shop.containsTab(event.getView().getOriginalTitle())) {
+                if (shop.isTopBar(event.getCurrentItem())) {
+                    shop.getTopBarItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
+                } else {
+                    shop.getActionItem(event.getCurrentItem()).onItemClick((Player) event.getWhoClicked());
+                }
+                event.setCancelled(true);
+            } else if (event.getView().getOriginalTitle().equalsIgnoreCase("Upgrades") && event.getCurrentItem() != null) {
+                shop.getActionItemFromString(ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName().split(" Upgrade:")[0])).onItemClick((Player) event.getWhoClicked());
+                event.setCancelled(true);
             }
-            event.setCancelled(true);
-        } else if (event.getView().getOriginalTitle().equalsIgnoreCase("Upgrades") && event.getCurrentItem() != null) {
-            System.out.println(event.getCurrentItem().getItemMeta().getDisplayName().split(" Upgrade:")[0].substring(2));
-            shop.getActionItemFromString(event.getCurrentItem().getItemMeta().getDisplayName().split(" Upgrade:")[0].substring(2)).onItemClick((Player) event.getWhoClicked());
+        } catch (NullPointerException e){
             event.setCancelled(true);
         }
     }
@@ -315,15 +305,15 @@ public abstract class GameMode implements Listener, Votable {
     public void onPlayerDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player p && p.getHealth() - event.getFinalDamage() <= 0) {
             event.setCancelled(true);
-            respawnPlayer(p);
-            if (RootWars.getPlayer((Player) event.getEntity()).getTeam().hasRoot()) {
+            respawnPlayer(p.getUniqueId());
+            if (GameTeam.getTeam(p.getUniqueId()).hasRoot()) {
                 p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-                p.teleport(RootWars.getPlayer(p).getTeam().getTeamData().getSpawnPoint());
-                startRespawnTimer(respawnTime, p);
+                p.teleport(GameTeam.getTeam(p.getUniqueId()).getTeamData().getSpawnPoint());
+                startRespawnTimer(respawnTime, p.getUniqueId());
             } else {
                 p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-                p.teleport(RootWars.getPlayer(p).getTeam().getTeamData().getSpawnPoint());
-                RootWars.getPlayer(p).getTeam().removePlayer(p);
+                p.teleport(GameTeam.getTeam(p.getUniqueId()).getTeamData().getSpawnPoint());
+                GameTeam.getTeam(p.getUniqueId()).removePlayer(p.getUniqueId());
 
                 int teamsAlive = 0;
                 for (GameTeam team : teams) {
@@ -342,7 +332,7 @@ public abstract class GameMode implements Listener, Votable {
 
     @EventHandler
     public void onEntityInteract(PlayerInteractEntityEvent event) {
-        if (event.getRightClicked() instanceof Villager && RootWars.getPlayer(event.getPlayer()).getTeam() != null) {
+        if (event.getRightClicked() instanceof Villager && GameTeam.getTeam(event.getPlayer().getUniqueId()) != null) {
             for (GameTeam team : teams) {
                 if (team.isItemVillager(event.getRightClicked().getLocation())) {
                     event.getPlayer().openInventory(shop.getTabs().get(0).getInventoryTab(event.getPlayer()));
@@ -356,7 +346,7 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void playerInteract(PlayerInteractEvent event) {
         if (event.getPlayer().getItemInHand().getType().equals(Material.FIRE_CHARGE)) {
-            throwFireball(event.getPlayer());
+            throwFireball(event.getPlayer().getUniqueId());
         }
     }
 
@@ -378,7 +368,7 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         RootWars.defaultJoin(event.getPlayer());
-        initializePlayer(event.getPlayer());
+        initializePlayer(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -393,6 +383,8 @@ public abstract class GameMode implements Listener, Votable {
     public void playerLeave(PlayerQuitEvent event) {
         if (Bukkit.getOnlinePlayers().size() == 1 && Bukkit.getOnlinePlayers().contains(event.getPlayer())) {
             endGame();
+        } else if(Bukkit.getOnlinePlayers().stream().filter(p -> p.getGameMode()== org.bukkit.GameMode.SPECTATOR).count() >= Bukkit.getOnlinePlayers().size()-1){
+            endGame();
         }
     }
 
@@ -404,15 +396,15 @@ public abstract class GameMode implements Listener, Votable {
     @EventHandler
     public void entityLoadEvent(EntitiesLoadEvent event) {
         event.getEntities().forEach(entity -> {
-            if (entity.getType() == EntityType.DROPPED_ITEM && !Generator.droppedByGenerator((Item) entity)) {
+            if (entity.getType() == EntityType.ITEM && !Generator.droppedByGenerator((Item) entity)) {
                 entity.remove();
             }
         });
     }
 
     @EventHandler
-    public void playerConsumeEvent(PlayerItemConsumeEvent event){
-        if (((PotionMeta)event.getItem().getItemMeta()).getCustomEffects().get(0).getType().equals(PotionEffectType.INVISIBILITY)){
+    public void playerConsumeEvent(PlayerItemConsumeEvent event) {
+        if (((PotionMeta) event.getItem().getItemMeta()).getCustomEffects().get(0).getType().equals(PotionEffectType.INVISIBILITY)) {
             ItemStack[] armor = event.getPlayer().getInventory().getArmorContents();
             event.getPlayer().getInventory().setArmorContents(new ItemStack[]{null, null, null, null});
             Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), () -> event.getPlayer().getInventory().setArmorContents(armor), 2400);
@@ -420,20 +412,21 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @EventHandler
-    public void blockFormedEvent(BlockFormEvent event){
-        if(!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())){
+    public void blockFormedEvent(BlockFormEvent event) {
+        if (!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void bucketUsedEvent(PlayerBucketEmptyEvent event){
-        if(!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())){
+    public void bucketUsedEvent(PlayerBucketEmptyEvent event) {
+        if (!RootWars.getCurrentMap().isInsideBorders(event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
 
-    protected static void throwFireball(Player p) {
+    protected static void throwFireball(UUID id) {
+        Player p = Bukkit.getPlayer(id);
         Location loc = p.getEyeLocation().toVector().add(p.getLocation().getDirection().multiply(2)).
                 toLocation(p.getWorld(), p.getLocation().getYaw(), p.getLocation().getPitch());
 
@@ -442,22 +435,23 @@ public abstract class GameMode implements Listener, Votable {
         p.getInventory().removeItem(new ItemStack(Material.FIRE_CHARGE, 1));
     }
 
-    protected static void respawnPlayer(Player p) {
-        GamePlayer gp = RootWars.getPlayer(p);
+    protected static void respawnPlayer(UUID id) {
+        Player p = Bukkit.getPlayer(id);
         Bukkit.broadcastMessage(RootWars.getPlugin().getConfig().getString("death-message").replace("{player}", p.getName()));
         p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
     }
 
-    protected static void startRespawnTimer(int time, Player p) {
-        new Respawn(time, p).runTaskTimer(RootWars.getPlugin(), 0, 20);
+    protected static void startRespawnTimer(int time, UUID id) {
+        new Respawn(time, id).runTaskTimer(RootWars.getPlugin(), 0, 20);
     }
 
-    protected void initializePlayer(Player p) {
-        GamePlayer gp = RootWars.getPlayer(p);
-        if (gp.getTeam() != null) {
-            gp.respawnPlayer();
-            p.setPlayerListName(ChatColor.valueOf(gp.getTeam().getName().toUpperCase()) + p.getName());
-            p.getInventory().setChestplate(getTeamChestplate(p));
+    protected void initializePlayer(UUID id) {
+        Player p = Bukkit.getPlayer(id);
+        GameTeam team = GameTeam.getTeam(id);
+        if (team != null) {
+            RootWars.respawnPlayer(id);
+            p.setPlayerListName(team.getColor().chatColor + p.getName());
+            p.getInventory().setChestplate(getTeamChestplate(id));
         } else {
             p.setGameMode(org.bukkit.GameMode.SPECTATOR);
             p.teleport(RootWars.getCurrentMap().getDiamondGenerators().get(0));
@@ -466,15 +460,11 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     @JsonIgnore
-    protected ItemStack getTeamChestplate(Player p) {
+    protected ItemStack getTeamChestplate(UUID id) {
+        Player p = Bukkit.getPlayer(id);
         ItemStack chestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
         ItemMeta meta = chestplate.getItemMeta();
-        switch (RootWars.getPlayer(p).getTeam().getName()) {
-            case "blue" -> ((LeatherArmorMeta) meta).setColor(Color.BLUE);
-            case "red" -> ((LeatherArmorMeta) meta).setColor(Color.RED);
-            case "yellow" -> ((LeatherArmorMeta) meta).setColor(Color.YELLOW);
-            case "green" -> ((LeatherArmorMeta) meta).setColor(Color.GREEN);
-        }
+        ((LeatherArmorMeta) meta).setColor(GameTeam.getTeam(p.getUniqueId()).getColor().color);
         meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         meta.setUnbreakable(true);
         chestplate.setItemMeta(meta);
@@ -494,11 +484,6 @@ public abstract class GameMode implements Listener, Votable {
     @JsonIgnore
     public Shop getShop() {
         return shop;
-    }
-
-    @JsonIgnore
-    public List<GameTeam> getTeams() {
-        return teams;
     }
 
     private enum Events {

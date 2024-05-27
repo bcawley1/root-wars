@@ -46,19 +46,20 @@ public class Generator {
         }
     }
 
-    public void upgradeGenerator(){
+    public void upgradeGenerator() {
         stage++;
         task.cancel();
         task = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), runnable, 0, generatorData[stage].delay());
     }
 
     public void startGenerator() {
-        if(task==null) {
+        if (task == null || task.isCancelled()) {
             task = Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), runnable, 0, generatorData[stage].delay());
         }
     }
 
-    public void stopGenerator(){
-        task.cancel();
+    public void stopGenerator() {
+        if (task != null && !task.isCancelled())
+            task.cancel();
     }
 }

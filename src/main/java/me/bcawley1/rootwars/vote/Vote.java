@@ -117,7 +117,7 @@ public class Vote<T extends Votable> {
             if (voteBoard.getVotedItem(p.getUniqueId()) == null) {
                 p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§eClick the %s you want to vote for.".formatted(name.toLowerCase())));
             } else {
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§aYou voted for %s.".formatted(voteBoard.getVotedItem(p.getUniqueId()))));
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§aYou voted for %s.".formatted(voteBoard.getVotedItem(p.getUniqueId()).getName())));
             }
         });
     }

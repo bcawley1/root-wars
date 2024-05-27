@@ -1,24 +1,26 @@
 package me.bcawley1.rootwars.runnables;
 
 import me.bcawley1.rootwars.RootWars;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.UUID;
 
 public class Respawn extends BukkitRunnable {
     private int time;
-    private final Player p;
+    private final UUID id;
 
-    public Respawn(int time, Player p) {
+    public Respawn(int time, UUID id) {
         this.time = time;
-        this.p = p;
+        this.id = id;
     }
 
     @Override
     public void run() {
         time--;
-        p.sendTitle(String.valueOf(time), "", 0, 20, 0);
+        Bukkit.getPlayer(id).sendTitle(String.valueOf(time), "", 0, 20, 0);
         if(time<=0) {
-            RootWars.getPlayer(p).respawnPlayer();
+            RootWars.respawnPlayer(id);
             this.cancel();
         }
     }

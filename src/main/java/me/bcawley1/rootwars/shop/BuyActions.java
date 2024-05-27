@@ -1,8 +1,8 @@
 package me.bcawley1.rootwars.shop;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.util.GameTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public enum BuyActions {
@@ -28,17 +29,17 @@ public enum BuyActions {
     CHAINMAIL_ARMOR((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             if(p.getInventory().getHelmet()==null || p.getInventory().getHelmet().getType()!=Material.DIAMOND_HELMET && p.getInventory().getHelmet().getType()!=Material.IRON_HELMET && p.getInventory().getHelmet().getType()!=Material.CHAINMAIL_HELMET){
-                ItemStack helmet = new ItemStack(Material.IRON_HELMET);
+                ItemStack helmet = new ItemStack(Material.CHAINMAIL_HELMET);
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                if (GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION, GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
-                ItemStack boots = new ItemStack(Material.IRON_BOOTS);
+                ItemStack boots = new ItemStack(Material.CHAINMAIL_BOOTS);
                 boots.setItemMeta(meta);
-                ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS);
+                ItemStack leggings = new ItemStack(Material.CHAINMAIL_LEGGINGS);
                 leggings.setItemMeta(meta);
                 p.getInventory().setLeggings(leggings);
                 p.getInventory().setHelmet(helmet);
@@ -53,8 +54,8 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                if (GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION, GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.IRON_BOOTS);
@@ -74,8 +75,8 @@ public enum BuyActions {
                 ItemMeta meta = helmet.getItemMeta();
                 meta.setUnbreakable(true);
                 meta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-                if (RootWars.getPlayer(p).getTeam().getUpgrade("Protection") > 0) {
-                    meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, RootWars.getPlayer(p).getTeam().getUpgrade("Protection"), true);
+                if (GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection") > 0) {
+                    meta.addEnchant(Enchantment.PROTECTION, GameTeam.getTeam(p.getUniqueId()).getUpgrade("Protection"), true);
                 }
                 helmet.setItemMeta(meta);
                 ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
@@ -90,12 +91,12 @@ public enum BuyActions {
     }),
     WOOL((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
-            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_WOOL"), 16));
+            p.getInventory().addItem(new ItemStack(Material.valueOf(GameTeam.getTeam(p.getUniqueId()).getColor().chatColor.name().toUpperCase() + "_WOOL"), 16));
         }
     }),
     TERRACOTTA((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
-            p.getInventory().addItem(new ItemStack(Material.valueOf(RootWars.getPlayer(p).getTeam().getName().toUpperCase() + "_TERRACOTTA"), 16));
+            p.getInventory().addItem(new ItemStack(Material.valueOf(GameTeam.getTeam(p.getUniqueId()).getColor().chatColor.name().toUpperCase() + "_TERRACOTTA"), 16));
         }
     }),
     KNOCKBACK_STICK((p, i) -> {
@@ -110,19 +111,20 @@ public enum BuyActions {
     SWORD((p, i) -> {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = shopItem.getPurchasedItem();
-            if (RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness") > 0) {
-                item.addEnchantment(Enchantment.DAMAGE_ALL, RootWars.getPlayer(p).getTeam().getUpgrade("Sharpness"));
+            if (GameTeam.getTeam(p.getUniqueId()).getUpgrade("Sharpness") > 0) {
+                item.addEnchantment(Enchantment.SHARPNESS, GameTeam.getTeam(p.getUniqueId()).getUpgrade("Sharpness"));
             }
             p.getInventory().addItem(item);
         }
     }),
     PROTECTION((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            GameTeam team = RootWars.getPlayer(p).getTeam();
-            for (Player player : team.getPlayersInTeam()) {
+            GameTeam team = GameTeam.getTeam(p.getUniqueId());
+            for (UUID id : team.getPlayersInTeam()) {
+                Player player = Bukkit.getPlayer(id);
                 for (ItemStack armor : player.getInventory().getArmorContents()) {
                     if (armor != null) {
-                        armor.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, team.getUpgrade("Protection"));
+                        armor.addEnchantment(Enchantment.PROTECTION, team.getUpgrade("Protection"));
                     }
                 }
             }
@@ -130,13 +132,13 @@ public enum BuyActions {
     }),
     SHARPNESS((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            GameTeam team = RootWars.getPlayer(p).getTeam();
-            for (Player player : team.getPlayersInTeam()) {
-                for (ItemStack itemStack : player.getInventory()) {
+            GameTeam team = GameTeam.getTeam(p.getUniqueId());
+            for (UUID id : team.getPlayersInTeam()) {
+                for (ItemStack itemStack : Bukkit.getPlayer(id).getInventory()) {
                     if (itemStack != null) {
                         switch (itemStack.getType()) {
                             case WOODEN_SWORD, STONE_SWORD, IRON_SWORD, GOLDEN_SWORD, DIAMOND_SWORD, NETHERITE_SWORD ->
-                                    itemStack.addEnchantment(Enchantment.DAMAGE_ALL, team.getUpgrade("Sharpness"));
+                                    itemStack.addEnchantment(Enchantment.SHARPNESS, team.getUpgrade("Sharpness"));
                         }
                     }
                 }
@@ -145,7 +147,7 @@ public enum BuyActions {
     }),
     GENERATOR((p, i) -> {
         if(i instanceof UpgradableItem item && item.defaultBuyCheck(p)){
-            GameTeam team = RootWars.getPlayer(p).getTeam();
+            GameTeam team = GameTeam.getTeam(p.getUniqueId());
             team.getGenerator().upgradeGenerator();
         }
     }),
@@ -153,7 +155,7 @@ public enum BuyActions {
         if (i instanceof ShopItem shopItem && shopItem.defaultBuyCheck(p)) {
             ItemStack item = new ItemStack(Material.POTION);
             PotionMeta meta = (PotionMeta) item.getItemMeta();
-            meta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP, 900, 4, true, true), true);
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 900, 4, true, true), true);
             item.setItemMeta(meta);
             p.getInventory().addItem(item);
         }

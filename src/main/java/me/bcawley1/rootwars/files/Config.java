@@ -50,7 +50,7 @@ public class Config {
             }
         });
 
-        checkAndAddFile("shop.json");
+//        checkAndAddFile("shop.json");
         checkAndAddFile("spawn.schem");
     }
 

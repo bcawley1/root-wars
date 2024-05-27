@@ -18,23 +18,23 @@ import me.bcawley1.rootwars.files.Config;
 import me.bcawley1.rootwars.gamemodes.GameMode;
 import me.bcawley1.rootwars.gamemodes.*;
 import me.bcawley1.rootwars.maps.GameMap;
-import me.bcawley1.rootwars.util.GamePlayer;
+import me.bcawley1.rootwars.util.GameTeam;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 public final class RootWars extends JavaPlugin {
-    private static Map<Player, GamePlayer> players = new HashMap<>();
     private static JavaPlugin plugin;
     private static GameMap currentMap;
     private static GameMode gameMode;
@@ -43,15 +43,11 @@ public final class RootWars extends JavaPlugin {
 
     @Override
     public void onEnable() {
-//        PotionEffect potionEffect = new PotionEffect(PotionEffectType.NIGHT_VISION, -1 , 255, false, false, false);
-
         plugin = this;
         saveDefaultConfig();
         try {
             Config.setup();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
 
@@ -80,11 +76,6 @@ public final class RootWars extends JavaPlugin {
         pasteSchem(557, 1, 14, "spawn");
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-    }
-
     public static void pasteSchem(Location loc, String schem) {
         pasteSchem((int) loc.getX(), (int) loc.getY(), (int) loc.getZ(), schem);
     }
@@ -104,8 +95,7 @@ public final class RootWars extends JavaPlugin {
         } catch (IOException ignored) {
         }
 
-        try (
-                EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(RootWars.getWorld()))) {
+        try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(RootWars.getWorld()))) {
             Operation operation = new ClipboardHolder(clipboard)
                     .createPaste(editSession)
                     .to(BlockVector3.at(x, y, z))
@@ -120,10 +110,6 @@ public final class RootWars extends JavaPlugin {
         getPlugin().getLogger().log(new LogRecord(Level.INFO, "Starting game on map: %s, with game mode: %s".formatted(currentMap.getName(), gameMode.getName())));
         HandlerList.unregisterAll(LobbyEvent.getCurrentLobbyEvent());
         gameMode.startGame();
-    }
-
-    public static GamePlayer getPlayer(Player p) {
-        return players.get(p);
     }
 
     public static GameMode getCurrentGameMode() {
@@ -146,17 +132,24 @@ public final class RootWars extends JavaPlugin {
         return plugin;
     }
 
-    public static void addPlayer(Player p) {
-        if (players.containsKey(p)) {
-            players.get(p).replacePlayer(p);
-        } else {
-            players.put(p, new GamePlayer(p));
-        }
-    }
-
     public static void defaultJoin(Player p) {
-        RootWars.addPlayer(p);
         String message = RootWars.getPlugin().getConfig().getString("join-message").replace("{player}", p.getName());
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', message));
+    }
+
+    public static void respawnPlayer(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        ItemStack[] armor = player.getInventory().getArmorContents();
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(armor);
+        player.getInventory().addItem(new ItemStack(Material.WOODEN_SWORD));
+        player.setHealth(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        player.getActivePotionEffects().forEach(potionEffect -> {
+            if (!RootWars.getCurrentGameMode().isGlobalEffect(potionEffect.getType())) {
+                player.removePotionEffect(potionEffect.getType());
+            }
+        });
+        player.setGameMode(org.bukkit.GameMode.SURVIVAL);
+        player.teleport(GameTeam.getTeam(player.getUniqueId()).getTeamData().getSpawnPoint());
     }
 }
