@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import me.bcawley1.rootwars.RootWars;
+import me.bcawley1.rootwars.util.GameTeam;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.UUID;
 
 public class UpgradableItem extends ActionItem {
     @JsonProperty
@@ -38,7 +41,7 @@ public class UpgradableItem extends ActionItem {
 
     @Override
     public ItemStack getItem(Player p) {
-        int tier = RootWars.getPlayer(p).getTeam().getUpgrade(name);
+        int tier = GameTeam.getTeam(p.getUniqueId()).getUpgrade(name);
         String displayName;
         String description;
         if (isMax(tier)) {
@@ -59,14 +62,14 @@ public class UpgradableItem extends ActionItem {
     }
 
     public boolean defaultBuyCheck(Player p) {
-        int tier = RootWars.getPlayer(p).getTeam().getUpgrade(name);
+        int tier = GameTeam.getTeam(p.getUniqueId()).getUpgrade(name);
         if (isMax(tier)) {
             p.sendMessage(ChatColor.RED + "You cannot buy anymore %s upgrades".formatted(name));
         } else if (p.getInventory().containsAtLeast(getCost(tier), getCost(tier).getAmount())) {
-            for (Player player : RootWars.getPlayer(p).getTeam().getPlayersInTeam()) {
-                player.sendMessage("You purchased %s upgrade!!!!!".formatted(name));
+            for (UUID id : GameTeam.getTeam(p.getUniqueId()).getPlayersInTeam()) {
+                Bukkit.getPlayer(id).sendMessage("You purchased %s upgrade!!!!!".formatted(name));
             }
-            RootWars.getPlayer(p).getTeam().upgrade(name);
+            GameTeam.getTeam(p.getUniqueId()).upgrade(name);
             p.getInventory().removeItem(getCost(tier));
             p.openInventory(RootWars.getCurrentGameMode().getShop().getUpgradeTab(p));
             return true;

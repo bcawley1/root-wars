@@ -735,9 +735,21 @@
     }
   ],
   "teams": [
-    "RED",
-    "BLUE",
-    "GREEN",
-    "YELLOW"
+    {
+      "name": "Blue",
+      "color": "BLUE"
+    },
+    {
+      "name": "Red",
+      "color": "RED"
+    },
+    {
+      "name": "Yellow",
+      "color": "YELLOW"
+    },
+    {
+      "name": "Green",
+      "color": "GREEN"
+    }
   ]
 }

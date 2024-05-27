@@ -11,11 +11,6 @@ public class DefaultWorldLocation extends Location {
         super(RootWars.getWorld(), x, y, z);
     }
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        return toLocation().equals(obj);
-//    }
-
     private Location toLocation(){
         return new Location(RootWars.getWorld(), getX(), getY(), getZ(), getYaw(), getPitch());
     }

@@ -7,17 +7,18 @@ import me.bcawley1.rootwars.RootWars;
 import me.bcawley1.rootwars.events.RootCheckEvent;
 import me.bcawley1.rootwars.generator.Generator;
 import me.bcawley1.rootwars.generator.GeneratorData;
-import me.bcawley1.rootwars.maps.GameMap;
 import me.bcawley1.rootwars.maps.TeamData;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 
 import java.util.*;
 
 public class GameTeam {
+    @JsonIgnore
+    private static final Map<UUID, GameTeam> playerTeams = new HashMap<>();
     @JsonProperty
     private String name;
     @JsonProperty
@@ -42,6 +43,9 @@ public class GameTeam {
     }
 
     public void resetTeam(GeneratorData... generatorData) {
+        if(playersInTeam != null) {
+            playersInTeam.forEach(playerTeams::remove);
+        }
         teamData = RootWars.getCurrentMap().getTeamData(color);
         hasRoot = true;
         if (generator != null) {
@@ -67,12 +71,16 @@ public class GameTeam {
 
     public void removePlayer(UUID id) {
         playersInTeam.remove(id);
-        RootWars.getPlayer(p).setTeam(null);
+        playerTeams.remove(id);
     }
 
     public void addPlayer(UUID id) {
-        playersInTeam.add(p);
-        RootWars.getPlayer(p).setTeam(this);
+        playersInTeam.add(id);
+        playerTeams.put(id, this);
+    }
+
+    public static GameTeam getTeam(UUID id) {
+        return playerTeams.get(id);
     }
 
     public Generator getGenerator() {
@@ -88,7 +96,11 @@ public class GameTeam {
     }
 
     public String getName() {
-        return color.toString().toLowerCase();
+        return name;
+    }
+
+    public TeamColor getColor() {
+        return color;
     }
 
     public boolean isItemVillager(Location location) {
@@ -127,5 +139,15 @@ public class GameTeam {
         villager.setAI(false);
     }
 
-    public enum TeamColor {RED, BLUE, GREEN, YELLOW}
+    public enum TeamColor {
+        RED(ChatColor.RED, Color.RED), BLUE(ChatColor.BLUE, Color.BLUE), GREEN(ChatColor.GREEN, Color.GREEN), YELLOW(ChatColor.YELLOW, Color.YELLOW);
+
+        public final ChatColor chatColor;
+        public final Color color;
+
+        TeamColor(ChatColor chatColor, Color color) {
+            this.chatColor = chatColor;
+            this.color = color;
+        }
+    }
 }

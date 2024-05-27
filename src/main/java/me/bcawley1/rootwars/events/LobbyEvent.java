@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class LobbyEvent implements Listener {
     private static LobbyEvent currentLobbyEvent;
@@ -27,7 +28,8 @@ public class LobbyEvent implements Listener {
         currentLobbyEvent = this;
     }
 
-    public void putPlayerInLobby(Player p) {
+    public void putPlayerInLobby(UUID id) {
+        Player p = Bukkit.getPlayer(id);
         //Resets players and places them in the lobby.
         p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20);
         p.setGameMode(org.bukkit.GameMode.ADVENTURE);
@@ -49,10 +51,10 @@ public class LobbyEvent implements Listener {
     public void itemInteract(PlayerInteractEvent event) {
         //If a player interacts with a diamond, the voting process will begin.
         if (event.getPlayer().getItemInHand().getType().equals(Material.DIAMOND)) {
-            Vote<GameMode> gameModeVote = new Vote<>(new ArrayList<>(GameMode.getGameModes().values()), "Game Mode", s1 -> RootWars.startGame(GameMode.getGameModes().get(s1)));
+            Vote<GameMode> gameModeVote = new Vote<>(new ArrayList<>(GameMode.getGameModes().values()), "Game Mode", RootWars::startGame);
 
             Vote<GameMap> mapVote = new Vote<>(new ArrayList<>(GameMap.getMaps().values()), "Map", s -> {
-                RootWars.setCurrentMap(GameMap.getMaps().get(s));
+                RootWars.setCurrentMap(s);
                 gameModeVote.startVoting();
             });
 
@@ -63,7 +65,7 @@ public class LobbyEvent implements Listener {
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         event.setJoinMessage("");
-        putPlayerInLobby(event.getPlayer());
+        putPlayerInLobby(event.getPlayer().getUniqueId());
         RootWars.defaultJoin(event.getPlayer());
     }
 
