@@ -139,6 +139,10 @@ public class GameTeam {
         villager.setAI(false);
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public enum TeamColor {
         RED(ChatColor.RED, Color.RED), BLUE(ChatColor.BLUE, Color.BLUE), GREEN(ChatColor.GREEN, Color.GREEN), YELLOW(ChatColor.YELLOW, Color.YELLOW);
 

@@ -8,3 +8,5 @@ commands:
     permission: rootwars.admin
     description: Command related to modifying things related to the game.
     usage: "Usage: /rootwars [start | stop] [game mode name] [map name]"
+  NameTeam:
+    description: Sets the current team name.

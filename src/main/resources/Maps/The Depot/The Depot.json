@@ -1,0 +1,155 @@
+{
+  "border": {
+    "positiveX": 4000,
+    "positiveY": 64,
+    "positiveZ": 0,
+    "negativeX": 3855,
+    "negativeY": -16,
+    "negativeZ": -133
+  },
+  "mapPlacementLocation": {
+    "x": 4000.0,
+    "y": 64.0,
+    "z": 0.0
+  },
+  "teamData": {
+    "YELLOW": {
+      "spawnPoint": {
+        "x": 3937.0,
+        "y": 45.0,
+        "z": -10.0
+      },
+      "itemVillager": {
+        "x": 3940.0,
+        "y": 45.0,
+        "z": -9.0
+      },
+      "upgradeVillager": {
+        "x": 3940.0,
+        "y": 45.0,
+        "z": -11.0
+      },
+      "generatorLocation": {
+        "x": 3926.0,
+        "y": 45.0,
+        "z": -11.0
+      },
+      "rootLocation": {
+        "x": 3939.0,
+        "y": 53.0,
+        "z": -10.0
+      }
+    },
+    "BLUE": {
+      "spawnPoint": {
+        "x": 3872.0,
+        "y": 43.0,
+        "z": -62.0
+      },
+      "itemVillager": {
+        "x": 3866.0,
+        "y": 43.0,
+        "z": -63.0
+      },
+      "upgradeVillager": {
+        "x": 3866.0,
+        "y": 43.0,
+        "z": -61.0
+      },
+      "generatorLocation": {
+        "x": 3869.0,
+        "y": 43.0,
+        "z": -62.0
+      },
+      "rootLocation": {
+        "x": 3878.0,
+        "y": 43.0,
+        "z": -62.0
+      }
+    },
+    "GREEN": {
+      "spawnPoint": {
+        "x": 3925.0,
+        "y": 43.0,
+        "z": -125.0
+      },
+      "itemVillager": {
+        "x": 3930.0,
+        "y": 43.0,
+        "z": -126.0
+      },
+      "upgradeVillager": {
+        "x": 3922.0,
+        "y": 43.0,
+        "z": -124.0
+      },
+      "generatorLocation": {
+        "x": 3926.0,
+        "y": 42.0,
+        "z": -125.0
+      },
+      "rootLocation": {
+        "x": 3926.0,
+        "y": 46.0,
+        "z": -117.0
+      }
+    },
+    "RED": {
+      "spawnPoint": {
+        "x": 3991.0,
+        "y": 43.0,
+        "z": -62.0
+      },
+      "itemVillager": {
+        "x": 3994.0,
+        "y": 43.0,
+        "z": -59.0
+      },
+      "upgradeVillager": {
+        "x": 3994.0,
+        "y": 43.0,
+        "z": -65.0
+      },
+      "generatorLocation": {
+        "x": 3994.0,
+        "y": 43.0,
+        "z": -62.0
+      },
+      "rootLocation": {
+        "x": 3974.0,
+        "y": 43.0,
+        "z": -62.0
+      }
+    }
+  },
+  "emeraldGenerators": [
+    {
+      "x": 3926.0,
+      "y": 45.0,
+      "z": -62.0
+    }
+  ],
+  "diamondGenerators": [
+    {
+      "x": 3950.0,
+      "y": 43.0,
+      "z": -86.0
+    },
+    {
+      "x": 3949.0,
+      "y": 43.0,
+      "z": -39.0
+    },
+    {
+      "x": 3902.0,
+      "y": 43.0,
+      "z": -38.0
+    },
+    {
+      "x": 3902.0,
+      "y": 43.0,
+      "z": -86.0
+    }
+  ],
+  "mapName": "The Depot"
+}

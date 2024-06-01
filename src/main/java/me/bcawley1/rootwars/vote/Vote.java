@@ -94,7 +94,7 @@ public class Vote<T extends Votable> {
         for (int i = 0; i < voteBoard.getBoardSize(); i++) {
             VoteEntry<T> entry = voteBoard.getBoard().get(i);
             if (entry.votes() > 0) {
-                if (i == (voteBoard.getBoardSize() - 1)) {
+                if (i == 0) {
                     objective.getScore("§a%s: %d".formatted(entry.item().getName(), entry.votes())).setScore(i + 6);
                     winningItem = entry.item();
                 } else {
