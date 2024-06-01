@@ -130,13 +130,7 @@ public abstract class GameMode implements Listener, Votable {
         //Creates the teams listed in the teamColors array.
         teams.forEach(team -> team.resetTeam(playerGeneratorUpgradeData));
 
-
-        //Assigns players to teams equally.
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-        for (int i = 0; i < players.size(); i++) {
-            teams.get(i % teams.size()).addPlayer(players.get(i).getUniqueId());
-            players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
-        }
+        assignPlayersToTeams();
 
         //Initializes players.
         Bukkit.getOnlinePlayers().forEach(p -> {
@@ -484,6 +478,14 @@ public abstract class GameMode implements Listener, Votable {
     @JsonIgnore
     public Shop getShop() {
         return shop;
+    }
+
+    public void assignPlayersToTeams(){
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        for (int i = 0; i < players.size(); i++) {
+            teams.get(i % teams.size()).addPlayer(players.get(i).getUniqueId());
+            players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
+        }
     }
 
     private enum Events {

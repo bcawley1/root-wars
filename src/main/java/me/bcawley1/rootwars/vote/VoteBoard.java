@@ -41,4 +41,9 @@ public class VoteBoard<T extends Votable> {
     public int playersVoted() {
         return playerVotes.size();
     }
+
+    @Override
+    public String toString() {
+        return "VoteBoard{" + "votes=" + votes +"}";
+    }
 }

@@ -12,6 +12,7 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import me.bcawley1.rootwars.commands.NameTeam;
 import me.bcawley1.rootwars.commands.RootWarsCommand;
 import me.bcawley1.rootwars.events.LobbyEvent;
 import me.bcawley1.rootwars.files.Config;
@@ -67,9 +68,11 @@ public final class RootWars extends JavaPlugin {
         Rush.registerGameMode();
         NoBuild.registerGameMode();
         TwoTeams.registerGameMode();
+        FreezeTag.registerGameMode();
 
         // Sets Commands
         getCommand("RootWars").setExecutor(new RootWarsCommand());
+        getCommand("NameTeam").setExecutor(new NameTeam());
 
         Bukkit.getPluginManager().registerEvents(new LobbyEvent(), this);
 
