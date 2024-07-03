@@ -69,6 +69,7 @@ public final class RootWars extends JavaPlugin {
         NoBuild.registerGameMode();
         TwoTeams.registerGameMode();
         FreezeTag.registerGameMode();
+        BombTag.registerGameMode();
 
         // Sets Commands
         getCommand("RootWars").setExecutor(new RootWarsCommand());

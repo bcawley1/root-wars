@@ -9,7 +9,7 @@ public class RepeatableEvent extends ScheduledEvent{
     private final int repeatTime;
 
     @JsonCreator
-    private RepeatableEvent(@JsonProperty("name") String name, @JsonProperty("description") String message, @JsonProperty("delay") int delay, @JsonProperty("repeatTime") int repeatTime, @JsonProperty("runnable") String runnable) {
+    private RepeatableEvent(@JsonProperty("name") String name, @JsonProperty("message") String message, @JsonProperty("delay") int delay, @JsonProperty("repeatTime") int repeatTime, @JsonProperty("runnable") String runnable) {
         super(name, message, delay, runnable);
         this.repeatTime = repeatTime;
     }
@@ -18,6 +18,9 @@ public class RepeatableEvent extends ScheduledEvent{
         if(isAlreadyScheduled()){
            cancelEvent();
         }
-        setTask(Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), RootWars.getCurrentGameMode().getRunnable(runnable), delay, repeatTime));
+        setTask(Bukkit.getScheduler().runTaskTimer(RootWars.getPlugin(), () -> {
+            Bukkit.broadcastMessage(message);
+            RootWars.getCurrentGameMode().getRunnable(runnable).run();
+        }, delay, repeatTime));
     }
 }

@@ -1,6 +1,6 @@
 {
-  "name": "Two Teams",
-  "description": "There are only two teams instead of 4",
+  "name": "Bomb Tag",
+  "description": "spontaneous boom",
   "respawnTime": 5,
   "playerHealth": 20,
   "regenTime": 20,
@@ -727,6 +727,13 @@
     }
   ],
   "repeatingEvents": [
+    {
+      "name": "Bomb Selected",
+      "message": "A bomb has been placed.",
+      "repeatTime": 2400,
+      "delay": 0,
+      "runnable": "BOMB_SELECT"
+    }
   ],
   "effects": [
     {
@@ -742,8 +749,27 @@
     {
       "name": "Red",
       "color": "RED"
+    },
+    {
+      "name": "Yellow",
+      "color": "YELLOW"
+    },
+    {
+      "name": "Green",
+      "color": "GREEN"
     }
   ],
   "scoreboardInserts": [
-  ]
+    {
+      "tag": "bombPlayer",
+      "name": "Player has the bomb!",
+      "insertNum": 3
+    },
+    {
+      "tag": "timeUntilExplode",
+      "name": "",
+      "insertNum": 4
+    }
+  ],
+  "explodeTime": 2400
 }

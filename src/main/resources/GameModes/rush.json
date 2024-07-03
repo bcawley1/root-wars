@@ -697,25 +697,25 @@
   "events": [
     {
       "name": "Emerald II",
-      "message": "Emerald generator have been upgraded to tier 2!",
+      "message": "Emerald generators have been upgraded to tier 2!",
       "delay": 1200,
       "runnable": "EMERALD_II"
     },
     {
       "name": "Diamond II",
-      "message": "Diamond generator have been upgraded to tier 2!",
+      "message": "Diamond generators have been upgraded to tier 2!",
       "delay": 2400,
       "runnable": "DIAMOND_II"
     },
     {
       "name": "Emerald III",
-      "message": "Emerald generator have been upgraded to tier 3!",
+      "message": "Emerald generators have been upgraded to tier 3!",
       "delay": 3600,
       "runnable": "EMERALD_III"
     },
     {
       "name": "Diamond III",
-      "message": "Diamond generator have been upgraded to tier 3!",
+      "message": "Diamond generators have been upgraded to tier 3!",
       "delay": 4800,
       "runnable": "DIAMOND_III"
     },
@@ -755,5 +755,7 @@
       "name": "Green",
       "color": "GREEN"
     }
+  ],
+  "scoreboardInserts": [
   ]
 }

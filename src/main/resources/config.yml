@@ -6,3 +6,4 @@ death-message: '{player} has died'
 join-message: '&c{player} &6has joined'
 leave-message: '{player} has left'
 can-break-own-root: false
+server-watermark: '&dRoot Wars &fon &eLopixel'

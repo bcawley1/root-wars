@@ -107,7 +107,6 @@ public class FreezeTag extends GameMode {
         Collections.shuffle(players);
         for (int i = 0; i < players.size(); i++) {
             teams.get(i % 4 == 0 ? 0 : 1).addPlayer(players.get(i).getUniqueId());
-            players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
         }
     }
 }

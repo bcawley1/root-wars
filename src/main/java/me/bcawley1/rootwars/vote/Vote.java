@@ -110,7 +110,7 @@ public class Vote<T extends Votable> {
         objective.getScore("§bPlayers Voted: %d/%d".formatted(voteBoard.playersVoted(), Bukkit.getOnlinePlayers().size())).setScore(4);
         objective.getScore("§bTime Left: %d".formatted(secondsLeft)).setScore(3);
         objective.getScore(" ").setScore(2);
-        objective.getScore("§dRoot Wars §fon §eLopixel").setScore(1);
+        objective.getScore(ChatColor.translateAlternateColorCodes('&',RootWars.getPlugin().getConfig().getString("server-watermark"))).setScore(1);
 
         Bukkit.getOnlinePlayers().forEach(p -> {
             p.setScoreboard(scoreboard);

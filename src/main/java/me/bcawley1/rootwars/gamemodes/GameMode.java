@@ -11,10 +11,7 @@ import me.bcawley1.rootwars.mixin.ItemStackMixin;
 import me.bcawley1.rootwars.runnables.Regen;
 import me.bcawley1.rootwars.runnables.Respawn;
 import me.bcawley1.rootwars.shop.Shop;
-import me.bcawley1.rootwars.util.GameTeam;
-import me.bcawley1.rootwars.util.Potion;
-import me.bcawley1.rootwars.util.RepeatableEvent;
-import me.bcawley1.rootwars.util.ScheduledEvent;
+import me.bcawley1.rootwars.util.*;
 import me.bcawley1.rootwars.vote.Votable;
 import me.bcawley1.rootwars.vote.Vote;
 import org.bukkit.*;
@@ -90,7 +87,11 @@ public abstract class GameMode implements Listener, Votable {
     @JsonProperty
     protected Shop shop;
     @JsonIgnore
-    private ItemStack item;
+    protected ItemStack item;
+    @JsonProperty
+    protected List<ScoreboardInsert> scoreboardInserts;
+    @JsonIgnore
+    protected List<String> scores = new ArrayList<>();
 
     protected static void registerGameMode(Class<? extends GameMode> classToSer) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -134,6 +135,7 @@ public abstract class GameMode implements Listener, Votable {
 
         //Initializes players.
         Bukkit.getOnlinePlayers().forEach(p -> {
+            p.setGameMode(org.bukkit.GameMode.SURVIVAL);
             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(playerHealth);
             p.setFoodLevel(20);
             p.setHealth(playerHealth);
@@ -234,29 +236,41 @@ public abstract class GameMode implements Listener, Votable {
     }
 
     public void updateScoreboard() {
+        scores = new ArrayList<>();
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("game", Criteria.DUMMY, "%s%sRoot Wars".formatted(ChatColor.YELLOW, ChatColor.BOLD));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        objective.getScore("Teams:").setScore(teams.size() + 5);
-        teams.forEach(t -> {
-            objective.getScore(t.getColor().chatColor + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())).setScore(teams.indexOf(t) + 5);
-        });
-        objective.getScore("  ").setScore(4);
-        long currentGameTick = RootWars.getWorld().getGameTime() - startTick;
-        for (ScheduledEvent event : events) {
-            if (event.getDelay() > currentGameTick) {
-                long ticksUntilEvent = event.getDelay() - currentGameTick;
-                objective.getScore(ChatColor.AQUA + event.getName() + ": " + ChatColor.DARK_GREEN + (ticksUntilEvent > 1200 ? "%s Min".formatted(ticksUntilEvent / 1200) : "%s Sec".formatted(ticksUntilEvent / 20))).setScore(3);
-                break;
-            }
+        updateScores();
+
+        for (int i = 0; i < scores.size(); i++) {
+            objective.getScore(scores.get(i)).setScore(i+1);
         }
-        objective.getScore(" ").setScore(2);
-        objective.getScore(ChatColor.LIGHT_PURPLE + "Root Wars " + ChatColor.WHITE + "on " + ChatColor.YELLOW + "Lopixel").setScore(1);
+
         //sets new scoreboard to players
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.setScoreboard(scoreboard);
         }
+    }
+
+    protected void updateScores(){
+        scores.add(ChatColor.translateAlternateColorCodes('&',RootWars.getPlugin().getConfig().getString("server-watermark")));
+        scores.add(" ");
+
+        long currentGameTick = RootWars.getWorld().getGameTime() - startTick;
+        for (ScheduledEvent event : events) {
+            if (event.getDelay() > currentGameTick) {
+                long ticksUntilEvent = event.getDelay() - currentGameTick;
+                scores.add(ChatColor.AQUA + event.getName() + ": " + ChatColor.DARK_GREEN + (ticksUntilEvent > 1200 ? "%s Min".formatted(ticksUntilEvent / 1200) : "%s Sec".formatted(ticksUntilEvent / 20)));
+                break;
+            }
+        }
+
+        scores.add("  ");
+        teams.forEach(t -> scores.add(t.getColor().chatColor + "%s%s: %s".formatted(t.getName().substring(0, 1).toUpperCase(), t.getName().substring(1), t.hasRoot() && t.numPlayersInTeam() != 0 ? "✔" : t.numPlayersInTeam())));
+        scores.add("Teams:");
+
+        scoreboardInserts.forEach(i -> scores.add(i.getInsertNum(), i.getName()));
     }
 
     @EventHandler
@@ -484,7 +498,6 @@ public abstract class GameMode implements Listener, Votable {
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         for (int i = 0; i < players.size(); i++) {
             teams.get(i % teams.size()).addPlayer(players.get(i).getUniqueId());
-            players.get(i).setGameMode(org.bukkit.GameMode.SURVIVAL);
         }
     }
 

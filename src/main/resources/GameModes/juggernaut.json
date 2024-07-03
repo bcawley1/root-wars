@@ -1,6 +1,6 @@
 {
-  "name": "Two Teams",
-  "description": "There are only two teams instead of 4",
+  "name": "Juggernaut",
+  "description": "One player is given a fully upgraded generator and powerful buffs,\nand the other players must work together to kill them.",
   "respawnTime": 5,
   "playerHealth": 20,
   "regenTime": 20,
@@ -736,11 +736,11 @@
   ],
   "teams": [
     {
-      "name": "Blue",
+      "name": "Juggernaut",
       "color": "BLUE"
     },
     {
-      "name": "Red",
+      "name": "Players",
       "color": "RED"
     }
   ],
