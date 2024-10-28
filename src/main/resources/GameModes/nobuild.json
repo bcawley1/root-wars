@@ -183,7 +183,7 @@
             "name": "Ender Pearl",
             "costAmount": 4,
             "material": "ENDER_PEARL",
-            "costMaterial": "EMERALD",
+            "costMaterial": "GOLD_INGOT",
             "action": "DEFAULT"
           },
           {
@@ -601,7 +601,7 @@
             "name": "Ender Pearl",
             "costAmount": 4,
             "material": "ENDER_PEARL",
-            "costMaterial": "EMERALD",
+            "costMaterial": "GOLD_INGOT",
             "action": "DEFAULT"
           },
           {

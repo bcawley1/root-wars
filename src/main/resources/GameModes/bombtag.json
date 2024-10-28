@@ -729,7 +729,7 @@
   "repeatingEvents": [
     {
       "name": "Bomb Selected",
-      "message": "A bomb has been placed.",
+      "message": "§cA bomb has been placed.",
       "repeatTime": 2400,
       "delay": 0,
       "runnable": "BOMB_SELECT"

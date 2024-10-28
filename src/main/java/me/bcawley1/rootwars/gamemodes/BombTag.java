@@ -39,8 +39,8 @@ public class BombTag extends GameMode {
 
     @Override
     protected void updateScores() {
-        ScoreboardInsert.filter(scoreboardInserts, "bombPlayer").setName(playerBombName + " has the bomb!");
-        ScoreboardInsert.filter(scoreboardInserts, "timeUntilExplode").setName("Explosion: " + ((bombSelectTime + bombSelectTime - RootWars.getWorld().getGameTime()) / 20) + " Sec");
+        ScoreboardInsert.filter(scoreboardInserts, "bombPlayer").setName("§c" + playerBombName + "§6 has the bomb!");
+        ScoreboardInsert.filter(scoreboardInserts, "timeUntilExplode").setName("§bExplosion: §a" + ((bombSelectTime + explodeTime - RootWars.getWorld().getGameTime()) / 20) + " Sec");
         super.updateScores();
         scores.remove(2);
     }
@@ -62,7 +62,7 @@ public class BombTag extends GameMode {
     @Override
     public void onRootBreak(GameTeam team) {
         super.onRootBreak(team);
-        Bukkit.broadcastMessage("The entire %s team has the bomb!".formatted(team.getName()));
+        Bukkit.broadcastMessage("§6The entire %s team has the bomb!".formatted(team.getName()));
         playersWithBomb.clear();
         playersWithBomb.addAll(team.getPlayersInTeam());
         playerBombName = "%s Team".formatted(team.getName());
@@ -81,13 +81,11 @@ public class BombTag extends GameMode {
     @Override
     public void onPlayerDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player p && p.getHealth() - event.getFinalDamage() <= 0 && !playersWithBomb.contains(p.getUniqueId())) {
-            if(GameTeam.getTeam(p.getUniqueId()).hasRoot()) {
-                event.setCancelled(true);
-                respawnPlayer(p.getUniqueId());
-                p.setGameMode(org.bukkit.GameMode.SPECTATOR);
-                p.teleport(GameTeam.getTeam(p.getUniqueId()).getTeamData().getSpawnPoint());
-                startRespawnTimer(respawnTime, p.getUniqueId());
-            }
+            event.setCancelled(true);
+            respawnPlayer(p.getUniqueId());
+            p.setGameMode(org.bukkit.GameMode.SPECTATOR);
+            p.teleport(GameTeam.getTeam(p.getUniqueId()).getTeamData().getSpawnPoint());
+            startRespawnTimer(respawnTime, p.getUniqueId());
         }
     }
 
@@ -100,11 +98,9 @@ public class BombTag extends GameMode {
             ((BombTag) RootWars.getCurrentGameMode()).playerBombName = selectedPlayer.getName();
             selectedPlayer.sendMessage("§4You have the bomb. §6Hit another player to give them the bomb, or break another team's root to give their entire team the bomb!");
             Bukkit.getScheduler().runTaskLater(RootWars.getPlugin(), () -> {
-                ((BombTag) RootWars.getCurrentGameMode()).playersWithBomb.forEach(p -> {
-                    RootWars.getWorld().createExplosion(Bukkit.getPlayer(p).getLocation(), 10, true);
-                });
                 respawnPlayer(selectedPlayer.getUniqueId());
                 selectedPlayer.setGameMode(org.bukkit.GameMode.SPECTATOR);
+                ((BombTag) RootWars.getCurrentGameMode()).playersWithBomb.forEach(p -> RootWars.getWorld().createExplosion(Bukkit.getPlayer(p).getLocation(), 10, true));
                 selectedPlayer.teleport(GameTeam.getTeam(selectedPlayer.getUniqueId()).getTeamData().getSpawnPoint());
                 GameTeam.getTeam(selectedPlayer.getUniqueId()).removePlayer(selectedPlayer.getUniqueId());
 
@@ -120,7 +116,7 @@ public class BombTag extends GameMode {
                 }
 
                 RootWars.getCurrentGameMode().updateScoreboard();
-            }, 2400-5);
+            }, 2400 - 5);
         });
 
         private final Runnable runnable;
